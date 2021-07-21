@@ -185,7 +185,7 @@ public class Scanner {
         Tokens lastToken = td.token;
         adjustSepRegions(lastToken);
         if(next.token == Tokens.EMPTY) {
-            int lastOffset = reader.lastCharOffset;
+            td.lastOffset = reader.lastCharOffset;
             if(currentRegion instanceof InString && lastToken != Tokens.STRINGPART) {
                 fetchStringPart(((InString) currentRegion).multiLine);
             } else fetchToken();
@@ -222,7 +222,7 @@ public class Scanner {
             lookeaheadScanner.allowLeadingInfixOperators = false;
             lookeaheadScanner.nextToken();
             return assumeStartsExpr.apply(lookeaheadScanner.td)
-            || lookeaheadScanner.td.token == Tokens.NEWLINE
+                || lookeaheadScanner.td.token == Tokens.NEWLINE
                 && assumeStartsExpr.apply(lookeaheadScanner.next)
                 && indentWidth(td.offset).lessOrEqual(indentWidth(lookeaheadScanner.next.offset));
         };
@@ -304,9 +304,8 @@ public class Scanner {
         if(newlineIsSeparating
                 && canEndStatTokens.contains(lastToken)
                 && canStartStatTokens().contains(td.token)
-                && !isLeadingInfixOperator(nextWidth, false)
-                && !(lastWidth.less(nextWidth)
-                && isContinuing(lastToken))
+                && !isLeadingInfixOperator(nextWidth, true)
+                && !(lastWidth.less(nextWidth) && isContinuing(lastToken))
         ) {
             if(pastBlankLine()) {
                 insert(Tokens.NEWLINES, td.lineOffset);
@@ -332,7 +331,6 @@ public class Scanner {
             } else if(lastWidth.less(nextWidth)
                 || lastWidth.equals(nextWidth) && (indentPrefix == Tokens.MATCH || indentPrefix == Tokens.CATCH) && td.token != Tokens.CASE
             ) {
-//                System.out.println(String.format("last token: %s", lastToken));
                 if(canStartIndentTokens.contains(lastToken)) {
                     currentRegion = new Indented(nextWidth, new HashSet<>(), lastToken, currentRegion);
                     insert(Tokens.INDENT, td.offset);
@@ -402,7 +400,7 @@ public class Scanner {
 
     public void lookAhead() {
         prev.copyFrom(td);
-        td.lastOffest = reader.lastCharOffset;
+        td.lastOffset = reader.lastCharOffset;
         fetchToken();
     }
 
@@ -427,7 +425,7 @@ public class Scanner {
         Consumer<Tokens> fuse = token -> {
             td.token = token;
             td.offset = prev.offset;
-            td.lastOffest = prev.lastOffest;
+            td.lastOffset = prev.lastOffset;
             td.lineOffset = prev.lineOffset;
         };
         switch(td.token){
@@ -458,6 +456,7 @@ public class Scanner {
                 if(!isEndMarker()) {
                     td.token = IDENTIFIER;
                 }
+                break;
             case COLON:
                 observeColonEOL();
                 break;
@@ -502,12 +501,12 @@ public class Scanner {
 
     private boolean pastBlankLine() {
         int end = td.offset;
-        return pastBlankLineRecur(td.lastOffest, false, end);
+        return pastBlankLineRecur(td.lastOffset, false, end);
     }
 
     private void fetchToken() {
         td.offset = reader.charOffset - 1;
-        td.lineOffset = td.lastOffest < reader.lineStartOffset ? reader.lineStartOffset : -1;
+        td.lineOffset = td.lastOffset < reader.lineStartOffset ? reader.lineStartOffset : -1;
         td.name = null;
         char ch = reader.ch;
         if(ch == ' ' || ch == '\t' || ch == CR || ch == LF || ch == FF) {
@@ -971,7 +970,7 @@ public class Scanner {
             } else if (Character.isUnicodeIdentifierStart(reader.ch) || reader.ch == '_') {
                 setStrVal();
                 td.token = STRINGPART;
-                next.lastOffest = reader.charOffset - 1;
+                next.lastOffset = reader.charOffset - 1;
                 next.offset = reader.charOffset - 1;
                 putChar(reader.ch);
                 reader.nextRawChar();

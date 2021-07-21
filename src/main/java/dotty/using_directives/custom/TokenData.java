@@ -3,7 +3,7 @@ package dotty.using_directives.custom;
 public class TokenData {
     public Tokens token = Tokens.EMPTY;
     public int offset = 0;
-    public int lastOffest = 0;
+    public int lastOffset = 0;
     public int lineOffset = -1;
     public String name = null;
     public String strVal = null;
@@ -12,7 +12,7 @@ public class TokenData {
     public void copyFrom(TokenData td) {
         this.token = td.token;
         this.offset = td.offset;
-        this.lastOffest = td.lastOffest;
+        this.lastOffset = td.lastOffset;
         this.lineOffset = td.lineOffset;
         this.name = td.name;
         this.strVal = td.strVal;

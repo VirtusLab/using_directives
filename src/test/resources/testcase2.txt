@@ -1,7 +1,7 @@
-@using
+@using:
   cs.repository "~/.m2/local"
   lib:
-    cs "org.scalameta :: munit : 0.4.3";
+    cs "org.scalameta :: munit : 0.4.3"
     cs "com.atlassian.commonmark:commonmark:0.13.1"
     file "../libs/Lib.jar"
   compiler:

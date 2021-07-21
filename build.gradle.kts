@@ -22,4 +22,5 @@ sourceSets {
 
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
+    testLogging.showStandardStreams = true
 }
