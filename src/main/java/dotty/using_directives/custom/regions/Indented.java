@@ -14,7 +14,7 @@ public class Indented extends Region {
 
     @Override
     public Region outer() {
-        return null;
+        return outer;
     }
 
     @Override
