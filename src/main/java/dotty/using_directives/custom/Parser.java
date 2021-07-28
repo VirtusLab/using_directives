@@ -99,7 +99,7 @@ public class Parser {
                 return key;
             }
         }
-        return "";
+        return null;
     }
 
     SettingDefOrUsingValue valueOrSetting() {
@@ -118,7 +118,10 @@ public class Parser {
             in.nextToken();
             UsingValue rest = value();
             if(rest instanceof UsingPrimitive) {
-                return new UsingValues(Arrays.asList(p, (UsingPrimitive)p));
+                ArrayList<UsingPrimitive> res = new ArrayList<>();
+                res.add(p);
+                res.add((UsingPrimitive)rest);
+                return new UsingValues(res);
             } else {
                 ((UsingValues)rest).values.add(0, p);
                 return rest;
@@ -140,6 +143,11 @@ public class Parser {
     UsingPrimitive primitive() {
         if(in.td.token == Tokens.STRINGLIT) {
             return new StringLiteral(in.td.strVal);
+        } else if (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("-")) {
+            in.nextToken();
+            if (numericTokens.contains(in.td.token)) {
+                return new NumericLiteral("-" + in.td.strVal);
+            }
         } else if (numericTokens.contains(in.td.token)) {
             //TODO check negative
             return new NumericLiteral(in.td.strVal);

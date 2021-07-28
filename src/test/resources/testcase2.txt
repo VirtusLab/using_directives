@@ -9,5 +9,5 @@
     setting "-Xfatal-warnings"
     setting "-d ~/classes"
   scalafmt:
-    indent 2
+    indent -2, "XD", false
     optionalBraces true
