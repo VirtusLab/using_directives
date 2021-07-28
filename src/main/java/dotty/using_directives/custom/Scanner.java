@@ -16,6 +16,8 @@ import static dotty.using_directives.custom.regions.Region.topLevelRegion;
 import static dotty.using_directives.custom.utils.Chars.*;
 import static dotty.using_directives.custom.utils.TokenUtils.*;
 
+import java.util.concurrent.TimeUnit;
+
 public class Scanner {
 
     private boolean debug = false;
@@ -183,6 +185,7 @@ public class Scanner {
 
     public void nextToken() {
         Tokens lastToken = td.token;
+        String lastName = td.name;
         adjustSepRegions(lastToken);
         if(next.token == Tokens.EMPTY) {
             td.lastOffset = reader.lastCharOffset;
@@ -195,7 +198,7 @@ public class Scanner {
             next.token = Tokens.EMPTY;
         }
 
-        if(td.isAfterLineEnd()) handleNewLine(lastToken);
+        if(td.isAfterLineEnd()) handleNewLine(lastToken, lastName);
         postProcessToken();
         printState();
     }
@@ -282,7 +285,7 @@ public class Scanner {
     }
 
 
-    public void handleNewLine(Tokens lastToken) {
+    public void handleNewLine(Tokens lastToken, String lastName) {
         boolean indentIsSignificant = false;
         boolean newlineIsSeparating = false;
         IndentWidth lastWidth = IndentWidth.Zero();
@@ -306,6 +309,7 @@ public class Scanner {
                 && canStartStatTokens().contains(td.token)
                 && !isLeadingInfixOperator(nextWidth, true)
                 && !(lastWidth.less(nextWidth) && isContinuing(lastToken))
+                && (lastName == null || !lastName.equals("using")) //TODO sad_pepe hack
         ) {
             if(pastBlankLine()) {
                 insert(Tokens.NEWLINES, td.lineOffset);
@@ -331,7 +335,7 @@ public class Scanner {
             } else if(lastWidth.less(nextWidth)
                 || lastWidth.equals(nextWidth) && (indentPrefix == Tokens.MATCH || indentPrefix == Tokens.CATCH) && td.token != Tokens.CASE
             ) {
-                if(canStartIndentTokens.contains(lastToken)) {
+                if(canStartIndentTokens.contains(lastToken) || (lastName != null && lastName.equals("using"))) { //TODO sad_pepe hack
                     currentRegion = new Indented(nextWidth, new HashSet<>(), lastToken, currentRegion);
                     insert(Tokens.INDENT, td.offset);
                 } else if(lastToken == Tokens.SELFARROW) {

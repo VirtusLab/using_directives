@@ -1,4 +1,4 @@
-@using:
+@using
   cs.repository "~/.m2/local"
   lib:
     cs "org.scalameta :: munit : 0.4.3"
