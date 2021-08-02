@@ -1,3 +1,9 @@
 package dotty.using_directives.custom.utils.ast;
 
-public abstract class UsingValue extends SettingDefOrUsingValue { }
+import dotty.using_directives.custom.utils.Position;
+
+public abstract class UsingValue extends SettingDefOrUsingValue {
+    public UsingValue(Position position) {
+        super(position);
+    }
+}

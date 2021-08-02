@@ -1,5 +1,6 @@
 package dotty.using_directives.custom;
 
+import dotty.using_directives.custom.utils.Source;
 import dotty.using_directives.custom.utils.ast.*;
 
 import java.util.ArrayList;
@@ -10,11 +11,11 @@ import java.util.concurrent.TimeUnit;
 
 public class Parser {
 
-    char[] source;
+    Source source;
 
-    public Parser(char[] source) {
+    public Parser(Source source) {
         this.source = source;
-        this.in = new Scanner(source, 0);
+        this.in = new Scanner(source.getContent(), 0);
     }
 
     Scanner in;
@@ -42,21 +43,23 @@ public class Parser {
     UsingTree usingDirectives() {
         ArrayList<UsingDef> usingTrees = new ArrayList<>();
         UsingDef ud = usingDirective();
+        int offset = in.td.offset;
         while(ud != null) {
             usingTrees.add(ud);
             in.nextToken();
             ud = usingDirective();
         }
-        return new UsingDefs(usingTrees);
+        return new UsingDefs(usingTrees, source.getPositionFromOffset(offset));
     }
 
     UsingDef usingDirective() {
         if (in.td.token == Tokens.AT) {
             in.nextToken();
             if (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("using")) {
+                int offset = in.td.offset;
                 in.nextToken();
                 // in.observeIndented();
-                return new UsingDef(settings());
+                return new UsingDef(settings(), source.getPositionFromOffset(offset));
             }
         }
         return null;
@@ -64,6 +67,7 @@ public class Parser {
 
     SettingDefs settings() {
         ArrayList<SettingDef> settings = new ArrayList<>();
+        int offset = in.td.offset;
         if(in.td.token == Tokens.INDENT) {
             in.nextToken();
             while(in.td.token != Tokens.OUTDENT) {
@@ -79,13 +83,14 @@ public class Parser {
         } else {
             settings.add(setting());
         }
-        return new SettingDefs(settings);
+        return new SettingDefs(settings, source.getPositionFromOffset(offset));
     }
 
     SettingDef setting() {
+        int offset = in.td.offset;
         String key = key();
         SettingDefOrUsingValue value = valueOrSetting();
-        return new SettingDef(key, value);
+        return new SettingDef(key, value, source.getPositionFromOffset(offset));
     }
 
     String key() {
@@ -113,6 +118,7 @@ public class Parser {
 
     UsingValue value() {
         UsingPrimitive p = primitive();
+        int offset = in.td.offset;
         in.nextToken();
         if(in.td.token == Tokens.COMMA) {
             in.nextToken();
@@ -121,7 +127,7 @@ public class Parser {
                 ArrayList<UsingPrimitive> res = new ArrayList<>();
                 res.add(p);
                 res.add((UsingPrimitive)rest);
-                return new UsingValues(res);
+                return new UsingValues(res, source.getPositionFromOffset(offset));
             } else {
                 ((UsingValues)rest).values.add(0, p);
                 return rest;
@@ -142,19 +148,19 @@ public class Parser {
 
     UsingPrimitive primitive() {
         if(in.td.token == Tokens.STRINGLIT) {
-            return new StringLiteral(in.td.strVal);
+            return new StringLiteral(in.td.strVal, source.getPositionFromOffset(in.td.offset));
         } else if (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("-")) {
             in.nextToken();
             if (numericTokens.contains(in.td.token)) {
-                return new NumericLiteral("-" + in.td.strVal);
+                return new NumericLiteral("-" + in.td.strVal, source.getPositionFromOffset(in.td.offset));
             }
         } else if (numericTokens.contains(in.td.token)) {
             //TODO check negative
-            return new NumericLiteral(in.td.strVal);
+            return new NumericLiteral(in.td.strVal, source.getPositionFromOffset(in.td.offset));
         } else if (in.td.token == Tokens.TRUE) {
-            return new BooleanLiteral(true);
+            return new BooleanLiteral(true, source.getPositionFromOffset(in.td.offset));
         } else if (in.td.token == Tokens.FALSE) {
-            return new BooleanLiteral(false);
+            return new BooleanLiteral(false, source.getPositionFromOffset(in.td.offset));
         }
         return null;
     }

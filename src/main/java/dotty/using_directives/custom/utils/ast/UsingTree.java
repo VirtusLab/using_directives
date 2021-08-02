@@ -1,3 +1,9 @@
 package dotty.using_directives.custom.utils.ast;
 
-public abstract class UsingTree { }
+import dotty.using_directives.custom.utils.Position;
+
+public abstract class UsingTree extends Positioned {
+    public UsingTree(Position position) {
+        super(position);
+    }
+}
