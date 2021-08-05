@@ -5,14 +5,24 @@ import dotty.using_directives.custom.utils.Position;
 import java.util.List;
 
 public class UsingDefs extends UsingTree {
-    List<UsingDef> usingdefs;
-    public UsingDefs(List<UsingDef> usingdefs, Position position) {
+    private List<UsingDef> usingDefs;
+    public UsingDefs(List<UsingDef> usingDefs, Position position) {
         super(position);
-        this.usingdefs = usingdefs;
+        this.usingDefs = usingDefs;
     }
+
+    public List<UsingDef> getUsingDefs() {
+        return usingDefs;
+    }
+
+    public void setUsingDefs(List<UsingDef> usingDefs) {
+        this.usingDefs = usingDefs;
+    }
+
+    public UsingDefs(){ }
 
     @Override
     public String toString() {
-        return "UsingDefs(" + usingdefs + ")";
+        return "UsingDefs(" + usingDefs + ")";
     }
 }

@@ -4,15 +4,25 @@ import dotty.using_directives.custom.utils.Position;
 
 
 public class UsingDef extends UsingTree {
-    SettingDefs settings;
+    private SettingDefs settingDefs;
 
     public UsingDef(SettingDefs settings, Position position) {
         super(position);
-        this.settings = settings;
+        this.settingDefs = settings;
+    }
+
+    public UsingDef() { }
+
+    public void setSettingDefs(SettingDefs settingDefs) {
+        this.settingDefs = settingDefs;
     }
 
     @Override
     public String toString() {
-        return "UsingDef(" + settings + ")";
+        return "UsingDef(" + settingDefs + ")";
+    }
+
+    public SettingDefs getSettingDefs() {
+        return settingDefs;
     }
 }

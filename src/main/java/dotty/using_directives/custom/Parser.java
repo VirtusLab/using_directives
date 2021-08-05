@@ -57,7 +57,7 @@ public class Parser {
             case LBRACE:
                 return enclosed(LBRACE, callback);
             default:
-                return null;
+                return callback.get();
                 // report error
         }
     }
@@ -184,7 +184,7 @@ public class Parser {
     }
 
     SettingDefOrUsingValue valueOrSetting() {
-        if(literalTokens.contains(in.td.token)) {
+        if(literalTokens.contains(in.td.token) || (in.td.token == IDENTIFIER && in.td.name.equals("-"))) {
             return value();
         }
         else {

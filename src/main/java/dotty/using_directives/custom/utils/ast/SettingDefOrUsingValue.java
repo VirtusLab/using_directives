@@ -6,4 +6,6 @@ public abstract class SettingDefOrUsingValue extends UsingTree {
     public SettingDefOrUsingValue(Position position) {
         super(position);
     }
+
+    public SettingDefOrUsingValue() { }
 }

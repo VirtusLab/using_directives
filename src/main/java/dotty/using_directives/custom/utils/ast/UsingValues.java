@@ -12,6 +12,16 @@ public class UsingValues extends UsingValue {
         this.values = values;
     }
 
+    public UsingValues() { }
+
+    public List<UsingPrimitive> getValues() {
+        return values;
+    }
+
+    public void setValues(List<UsingPrimitive> values) {
+        this.values = values;
+    }
+
     @Override
     public String toString() {
         return "UsingValues(" + values + ')';

@@ -6,4 +6,6 @@ public abstract class UsingValue extends SettingDefOrUsingValue {
     public UsingValue(Position position) {
         super(position);
     }
+
+    public UsingValue() { }
 }

@@ -6,4 +6,5 @@ public abstract class UsingPrimitive extends UsingValue {
     public UsingPrimitive(Position position) {
         super(position);
     }
+    public UsingPrimitive() { }
 }

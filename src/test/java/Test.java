@@ -1,23 +1,26 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dotty.using_directives.custom.Parser;
-import dotty.using_directives.custom.utils.*;
-import dotty.using_directives.custom.utils.ast.UsingTree;
+import dotty.using_directives.custom.utils.Source;
+import dotty.using_directives.custom.utils.ast.*;
+import json.CustomGsonInstance;
+import json.CustomSettingDefOrUsingValueAdapter;
+import json.CustomUsingPrimitivesAdapter;
+import json.CustomUsingValueAdapter;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
-public class Test {
+public class Test extends TestUtils {
     @org.junit.jupiter.api.Test
     public void test() throws IOException, URISyntaxException {
-        String tc1 = "testcase2.txt";
-        char[] content = new String(Files.readAllBytes(Paths.get(getClass().getResource(tc1).toURI()))).toCharArray();
-        Source source = new Source(content);
+        Gson gson = CustomGsonInstance.get();
+        UsingTree ast = new Parser(new Source(getContent("parser_tests/inputs/testcase1.txt").toCharArray())).parse();
+        String json = gson.toJson(ast);
+        System.out.println(json);
 
-        Parser parser = new Parser(source);
-        UsingTree tree = parser.parse();
-        System.out.println(tree.toString());
+        UsingTree parsedAst = gson.fromJson(json, UsingDefs.class);
+        System.out.println(parsedAst);
     }
 
 }

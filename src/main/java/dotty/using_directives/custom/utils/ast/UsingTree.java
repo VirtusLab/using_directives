@@ -6,4 +6,6 @@ public abstract class UsingTree extends Positioned {
     public UsingTree(Position position) {
         super(position);
     }
+
+    public UsingTree() { }
 }
