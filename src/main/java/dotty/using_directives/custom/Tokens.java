@@ -54,6 +54,7 @@ public enum Tokens {
     COLON(":"),
     EQUALS("="),
     AT("@"),
+    ATUSING("@using"),
     LPAREN("'('"),
     RPAREN("')'"),
     LBRACKET("'['"),

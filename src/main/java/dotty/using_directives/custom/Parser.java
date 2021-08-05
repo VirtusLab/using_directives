@@ -4,10 +4,16 @@ import dotty.using_directives.custom.utils.Source;
 import dotty.using_directives.custom.utils.ast.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Arrays;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+
+import static dotty.using_directives.custom.Tokens.*;
+import static dotty.using_directives.custom.utils.TokenUtils.literalTokens;
+import static dotty.using_directives.custom.utils.TokenUtils.tokenFromInt;
 
 public class Parser {
 
@@ -19,6 +25,67 @@ public class Parser {
     }
 
     Scanner in;
+
+    /* Combinators */
+
+    public boolean isStatSep() {
+        return in.td.isNewLine() || in.td.token == SEMI;
+    }
+
+    public void accept(Tokens token) {
+        if(in.td.token == token) {
+            in.nextToken();
+        }
+        else {
+            // error(Expected token but found td.token)
+        }
+    }
+
+    public <T> T enclosed(Tokens token, Supplier<T> callback) {
+        accept(token);
+        try {
+            return callback.get();
+        } finally {
+            accept(tokenFromInt(token.ordinal() + 1));
+        }
+    }
+
+    public <T> T inBracesOrIndented(Supplier<T> callback) {
+        switch(in.td.token) {
+            case INDENT:
+                return enclosed(INDENT, callback);
+            case LBRACE:
+                return enclosed(LBRACE, callback);
+            default:
+                return null;
+                // report error
+        }
+    }
+
+    public void possibleTemplateStart() {
+        in.observeColonEOL();
+        if(in.td.token == COLONEOL) {
+            if(in.lookahead().token == END) {
+                in.td.token = NEWLINE;
+            }
+            else {
+                in.nextToken();
+                if(in.td.token != INDENT && in.td.token != LBRACE) {
+                    // error(i"indented definitions expected, ${in} found")
+                }
+            }
+        } else {
+            newLineOptWhenFollowedBy(LBRACE);
+        }
+    }
+
+    public void newLineOptWhenFollowedBy(Tokens token) {
+        if(in.td.token == NEWLINE && in.next.token == token) {
+            in.nextToken();
+        }
+    }
+
+    /* */
 
     Integer nameStart() {
         if (in.td.token == Tokens.BACKQUOTED_IDENT) {
@@ -53,35 +120,44 @@ public class Parser {
     }
 
     UsingDef usingDirective() {
-        if (in.td.token == Tokens.AT) {
-            in.nextToken();
-            if (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("using")) {
+        if (in.td.token == Tokens.ATUSING) {
                 int offset = in.td.offset;
                 in.nextToken();
                 // in.observeIndented();
                 return new UsingDef(settings(), source.getPositionFromOffset(offset));
-            }
         }
         return null;
     }
 
+    private List<SettingDef> parseSettings() {
+        if(isStatSep()) {
+            in.nextToken();
+            if(in.td.token == IDENTIFIER) {
+                List<SettingDef> settings = new ArrayList<>();
+                settings.add(setting());
+                settings.addAll(parseSettings());
+                return settings;
+            } else {
+                return parseSettings();
+            }
+        } else if(in.td.token == IDENTIFIER) {
+            List<SettingDef> settings = new ArrayList<>();
+            settings.add(setting());
+            settings.addAll(parseSettings());
+            return settings;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
     SettingDefs settings() {
+        possibleTemplateStart();
         ArrayList<SettingDef> settings = new ArrayList<>();
         int offset = in.td.offset;
-        if(in.td.token == Tokens.INDENT) {
-            in.nextToken();
-            while(in.td.token != Tokens.OUTDENT) {
-                if(in.td.token == Tokens.NEWLINE) {
-                    in.nextToken();
-                }
-                settings.add(setting());
-            }
-            in.nextToken();
-            if(in.td.token == Tokens.NEWLINE) {
-                in.nextToken();
-            }
-        } else {
+        if(in.td.token == IDENTIFIER) {
             settings.add(setting());
+        } else {
+            settings.addAll(inBracesOrIndented(this::parseSettings));
         }
         return new SettingDefs(settings, source.getPositionFromOffset(offset));
     }
@@ -108,11 +184,11 @@ public class Parser {
     }
 
     SettingDefOrUsingValue valueOrSetting() {
-        if(in.td.token == Tokens.COLONEOL) {
-            in.nextToken();
-            return settings();
-        } else {
+        if(literalTokens.contains(in.td.token)) {
             return value();
+        }
+        else {
+            return settings();
         }
     }
 

@@ -309,7 +309,7 @@ public class Scanner {
                 && canStartStatTokens().contains(td.token)
                 && !isLeadingInfixOperator(nextWidth, true)
                 && !(lastWidth.less(nextWidth) && isContinuing(lastToken))
-                && (lastName == null || !lastName.equals("using")) //TODO sad_pepe hack
+                && (lastName == null || lastToken != ATUSING) //TODO sad_pepe hack
         ) {
             if(pastBlankLine()) {
                 insert(Tokens.NEWLINES, td.lineOffset);
@@ -335,7 +335,7 @@ public class Scanner {
             } else if(lastWidth.less(nextWidth)
                 || lastWidth.equals(nextWidth) && (indentPrefix == Tokens.MATCH || indentPrefix == Tokens.CATCH) && td.token != Tokens.CASE
             ) {
-                if(canStartIndentTokens.contains(lastToken) || (lastName != null && lastName.equals("using"))) { //TODO sad_pepe hack
+                if(canStartIndentTokens.contains(lastToken)) { //TODO sad_pepe hack
                     currentRegion = new Indented(nextWidth, new HashSet<>(), lastToken, currentRegion);
                     insert(Tokens.INDENT, td.offset);
                 } else if(lastToken == Tokens.SELFARROW) {
@@ -433,6 +433,14 @@ public class Scanner {
             td.lineOffset = prev.lineOffset;
         };
         switch(td.token){
+            case AT:
+                lookAhead();
+                if(td.token == IDENTIFIER && td.name.equals("using")) {
+                    fuse.accept(ATUSING);
+                } else {
+                    reset();
+                }
+                break;
             case CASE:
                 lookAhead();
                 if(td.token == CLASS) fuse.accept(CASECLASS);
@@ -462,7 +470,7 @@ public class Scanner {
                 }
                 break;
             case COLON:
-                observeColonEOL();
+//                observeColonEOL();
                 break;
             case RBRACE:
             case RPAREN:

@@ -21,6 +21,12 @@ public class TokenUtils {
         return set;
     }
 
+    private static Map<Integer, Tokens> tokensMap = Arrays.stream(values()).collect(Collectors.toMap(Enum::ordinal, t -> t));
+
+    public static Tokens tokenFromInt(int value) {
+        return tokensMap.get(value);
+    }
+
     public static boolean isIdentifier(Tokens token) {
         return token.ordinal() >= IDENTIFIER.ordinal() && token.ordinal() <= BACKQUOTED_IDENT.ordinal();
     }
@@ -219,6 +225,7 @@ public class TokenUtils {
     private static Set<Tokens> canStartIndentTokens() {
         Set<Tokens> set = new HashSet<>(statCtdTokens());
 //        set.addAll(identifierTokens);
+        set.add(ATUSING);
         set.add(COLONEOL);
         set.add(WITH);
         set.add(EQUALS);
