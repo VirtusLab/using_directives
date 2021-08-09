@@ -11,3 +11,4 @@
   scalafmt:
     indent -2, "XD", false
     optionalBraces true
+

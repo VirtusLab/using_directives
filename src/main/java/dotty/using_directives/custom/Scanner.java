@@ -1,6 +1,9 @@
 package dotty.using_directives.custom;
 
 import dotty.using_directives.custom.regions.*;
+import dotty.using_directives.custom.reporter.ConsoleReporter;
+import dotty.using_directives.custom.reporter.Reporter;
+import dotty.using_directives.custom.utils.Source;
 
 import java.util.Deque;
 import java.util.HashSet;
@@ -20,26 +23,39 @@ import java.util.concurrent.TimeUnit;
 
 public class Scanner {
 
+    private Reporter reporter;
+    private Source source;
     private boolean debug = false;
     public boolean allowLeadingInfixOperators = true;
 
-    public Scanner(char[] source, int startFrom) {
-        reader = new CustomCharArrayReader(source, this::errorButContinue);
+    public Scanner(Source source, int startFrom) {
+        this(source, startFrom, new ConsoleReporter());
+    }
+
+    public Scanner(Source source, int startFrom, boolean debug) {
+        this(source, startFrom);
+        this.debug = debug;
+    }
+
+    public Scanner(Source source, int startFrom, Reporter reporter) {
+        this.source = source;
+        this.reporter = reporter;
+        reader = new CustomCharArrayReader(source.getContent(), this::errorButContinue);
         reader.startFrom = startFrom;
         reader.nextChar();
         nextToken();
         currentRegion = topLevelRegion(indentWidth(td.offset));
     }
 
-    public Scanner(char[] source, int startFrom, boolean debug) {
-        this(source, startFrom);
+    public Scanner(Source source, int startFrom, Reporter reporter, boolean debug) {
+        this(source, startFrom, reporter);
         this.debug = debug;
     }
 
 
     class LookaheadScanner extends Scanner {
         public LookaheadScanner() {
-            super(Scanner.this.reader.buf, Scanner.this.reader.startFrom);
+            super(Scanner.this.source, Scanner.this.reader.startFrom, reporter);
         }
     }
 
@@ -50,7 +66,7 @@ public class Scanner {
     private int errOffset = -1;
 
     private void error(String msg, int offset) {
-        System.out.println(msg);
+        reporter.error(source.getPositionFromOffset(offset), msg);
     }
 
     private void error(String msg) {
@@ -58,11 +74,11 @@ public class Scanner {
     }
 
     private void errorButContinue(String msg, int offset) {
-        System.out.println(msg);
+        reporter.error(source.getPositionFromOffset(offset), msg);
     }
 
     private void incompleteInputError(String msg) {
-        System.out.println(msg);
+        reporter.error("Incomplete input");
     }
 
     private final Deque<Character> litBuf = new LinkedList<>();
@@ -309,7 +325,7 @@ public class Scanner {
                 && canStartStatTokens().contains(td.token)
                 && !isLeadingInfixOperator(nextWidth, true)
                 && !(lastWidth.less(nextWidth) && isContinuing(lastToken))
-                && (lastName == null || lastToken != ATUSING) //TODO sad_pepe hack
+                && (lastName == null || lastToken != ATUSING)
         ) {
             if(pastBlankLine()) {
                 insert(Tokens.NEWLINES, td.lineOffset);
@@ -329,7 +345,7 @@ public class Scanner {
                         currentRegion = currentRegion.enclosing();
                         insert(OUTDENT, td.offset);
                     } else if(currentRegion instanceof InBraces && !closingRegionTokens.contains(td.token)) {
-                        // TODO: Implement reporting
+                        reporter.error(String.format("Expected closing region token but found %s", td.token));
                     }
                 }
             } else if(lastWidth.less(nextWidth)
@@ -475,10 +491,9 @@ public class Scanner {
             case RBRACE:
             case RPAREN:
             case RBRACKET:
+            case EOF:
                 closeIndented();
                 break;
-            case EOF:
-                // if !source.maybeIncomplete then closeIndented()
             default:
                 break;
 

@@ -6,8 +6,10 @@ import java.util.List;
 
 public class UsingDefs extends UsingTree {
     private List<UsingDef> usingDefs;
-    public UsingDefs(List<UsingDef> usingDefs, Position position) {
+    private int codeOffset;
+    public UsingDefs(List<UsingDef> usingDefs, int codeOffset, Position position) {
         super(position);
+        this.codeOffset = codeOffset;
         this.usingDefs = usingDefs;
     }
 
@@ -17,6 +19,14 @@ public class UsingDefs extends UsingTree {
 
     public void setUsingDefs(List<UsingDef> usingDefs) {
         this.usingDefs = usingDefs;
+    }
+
+    public int getCodeOffset() {
+        return codeOffset;
+    }
+
+    public void setCodeOffset(int codeOffset) {
+        this.codeOffset = codeOffset;
     }
 
     public UsingDefs(){ }

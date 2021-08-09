@@ -8,7 +8,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Visitor {
-    public UsingDirectives visit(UsingTree root) {
+    private final UsingTree root;
+
+    public Visitor(UsingTree root) {
+        this.root = root;
+    }
+
+    public UsingDirectives visit() {
         Map<String, ValueOrSetting<?>> rawView = new HashMap<>(visitSettings(root));
         Map<Path, Value<?>> flattenView = flatten(rawView);
         Map<String, ValueOrSetting<?>> nestedView = nest(rawView);

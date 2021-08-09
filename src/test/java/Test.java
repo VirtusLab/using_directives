@@ -15,12 +15,9 @@ public class Test extends TestUtils {
     @org.junit.jupiter.api.Test
     public void test() throws IOException, URISyntaxException {
         Gson gson = CustomGsonInstance.get();
-        UsingTree ast = new Parser(new Source(getContent("parser_tests/inputs/testcase1.txt").toCharArray())).parse();
-        String json = gson.toJson(ast);
-        System.out.println(json);
-
-        UsingTree parsedAst = gson.fromJson(json, UsingDefs.class);
-        System.out.println(parsedAst);
+        UsingTree ast = new Parser(new Source(getContent("parser_tests/inputs/testcase6.txt").toCharArray())).parse();
+        int codeOffset = ((UsingDefs) ast).getCodeOffset();
+        System.out.println(getContent("parser_tests/inputs/testcase6.txt").substring(codeOffset));
     }
 
 }

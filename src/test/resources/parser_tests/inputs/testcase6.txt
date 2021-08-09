@@ -4,3 +4,8 @@
     lib.cs "com.atlassian.commonmark:commonmark:0.13.1"
 @using
     compiler.setting "-Xfatal-warnings", "-d ~/classes"
+
+
+package a
+
+val a: Int = 2 + 2

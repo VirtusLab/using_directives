@@ -1,5 +1,7 @@
 package dotty.using_directives.custom;
 
+import dotty.using_directives.custom.reporter.ConsoleReporter;
+import dotty.using_directives.custom.reporter.Reporter;
 import dotty.using_directives.custom.utils.Source;
 import dotty.using_directives.custom.utils.ast.*;
 
@@ -17,16 +19,33 @@ import static dotty.using_directives.custom.utils.TokenUtils.tokenFromInt;
 
 public class Parser {
 
-    Source source;
+    private Source source;
+
+    private Reporter reporter;
 
     public Parser(Source source) {
+        this.reporter = new ConsoleReporter();
         this.source = source;
-        this.in = new Scanner(source.getContent(), 0);
+        this.in = new Scanner(source, 0, reporter);
+    }
+
+    public Parser(Source source, Reporter reporter) {
+        this.reporter = reporter;
+        this.source = source;
+        this.in = new Scanner(source, 0, reporter);
     }
 
     Scanner in;
 
     /* Combinators */
+
+    private void error(String msg, int offset) {
+        reporter.error(source.getPositionFromOffset(offset), msg);
+    }
+
+    private void error(String msg) {
+        error(msg, in.td.offset);
+    }
 
     public boolean isStatSep() {
         return in.td.isNewLine() || in.td.token == SEMI;
@@ -37,7 +56,9 @@ public class Parser {
             in.nextToken();
         }
         else {
-            // error(Expected token but found td.token)
+            error(
+                    String.format("Expected token %s but found %s", token.str, in.td.token.str)
+            );
         }
     }
 
@@ -57,8 +78,8 @@ public class Parser {
             case LBRACE:
                 return enclosed(LBRACE, callback);
             default:
+                error(String.format("Expected indent or braces but found %s", in.td.token.str));
                 return callback.get();
-                // report error
         }
     }
 
@@ -71,7 +92,7 @@ public class Parser {
             else {
                 in.nextToken();
                 if(in.td.token != INDENT && in.td.token != LBRACE) {
-                    // error(i"indented definitions expected, ${in} found")
+                    error(String.format("Expected indent or braces but found %s", in.td.token.str));
                 }
             }
         } else {
@@ -98,13 +119,7 @@ public class Parser {
 
     public UsingTree parse() {
         UsingTree t = usingDirectives();
-        //TODO return rest of the code
         return t;
-    }
-
-    UsingTree atSpan(Integer start, Integer startName, UsingTree ut) {
-        //TODO IMPLEMENT Spans
-        return ut;
     }
 
     UsingTree usingDirectives() {
@@ -116,29 +131,29 @@ public class Parser {
             in.nextToken();
             ud = usingDirective();
         }
-        return new UsingDefs(usingTrees, source.getPositionFromOffset(offset));
+        return new UsingDefs(usingTrees, in.td.offset, source.getPositionFromOffset(offset));
     }
 
     UsingDef usingDirective() {
         if (in.td.token == Tokens.ATUSING) {
-                int offset = in.td.offset;
-                in.nextToken();
-                // in.observeIndented();
-                return new UsingDef(settings(), source.getPositionFromOffset(offset));
+            int offset = in.td.offset;
+            in.nextToken();
+            return new UsingDef(settings(), source.getPositionFromOffset(offset));
         }
+
         return null;
     }
 
     private List<SettingDef> parseSettings() {
         if(isStatSep()) {
-            in.nextToken();
-            if(in.td.token == IDENTIFIER) {
+            if(in.lookahead().token == IDENTIFIER) {
+                in.nextToken();
                 List<SettingDef> settings = new ArrayList<>();
                 settings.add(setting());
                 settings.addAll(parseSettings());
                 return settings;
             } else {
-                return parseSettings();
+                return new ArrayList<>();
             }
         } else if(in.td.token == IDENTIFIER) {
             List<SettingDef> settings = new ArrayList<>();
@@ -180,6 +195,7 @@ public class Parser {
                 return key;
             }
         }
+        error(String.format("Expected identifier but found %s", in.td.token.str));
         return null;
     }
 
@@ -225,19 +241,22 @@ public class Parser {
     UsingPrimitive primitive() {
         if(in.td.token == Tokens.STRINGLIT) {
             return new StringLiteral(in.td.strVal, source.getPositionFromOffset(in.td.offset));
-        } else if (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("-")) {
+        }
+        else if (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("-")) {
             in.nextToken();
             if (numericTokens.contains(in.td.token)) {
                 return new NumericLiteral("-" + in.td.strVal, source.getPositionFromOffset(in.td.offset));
+            } else {
+                error(String.format("Expected numeric value but found %s", in.td.token.str));
             }
         } else if (numericTokens.contains(in.td.token)) {
-            //TODO check negative
             return new NumericLiteral(in.td.strVal, source.getPositionFromOffset(in.td.offset));
         } else if (in.td.token == Tokens.TRUE) {
             return new BooleanLiteral(true, source.getPositionFromOffset(in.td.offset));
         } else if (in.td.token == Tokens.FALSE) {
             return new BooleanLiteral(false, source.getPositionFromOffset(in.td.offset));
         }
+        error(String.format("Expected primitive value but found %s", in.td.token.str));
         return null;
     }
 }
