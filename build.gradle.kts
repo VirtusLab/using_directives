@@ -1,9 +1,18 @@
+import org.gradle.api.publish.PublishingExtension
+
 plugins {
     java
+    `maven-publish`
+    signing
+    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
+}
+
+apply {
+    from("${rootDir}/scripts/publish-root.gradle")
 }
 
 group = "com.virtuslab"
-version = "1.0-SNAPSHOT"
+version = "0.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -21,7 +30,91 @@ sourceSets {
     }
 }
 
+tasks {
+   val javadocJar by creating(Jar::class) {
+        dependsOn.add(javadoc)
+        archiveClassifier.set("javadoc")
+        from(javadoc)
+    }
+
+    val sourcesJar by creating(Jar::class) {
+        archiveClassifier.set("sources")
+        from(sourceSets.main.get().allSource)
+    }
+
+    artifacts {
+        archives(sourcesJar)
+        archives(javadocJar)
+        archives(jar)
+    }
+
+}
+
+
+
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
     testLogging.showStandardStreams = true
 }
+
+/* Release */
+
+val projectExt = ext
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            stagingProfileId.set(projectExt["sonatypeStagingProfileId"] as String)
+            username.set(projectExt["ossrhUsername"] as String)
+            password.set(projectExt["ossrhPassword"] as String)
+        }
+    }
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                groupId = project.group as String
+                artifactId = project.name
+                version = project.version as String
+
+                artifact(tasks.get("sourcesJar") as Jar)
+
+                pom {
+                    name.set(project.name)
+                    description.set("Library for extracting meta-information written in using-directives syntax")
+                    url.set("https://github.com/VirtuslabRnD/using_directives")
+                    developers {
+                        developer {
+                            id.set("pikinier20")
+                            name.set("Filip Zybała")
+                            email.set("filip.zybala@gmail.com")
+                        }
+                        developer {
+                            id.set("KacperFKorban")
+                            name.set("Kacper Korban")
+                            email.set("kkorban@virtuslab.com")
+                        }
+                    }
+
+                    scm {
+                        connection.set("scm:git:github.com/VirtuslabRnD/using_directives.git")
+                        developerConnection.set("scm:git:ssh://github.com/VirtuslabRnD/using_directives.git")
+                        url.set("https://github.com/VirtuslabRnD/using_directives/tree/main")
+                    }
+                }
+            }
+        }
+    }
+}
+
+signing {
+    useInMemoryPgpKeys(
+            rootProject.ext["signing.keyId"] as String,
+            rootProject.ext["signing.key"] as String,
+            rootProject.ext["signing.password"] as String
+    )
+    sign(publishing.publications)
+}
+
