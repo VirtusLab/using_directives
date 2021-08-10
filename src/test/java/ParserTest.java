@@ -1,9 +1,8 @@
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import dotty.using_directives.custom.Parser;
-import dotty.using_directives.custom.utils.Source;
-import dotty.using_directives.custom.utils.ast.UsingTree;
+import com.virtuslab.using_directives.custom.Parser;
+import com.virtuslab.using_directives.custom.utils.Source;
+import com.virtuslab.using_directives.custom.utils.ast.UsingTree;
 
 import static org.junit.jupiter.api.Assertions.*;
 

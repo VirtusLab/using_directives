@@ -1,10 +1,12 @@
 package json;
 
 import com.google.gson.*;
-import dotty.using_directives.custom.utils.Position;
-import dotty.using_directives.custom.utils.ast.*;
+import com.virtuslab.using_directives.custom.utils.Position;
+import com.virtuslab.using_directives.custom.utils.ast.BooleanLiteral;
+import com.virtuslab.using_directives.custom.utils.ast.NumericLiteral;
+import com.virtuslab.using_directives.custom.utils.ast.StringLiteral;
+import com.virtuslab.using_directives.custom.utils.ast.UsingPrimitive;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 
 public class CustomUsingPrimitivesAdapter implements JsonDeserializer<UsingPrimitive>, JsonSerializer<UsingPrimitive> {

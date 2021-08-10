@@ -1,9 +1,10 @@
 import com.google.gson.Gson;
-import dotty.using_directives.custom.Parser;
-import dotty.using_directives.custom.UsingDirectivesProcessor;
-import dotty.using_directives.custom.Visitor;
-import dotty.using_directives.custom.utils.Source;
-import dotty.using_directives.custom.utils.ast.*;
+import com.virtuslab.using_directives.custom.Parser;
+import com.virtuslab.using_directives.custom.UsingDirectivesProcessor;
+import com.virtuslab.using_directives.custom.Visitor;
+import com.virtuslab.using_directives.custom.utils.Source;
+import com.virtuslab.using_directives.custom.utils.ast.UsingDefs;
+import com.virtuslab.using_directives.custom.utils.ast.UsingTree;
 import json.CustomGsonInstance;
 
 import java.io.IOException;

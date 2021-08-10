@@ -1,15 +1,12 @@
 package json;
 
 import com.google.gson.*;
-import dotty.using_directives.custom.utils.Position;
-import dotty.using_directives.custom.utils.ast.*;
+import com.virtuslab.using_directives.custom.utils.Position;
+import com.virtuslab.using_directives.custom.utils.ast.*;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class CustomUsingValueAdapter implements JsonDeserializer<UsingValue>, JsonSerializer<UsingValue> {
 

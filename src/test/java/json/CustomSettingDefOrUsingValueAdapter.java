@@ -2,10 +2,10 @@ package json;
 
 
 import com.google.gson.*;
-import dotty.using_directives.custom.utils.Position;
-import dotty.using_directives.custom.utils.ast.*;
+import com.virtuslab.using_directives.custom.utils.ast.SettingDefOrUsingValue;
+import com.virtuslab.using_directives.custom.utils.ast.SettingDefs;
+import com.virtuslab.using_directives.custom.utils.ast.UsingValue;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 
 public class CustomSettingDefOrUsingValueAdapter implements JsonDeserializer<SettingDefOrUsingValue>, JsonSerializer<SettingDefOrUsingValue> {

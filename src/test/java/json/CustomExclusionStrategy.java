@@ -2,7 +2,7 @@ package json;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
-import dotty.using_directives.custom.utils.Position;
+import com.virtuslab.using_directives.custom.utils.Position;
 
 public class CustomExclusionStrategy implements ExclusionStrategy {
     @Override
