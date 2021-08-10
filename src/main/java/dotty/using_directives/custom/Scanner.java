@@ -52,6 +52,13 @@ public class Scanner {
         this.debug = debug;
     }
 
+    public Reporter getReporter() {
+        return reporter;
+    }
+
+    public void setReporter(Reporter reporter) {
+        this.reporter = reporter;
+    }
 
     class LookaheadScanner extends Scanner {
         public LookaheadScanner() {

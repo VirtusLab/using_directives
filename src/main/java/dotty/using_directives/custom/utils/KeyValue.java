@@ -24,4 +24,8 @@ public class KeyValue<K, V> implements Map.Entry<K, V> {
         this.value = value;
         return value;
     }
+
+    public KeyValue<K, V> withNewKey(K key) {
+        return new KeyValue<>(key, value);
+    }
 }

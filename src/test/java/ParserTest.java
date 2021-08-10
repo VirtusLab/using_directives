@@ -38,5 +38,6 @@ public class ParserTest extends TestUtils {
         compareAST("parser_tests/inputs/testcase3.txt", "parser_tests/asts/ast3.txt");
         compareAST("parser_tests/inputs/testcase4.txt", "parser_tests/asts/ast4.txt");
         compareAST("parser_tests/inputs/testcase5.txt", "parser_tests/asts/ast5.txt");
+        compareAST("parser_tests/inputs/testcase6.txt", "parser_tests/asts/ast6.txt");
     }
 }

@@ -4,11 +4,14 @@ import dotty.using_directives.custom.utils.Position;
 
 public class ConsoleReporter implements Reporter {
 
+    private int errorCount = 0;
+
     private String msgWithPos(Position pos, String msg) {
         return String.format("%d:%d:\n%s", pos.getLine(), pos.getLine(), msg);
     }
 
     private String errorMessage(String msg) {
+        errorCount++;
         return String.format("ERROR: %s", msg);
     }
 
@@ -35,4 +38,16 @@ public class ConsoleReporter implements Reporter {
     public void warning(Position position, String msg) {
         System.out.println(msgWithPos(position, warningMessage(msg)));
     }
+
+    @Override
+    public boolean hasErrors() {
+        return errorCount != 0;
+    }
+
+    @Override
+    public void reset() {
+        errorCount = 0;
+    }
+
+
 }

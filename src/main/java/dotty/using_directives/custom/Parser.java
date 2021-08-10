@@ -35,6 +35,14 @@ public class Parser {
         this.in = new Scanner(source, 0, reporter);
     }
 
+    public Reporter getReporter() {
+        return reporter;
+    }
+
+    public void setReporter(Reporter reporter) {
+        this.reporter = reporter;
+    }
+
     Scanner in;
 
     /* Combinators */

@@ -7,4 +7,6 @@ public interface Reporter {
     void warning(String msg);
     void error(Position position, String msg);
     void warning(Position position, String msg);
+    boolean hasErrors();
+    void reset();
 }

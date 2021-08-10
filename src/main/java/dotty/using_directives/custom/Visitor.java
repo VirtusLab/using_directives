@@ -1,68 +1,156 @@
 package dotty.using_directives.custom;
 
 import dotty.using_directives.custom.model.*;
+import dotty.using_directives.custom.reporter.ConsoleReporter;
+import dotty.using_directives.custom.reporter.Reporter;
 import dotty.using_directives.custom.utils.KeyValue;
 import dotty.using_directives.custom.utils.ast.*;
 
 import java.util.*;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 public class Visitor {
     private final UsingTree root;
+    private Reporter reporter;
 
-    public Visitor(UsingTree root) {
+    public Visitor(UsingTree root, Reporter reporter) {
+        this.reporter = reporter;
         this.root = root;
     }
 
-    public UsingDirectives visit() {
-        Map<String, ValueOrSetting<?>> rawView = new HashMap<>(visitSettings(root));
-        Map<Path, Value<?>> flattenView = flatten(rawView);
-        Map<String, ValueOrSetting<?>> nestedView = nest(rawView);
-        return new UsingDirectivesImpl(nestedView, flattenView);
+    public Visitor(UsingTree root) {
+        this(root, new ConsoleReporter());
     }
 
-    private Map<String, ValueOrSetting<?>> visitSettings(UsingTree root) {
+    public UsingTree getRoot() {
+        return root;
+    }
+
+    public Reporter getReporter() {
+        return reporter;
+    }
+
+    public void setReporter(Reporter reporter) {
+        this.reporter = reporter;
+    }
+
+    public UsingDirectives visit() {
+        Map<Path, Value<?>> flattenView = getFlatView(root);
+        int codeOffset;
+        if(root instanceof UsingDefs) {
+            codeOffset = ((UsingDefs) root).getCodeOffset();
+        } else {
+            codeOffset = -1;
+        }
+        return new UsingDirectivesImpl(null, flattenView, root, codeOffset);
+    }
+
+    private Map<String, Value<?>> visitSettingsFlat(UsingTree root) {
         if(root instanceof UsingDefs) {
             return ((UsingDefs) root)
                     .getUsingDefs()
                     .stream()
-                    .flatMap(ud -> visitSettings(ud).entrySet().stream())
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, this::merge));
+                    .flatMap(ud -> visitSettingsFlat(ud).entrySet().stream())
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            Map.Entry::getValue,
+                            this::merge
+                    ));
         }
         else if(root instanceof UsingDef) {
-            return visitSettings(((UsingDef) root).getSettingDefs());
+            return visitSettingsFlat(((UsingDef) root).getSettingDefs());
         }
         else if(root instanceof SettingDefs) {
             return ((SettingDefs) root)
                     .getSettings()
                     .stream()
-                    .map(this::visitSetting)
-                    .collect(Collectors.toMap(KeyValue::getKey, KeyValue::getValue, this::merge));
+                    .flatMap(s -> visitSettingFlat(s).stream())
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            Map.Entry::getValue,
+                            this::merge
+                    ));
 
         }
         else if(root instanceof SettingDef) {
-            Map<String, ValueOrSetting<?>> map = new HashMap<>();
-            KeyValue<String, ValueOrSetting<?>> keyValue = visitSetting((SettingDef) root);
-            map.put(keyValue.getKey(), keyValue.getValue());
+            Map<String, Value<?>> map = new HashMap<>();
+            List<KeyValue<String, Value<?>>> keyValueList = visitSettingFlat((SettingDef) root);
+            keyValueList.forEach(kv -> map.merge(kv.getKey(), kv.getValue(), this::merge));
             return map;
         }
         else {
-            //report error
+            reporter.error(root.getPosition(), "Provided AST cannot be processed.");
             return null;
         }
     }
 
-    private KeyValue<String, ValueOrSetting<?>> visitSetting(SettingDef setting) {
+    private List<KeyValue<String, Value<?>>> visitSettingFlat(SettingDef setting) {
         String key = setting.getKey();
-        ValueOrSetting<?> v;
         if(setting.getValue() instanceof SettingDefs) {
-            v = new Setting(visitSettings(setting.getValue()));
+            List<KeyValue<String, Value<?>>> flatList = ((SettingDefs) setting.getValue()).getSettings().stream()
+                    .flatMap(s -> visitSettingFlat(s).stream())
+                    .map(kv -> kv.withNewKey(String.format("%s.%s", key, kv.getKey())))
+                    .collect(Collectors.toList());
+            return flatList;
         }
         else {
-            v = parseValue((UsingValue) setting.getValue());
+            return new ArrayList<>(
+                    Collections.singletonList(new KeyValue<>(key, parseValue((UsingValue) setting.getValue())))
+            );
         }
-        return new KeyValue<>(key, v);
     }
+
+//    private Map<String, ValueOrSetting<?>> visitSettings(UsingTree root) {
+//        if(root instanceof UsingDefs) {
+//            return ((UsingDefs) root)
+//                    .getUsingDefs()
+//                    .stream()
+//                    .flatMap(ud -> visitSettings(ud).entrySet().stream())
+//                    .collect(Collectors.toMap(
+//                            Map.Entry::getKey,
+//                            Map.Entry::getValue,
+//                            mergeFunc()
+//                    ));
+//        }
+//        else if(root instanceof UsingDef) {
+//            return visitSettings(((UsingDef) root).getSettingDefs());
+//        }
+//        else if(root instanceof SettingDefs) {
+//            return ((SettingDefs) root)
+//                    .getSettings()
+//                    .stream()
+//                    .map(this::visitSetting)
+//                    .collect(Collectors.toMap(
+//                            Map.Entry::getKey,
+//                            Map.Entry::getValue,
+//                            mergeFunc()
+//                    ));
+//
+//        }
+//        else if(root instanceof SettingDef) {
+//            Map<String, ValueOrSetting<?>> map = new HashMap<>();
+//            KeyValue<String, ValueOrSetting<?>> keyValue = visitSetting((SettingDef) root);
+//            map.put(keyValue.getKey(), keyValue.getValue());
+//            return map;
+//        }
+//        else {
+//            reporter.error(root.getPosition(), "Provided AST cannot be processed.");
+//            return null;
+//        }
+//    }
+//
+//    private KeyValue<String, ValueOrSetting<?>> visitSetting(SettingDef setting) {
+//        String key = setting.getKey();
+//        ValueOrSetting<?> v;
+//        if(setting.getValue() instanceof SettingDefs) {
+//            v = new Setting(visitSettings(setting.getValue()));
+//        }
+//        else {
+//            v = parseValue((UsingValue) setting.getValue());
+//        }
+//        return new KeyValue<>(key, v);
+//    }
 
     private Value<?> parseValue(UsingValue value) {
         if(value instanceof UsingPrimitive) {
@@ -85,57 +173,55 @@ public class Visitor {
         return new ListValue(value.values.stream().map(this::parseValue).collect(Collectors.toList()));
     }
 
-    private ValueOrSetting<?> merge(ValueOrSetting<?> v1, ValueOrSetting<?> v2) {
-        if(v1 instanceof Value<?> && v2 instanceof Value<?>) {
-            // report warning
-            return v1;
-        }
-        else if(v1 instanceof Value<?> || v2 instanceof Value<?>) {
-            // report error
-            return v1 instanceof Value<?> ? v1 : v2;
-        }
-        else {
-            Setting s1 = (Setting) v1;
-            Setting s2 = (Setting) v2;
-            s2.get().forEach((key, value) -> s1.get().merge(key, value, this::merge));
-            return s1;
-        }
+    private BinaryOperator<ValueOrSetting<?>> mergeFunc() {
+        return (v1, v2) -> {
+            if(v1 instanceof Value<?> && v2 instanceof Value<?>) {
+                return merge((Value<?>) v1,(Value<?>)  v2);
+            }
+            else if(v1 instanceof Value<?> || v2 instanceof Value<?>) {
+                return null;
+            }
+            else {
+                Setting s1 = (Setting) v1;
+                Setting s2 = (Setting) v2;
+                s2.get().forEach(
+                        (key, value) -> s1.get().merge(key, value, mergeFunc())
+                );
+                return s1;
+            }
+        };
     }
 
     private Value<?> merge(Value<?> v1, Value<?> v2) {
-        // report warning
-        return v1;
+        if(v1 instanceof ListValue && v2 instanceof ListValue) {
+            ArrayList<Value<?>> newList = new ArrayList<>(((ListValue) v1).get());
+            newList.addAll(((ListValue) v2).get());
+            return new ListValue(newList);
+        } else if(v1 instanceof ListValue) {
+            ArrayList<Value<?>> newList = new ArrayList<>(((ListValue) v1).get());
+            newList.add(v2);
+            return new ListValue(newList);
+        } else if(v2 instanceof ListValue) {
+            ArrayList<Value<?>> newList = new ArrayList<>(((ListValue) v2).get());
+            newList.add(v1);
+            return new ListValue(newList);
+        } else {
+            return new ListValue(new ArrayList<>(Arrays.asList(v1, v2)));
+        }
     }
 
     private Map<String, ValueOrSetting<?>> nest(Map<String, ValueOrSetting<?>> raw) {
-        // TODO: Implement merge
-        return raw;
+        return raw.entrySet().stream()
+                .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
     }
 
-    private Map<Path, Value<?>> flatten(Map<String, ValueOrSetting<?>> raw) {
-        return flattenHelper(raw).entrySet().stream()
+    private Map<Path, Value<?>> getFlatView(UsingTree root) {
+        Map<String, Value<?>> intermediate = visitSettingsFlat(root);
+        return intermediate.entrySet().stream()
                 .collect(
                         Collectors.toMap(e ->
                                 new Path(Arrays.asList(e.getKey().split("\\."))), Map.Entry::getValue
                         )
                 );
-    }
-
-
-    private Map<String, Value<?>> flattenHelper(Map<String, ValueOrSetting<?>> raw) {
-        return raw.entrySet().stream().flatMap(e -> {
-            if(e.getValue() instanceof Setting) {
-                Setting s = (Setting) e.getValue();
-                Map<String, Value<?>> flattenedChild = flattenHelper(s.get());
-                Map<String, Value<?>> updatedFlattenedChild = new HashMap<>();
-                flattenedChild.forEach((k, v) -> updatedFlattenedChild.merge(String.format("%s.%s", e.getKey(), k), v, this::merge));
-                return updatedFlattenedChild.entrySet().stream();
-            }
-            else {
-                Map<String, Value<?>> map = new HashMap<>();
-                map.put(e.getKey(), (Value<?>) e.getValue());
-                return map.entrySet().stream();
-            }
-        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,this::merge));
     }
 }
