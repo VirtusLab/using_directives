@@ -1,4 +1,5 @@
 import org.gradle.api.publish.PublishingExtension
+import java.io.ByteArrayOutputStream
 
 plugins {
     java
@@ -11,8 +12,8 @@ apply {
     from("${rootDir}/scripts/publish-root.gradle")
 }
 
-group = "com.virtuslab"
-version = "0.0.1-SNAPSHOT"
+group = "org.virtuslab"
+version = getAppVersion()
 
 repositories {
     mavenCentral()
@@ -30,6 +31,42 @@ sourceSets {
     }
 }
 
+fun getAppVersion(): String {
+    var stdout = ByteArrayOutputStream()
+    exec {
+        commandLine("git", "rev-parse", "--short", "HEAD")
+        standardOutput = stdout
+    }
+    val commitId = stdout.toString().replace("\n", "").replace("\r", "").trim()
+    stdout = ByteArrayOutputStream()
+    exec {
+        commandLine("git", "tag", "--points-at", commitId)
+        standardOutput = stdout
+    }
+    val releaseTagName = stdout.toString()
+            .replace("\n", "")
+            .replace("\r", "")
+            .trim()
+    stdout = ByteArrayOutputStream()
+    exec {
+        commandLine("git", "describe", "--tags", "--abbrev=0")
+        standardOutput = stdout
+    }
+    val snapshotTagName = stdout.toString()
+            .replace("\n", "")
+            .replace("\r", "")
+            .trim()
+    var versionName = "git-$commitId-SNAPSHOT"
+    if ("" != releaseTagName) {
+        versionName = releaseTagName.drop(1)
+    }
+    else if ("" != snapshotTagName) {
+        versionName = "${snapshotTagName.drop(1)}-$commitId-SNAPSHOT"
+    }
+    return versionName
+}
+
+
 tasks {
    val javadocJar by creating(Jar::class) {
         dependsOn.add(javadoc)
@@ -46,6 +83,10 @@ tasks {
         archives(sourcesJar)
         archives(javadocJar)
         archives(jar)
+    }
+
+    create("printVersion") {
+        println(getAppVersion())
     }
 
 }
@@ -79,6 +120,8 @@ afterEvaluate {
                 artifactId = project.name
                 version = project.version as String
 
+                artifact(tasks.get("jar") as Jar)
+                artifact(tasks.get("javadocJar") as Jar)
                 artifact(tasks.get("sourcesJar") as Jar)
 
                 pom {
@@ -102,6 +145,13 @@ afterEvaluate {
                         connection.set("scm:git:github.com/VirtuslabRnD/using_directives.git")
                         developerConnection.set("scm:git:ssh://github.com/VirtuslabRnD/using_directives.git")
                         url.set("https://github.com/VirtuslabRnD/using_directives/tree/main")
+                    }
+
+                    licenses {
+                        license {
+                            name.set("The Apache License, Version 2.0")
+                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        }
                     }
                 }
             }
