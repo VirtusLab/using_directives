@@ -12,7 +12,7 @@ apply {
 }
 
 group = "org.virtuslab"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.2-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -79,6 +79,8 @@ afterEvaluate {
                 artifactId = project.name
                 version = project.version as String
 
+                artifact(tasks.get("jar") as Jar)
+                artifact(tasks.get("javadocJar") as Jar)
                 artifact(tasks.get("sourcesJar") as Jar)
 
                 pom {
