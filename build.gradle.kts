@@ -13,7 +13,7 @@ apply {
 }
 
 group = "org.virtuslab"
-version = System.getenv("PROJECT_VERSION") ?: getAppVersion()
+version = getAppVersion()
 
 repositories {
     mavenCentral()
@@ -43,13 +43,25 @@ fun getAppVersion(): String {
         commandLine("git", "tag", "--points-at", commitId)
         standardOutput = stdout
     }
-    val tagName = stdout.toString()
+    val releaseTagName = stdout.toString()
             .replace("\n", "")
             .replace("\r", "")
-            .trim() + "-$commitId-SNAPSHOT"
-    var versionName = "git-" + commitId + "-SNAPSHOT"
-    if ("" != tagName) {
-        versionName = tagName
+            .trim()
+    stdout = ByteArrayOutputStream()
+    exec {
+        commandLine("git", "describe", "--tags", "--abbrev=0")
+        standardOutput = stdout
+    }
+    val snapshotTagName = stdout.toString()
+            .replace("\n", "")
+            .replace("\r", "")
+            .trim()
+    var versionName = "git-$commitId-SNAPSHOT"
+    if ("" != releaseTagName) {
+        versionName = releaseTagName.drop(1)
+    }
+    else if ("" != snapshotTagName) {
+        versionName = "${snapshotTagName.drop(1)}-$commitId-SNAPSHOT"
     }
     return versionName
 }
@@ -71,6 +83,10 @@ tasks {
         archives(sourcesJar)
         archives(javadocJar)
         archives(jar)
+    }
+
+    create("printVersion") {
+        println(getAppVersion())
     }
 
 }
