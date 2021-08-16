@@ -1,4 +1,5 @@
 import org.gradle.api.publish.PublishingExtension
+import java.io.ByteArrayOutputStream
 
 plugins {
     java
@@ -12,7 +13,7 @@ apply {
 }
 
 group = "org.virtuslab"
-version = "0.0.2-SNAPSHOT"
+version = System.getenv("PROJECT_VERSION") ?: getAppVersion()
 
 repositories {
     mavenCentral()
@@ -29,6 +30,30 @@ sourceSets {
         java.srcDir("src/main/java")
     }
 }
+
+fun getAppVersion(): String {
+    var stdout = ByteArrayOutputStream()
+    exec {
+        commandLine("git", "rev-parse", "--short", "HEAD")
+        standardOutput = stdout
+    }
+    val commitId = stdout.toString().replace("\n", "").replace("\r", "").trim()
+    stdout = ByteArrayOutputStream()
+    exec {
+        commandLine("git", "tag", "--points-at", commitId)
+        standardOutput = stdout
+    }
+    val tagName = stdout.toString()
+            .replace("\n", "")
+            .replace("\r", "")
+            .trim() + "-$commitId-SNAPSHOT"
+    var versionName = "git-" + commitId + "-SNAPSHOT"
+    if ("" != tagName) {
+        versionName = tagName
+    }
+    return versionName
+}
+
 
 tasks {
    val javadocJar by creating(Jar::class) {
