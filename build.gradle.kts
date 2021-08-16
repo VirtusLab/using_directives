@@ -11,7 +11,7 @@ apply {
     from("${rootDir}/scripts/publish-root.gradle")
 }
 
-group = "com.virtuslab"
+group = "org.virtuslab"
 version = "0.0.1-SNAPSHOT"
 
 repositories {
