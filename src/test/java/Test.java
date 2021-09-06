@@ -1,4 +1,5 @@
 import com.google.gson.Gson;
+import com.virtuslab.using_directives.Context;
 import com.virtuslab.using_directives.custom.Parser;
 import com.virtuslab.using_directives.custom.UsingDirectivesProcessor;
 import com.virtuslab.using_directives.custom.Visitor;
@@ -14,11 +15,12 @@ public class Test extends TestUtils {
     @org.junit.jupiter.api.Test
     public void test() throws IOException, URISyntaxException {
         Gson gson = CustomGsonInstance.get();
-        UsingTree ast = new Parser(new Source(getContent("parser_tests/inputs/testcase6.txt").toCharArray())).parse();
+        Context ctx = new Context();
+        UsingTree ast = new Parser(new Source(getContent("parser_tests/inputs/testcase6.txt").toCharArray()), ctx).parse();
         System.out.println(ast);
         int codeOffset = ((UsingDefs) ast).getCodeOffset();
         System.out.println(getContent("parser_tests/inputs/testcase6.txt").substring(codeOffset));
-        System.out.println(new Visitor(ast).visit().getFlattenedMap());
+        System.out.println(new Visitor(ast, ctx).visit().getFlattenedMap());
         System.out.println(new UsingDirectivesProcessor().extract(getContent("parser_tests/inputs/testcase6.txt").toCharArray()).getFlattenedMap());
     }
 

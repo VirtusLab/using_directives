@@ -1,5 +1,6 @@
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.virtuslab.using_directives.Context;
 import com.virtuslab.using_directives.custom.Parser;
 import com.virtuslab.using_directives.custom.utils.Source;
 import com.virtuslab.using_directives.custom.utils.ast.UsingTree;
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.Test;
 public class ParserTest extends TestUtils {
     private UsingTree parseFile(String path) {
         char[] content = getContent(path).toCharArray();
-        return new Parser(new Source(content)).parse();
+        return new Parser(new Source(content), new Context()).parse();
     }
 
     private void compareAST(String pathToInput, String pathToExpectedResult) {

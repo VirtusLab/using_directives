@@ -1,5 +1,6 @@
 package com.virtuslab.using_directives.custom;
 
+import com.virtuslab.using_directives.Context;
 import com.virtuslab.using_directives.custom.regions.*;
 import com.virtuslab.using_directives.reporter.ConsoleReporter;
 import com.virtuslab.using_directives.reporter.Reporter;
@@ -20,23 +21,14 @@ import static com.virtuslab.using_directives.custom.utils.TokenUtils.*;
 
 public class Scanner {
 
-    private Reporter reporter;
+    private final Context context;
     private Source source;
     private boolean debug = false;
     public boolean allowLeadingInfixOperators = true;
 
-    public Scanner(Source source, int startFrom) {
-        this(source, startFrom, new ConsoleReporter());
-    }
-
-    public Scanner(Source source, int startFrom, boolean debug) {
-        this(source, startFrom);
-        this.debug = debug;
-    }
-
-    public Scanner(Source source, int startFrom, Reporter reporter) {
+    public Scanner(Source source, int startFrom, Context context) {
         this.source = source;
-        this.reporter = reporter;
+        this.context = context;
         reader = new CustomCharArrayReader(source.getContent(), this::errorButContinue);
         reader.startFrom = startFrom;
         reader.nextChar();
@@ -44,22 +36,18 @@ public class Scanner {
         currentRegion = topLevelRegion(indentWidth(td.offset));
     }
 
-    public Scanner(Source source, int startFrom, Reporter reporter, boolean debug) {
-        this(source, startFrom, reporter);
+    public Scanner(Source source, int startFrom, Context context, boolean debug) {
+        this(source, startFrom, context);
         this.debug = debug;
     }
 
-    public Reporter getReporter() {
-        return reporter;
-    }
-
-    public void setReporter(Reporter reporter) {
-        this.reporter = reporter;
+    public Context getContext() {
+        return context;
     }
 
     class LookaheadScanner extends Scanner {
         public LookaheadScanner() {
-            super(Scanner.this.source, Scanner.this.reader.startFrom, reporter);
+            super(Scanner.this.source, Scanner.this.reader.startFrom, context);
         }
     }
 
@@ -70,7 +58,7 @@ public class Scanner {
     private int errOffset = -1;
 
     private void error(String msg, int offset) {
-        reporter.error(source.getPositionFromOffset(offset), msg);
+        context.getReporter().error(source.getPositionFromOffset(offset), msg);
     }
 
     private void error(String msg) {
@@ -78,11 +66,11 @@ public class Scanner {
     }
 
     private void errorButContinue(String msg, int offset) {
-        reporter.error(source.getPositionFromOffset(offset), msg);
+        context.getReporter().error(source.getPositionFromOffset(offset), msg);
     }
 
     private void incompleteInputError(String msg) {
-        reporter.error("Incomplete input");
+        context.getReporter().error(String.format("Incomplete input: %s", msg));
     }
 
     private final Deque<Character> litBuf = new LinkedList<>();
@@ -349,7 +337,7 @@ public class Scanner {
                         currentRegion = currentRegion.enclosing();
                         insert(Tokens.OUTDENT, td.offset);
                     } else if(currentRegion instanceof InBraces && !closingRegionTokens.contains(td.token)) {
-                        reporter.error(String.format("Expected closing region token but found %s", td.token));
+                        context.getReporter().error(String.format("Expected closing region token but found %s", td.token));
                     }
                 }
             } else if(lastWidth.less(nextWidth)
