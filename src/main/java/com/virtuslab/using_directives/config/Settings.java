@@ -3,7 +3,7 @@ package com.virtuslab.using_directives.config;
 public class Settings {
     private boolean allowRequire = true;
 
-    private boolean startWithAt = true;
+    private boolean allowStartWithoutAt = true;
 
     public boolean isAllowRequire() {
         return allowRequire;
@@ -13,11 +13,18 @@ public class Settings {
         this.allowRequire = allowRequire;
     }
 
-    public boolean isStartWithAt() {
-        return startWithAt;
+    public boolean isAllowStartWithoutAt() {
+        return allowStartWithoutAt;
     }
 
-    public void setStartWithAt(boolean startWithAt) {
-        this.startWithAt = startWithAt;
+    public void setAllowStartWithoutAt(boolean allowStartWithoutAt) {
+        this.allowStartWithoutAt = allowStartWithoutAt;
+    }
+
+    public Settings() { }
+
+    public Settings(boolean allowRequire, boolean allowStartWithoutAt) {
+        this.allowRequire = allowRequire;
+        this.allowStartWithoutAt = allowStartWithoutAt;
     }
 }

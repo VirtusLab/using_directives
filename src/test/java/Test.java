@@ -16,12 +16,12 @@ public class Test extends TestUtils {
     public void test() throws IOException, URISyntaxException {
         Gson gson = CustomGsonInstance.get();
         Context ctx = new Context();
-        UsingTree ast = new Parser(new Source(getContent("parser_tests/inputs/testcase6.txt").toCharArray()), ctx).parse();
+        UsingTree ast = new Parser(new Source(getContent("parser_tests/inputs/testcase9.txt").toCharArray()), ctx).parse();
         System.out.println(ast);
         int codeOffset = ((UsingDefs) ast).getCodeOffset();
-        System.out.println(getContent("parser_tests/inputs/testcase6.txt").substring(codeOffset));
+        System.out.println(getContent("parser_tests/inputs/testcase9.txt").substring(codeOffset));
         System.out.println(new Visitor(ast, ctx).visit().getFlattenedMap());
-        System.out.println(new UsingDirectivesProcessor().extract(getContent("parser_tests/inputs/testcase6.txt").toCharArray()).getFlattenedMap());
+        System.out.println(new UsingDirectivesProcessor().extract(getContent("parser_tests/inputs/testcase9.txt").toCharArray()).getFlattenedMap());
     }
 
 }

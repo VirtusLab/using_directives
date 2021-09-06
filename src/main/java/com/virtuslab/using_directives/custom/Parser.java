@@ -1,9 +1,8 @@
 package com.virtuslab.using_directives.custom;
 
 import com.virtuslab.using_directives.Context;
-import com.virtuslab.using_directives.reporter.ConsoleReporter;
+import com.virtuslab.using_directives.config.Settings;
 import com.virtuslab.using_directives.custom.utils.ast.*;
-import com.virtuslab.using_directives.reporter.Reporter;
 import com.virtuslab.using_directives.custom.utils.Source;
 
 import java.util.ArrayList;
@@ -12,8 +11,8 @@ import java.util.Arrays;
 
 import java.util.function.Supplier;
 
-import static com.virtuslab.using_directives.custom.utils.TokenUtils.literalTokens;
-import static com.virtuslab.using_directives.custom.utils.TokenUtils.tokenFromInt;
+import static com.virtuslab.using_directives.custom.utils.TokenUtils.*;
+import static com.virtuslab.using_directives.custom.utils.TokenUtils.isValidUsingDirectiveStart;
 
 public class Parser {
 
@@ -131,7 +130,7 @@ public class Parser {
     }
 
     UsingDef usingDirective() {
-        if (in.td.token == Tokens.ATUSING) {
+        if (isValidUsingDirectiveStart(in.td.token, context.getSettings())) {
             int offset = in.td.offset;
             in.nextToken();
             return new UsingDef(settings(), source.getPositionFromOffset(offset));

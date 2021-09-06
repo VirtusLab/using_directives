@@ -311,13 +311,12 @@ public class Scanner {
             lastWidth = currentRegion.knownWidth;
             newlineIsSeparating = currentRegion instanceof InBraces;
         }
-
         if(newlineIsSeparating
                 && canEndStatTokens.contains(lastToken)
                 && canStartStatTokens().contains(td.token)
                 && !isLeadingInfixOperator(nextWidth, true)
                 && !(lastWidth.less(nextWidth) && isContinuing(lastToken))
-                && (lastName == null || lastToken != Tokens.ATUSING)
+                && (lastName == null || !isValidUsingDirectiveStart(lastToken, context.getSettings()))
         ) {
             if(pastBlankLine()) {
                 insert(Tokens.NEWLINES, td.lineOffset);
@@ -443,8 +442,10 @@ public class Scanner {
         switch(td.token){
             case AT:
                 lookAhead();
-                if(td.token == Tokens.IDENTIFIER && td.name.equals("using")) {
+                if(td.token == Tokens.USING) {
                     fuse.accept(Tokens.ATUSING);
+                } else if(td.token == Tokens.REQUIRE) {
+                    fuse.accept(Tokens.ATREQUIRE);
                 } else {
                     reset();
                 }
