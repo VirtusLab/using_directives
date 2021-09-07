@@ -1,6 +1,6 @@
 package com.virtuslab.using_directives.custom;
 
-import static com.virtuslab.using_directives.custom.utils.TokenUtils.*;
+import static com.virtuslab.using_directives.custom.utils.TokenUtils.keywords;
 
 public enum Tokens {
     EMPTY("<empty>"),
@@ -16,6 +16,8 @@ public enum Tokens {
     STRINGLIT("string literal"),
     STRINGPART("string literal", "string literal part"),
     IDENTIFIER("identifier"),
+    USING("using"),
+    REQUIRE("require"),
     IF("if"),
     FOR("for"),
     ELSE("else"),
@@ -47,7 +49,6 @@ public enum Tokens {
     COLON(":"),
     EQUALS("="),
     AT("@"),
-    ATUSING("@using"),
     LPAREN("'('"),
     RPAREN("')'"),
     LBRACKET("'['"),
@@ -91,6 +92,8 @@ public enum Tokens {
     HASH("#"),
     VIEWBOUND("<%"),
     TLARROW("=>>"),
+    ATUSING("@using"),
+    ATREQUIRE("@require"),
     CTXARROW("?=>"),
     QUOTE("'"),
     COLONEOL(":", ": at eol"),

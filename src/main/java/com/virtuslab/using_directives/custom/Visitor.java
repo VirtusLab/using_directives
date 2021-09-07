@@ -1,10 +1,9 @@
 package com.virtuslab.using_directives.custom;
 
+import com.virtuslab.using_directives.Context;
 import com.virtuslab.using_directives.custom.model.*;
-import com.virtuslab.using_directives.reporter.ConsoleReporter;
 import com.virtuslab.using_directives.custom.utils.KeyValue;
 import com.virtuslab.using_directives.custom.utils.ast.*;
-import com.virtuslab.using_directives.reporter.Reporter;
 
 import java.util.*;
 import java.util.function.BinaryOperator;
@@ -12,27 +11,19 @@ import java.util.stream.Collectors;
 
 public class Visitor {
     private final UsingTree root;
-    private Reporter reporter;
+    private final Context context;
 
-    public Visitor(UsingTree root, Reporter reporter) {
-        this.reporter = reporter;
+    public Visitor(UsingTree root, Context context) {
+        this.context = context;
         this.root = root;
-    }
-
-    public Visitor(UsingTree root) {
-        this(root, new ConsoleReporter());
     }
 
     public UsingTree getRoot() {
         return root;
     }
 
-    public Reporter getReporter() {
-        return reporter;
-    }
-
-    public void setReporter(Reporter reporter) {
-        this.reporter = reporter;
+    public Context getContext() {
+        return context;
     }
 
     public UsingDirectives visit() {
@@ -80,7 +71,7 @@ public class Visitor {
             return map;
         }
         else {
-            reporter.error(root.getPosition(), "Provided AST cannot be processed.");
+            context.getReporter().error(root.getPosition(), "Provided AST cannot be processed.");
             return null;
         }
     }

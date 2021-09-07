@@ -1,43 +1,30 @@
 package com.virtuslab.using_directives.custom;
 
-import com.virtuslab.using_directives.reporter.ConsoleReporter;
-import com.virtuslab.using_directives.custom.utils.ast.*;
-import com.virtuslab.using_directives.reporter.Reporter;
+import com.virtuslab.using_directives.Context;
 import com.virtuslab.using_directives.custom.utils.Source;
+import com.virtuslab.using_directives.custom.utils.ast.*;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Arrays;
-
+import java.util.List;
 import java.util.function.Supplier;
 
-import static com.virtuslab.using_directives.custom.utils.TokenUtils.literalTokens;
-import static com.virtuslab.using_directives.custom.utils.TokenUtils.tokenFromInt;
+import static com.virtuslab.using_directives.custom.utils.TokenUtils.*;
 
 public class Parser {
 
     private Source source;
 
-    private Reporter reporter;
+    private final Context context;
 
-    public Parser(Source source) {
-        this.reporter = new ConsoleReporter();
+    public Parser(Source source, Context context) {
+        this.context = context;
         this.source = source;
-        this.in = new Scanner(source, 0, reporter);
+        this.in = new Scanner(source, 0, context);
     }
 
-    public Parser(Source source, Reporter reporter) {
-        this.reporter = reporter;
-        this.source = source;
-        this.in = new Scanner(source, 0, reporter);
-    }
-
-    public Reporter getReporter() {
-        return reporter;
-    }
-
-    public void setReporter(Reporter reporter) {
-        this.reporter = reporter;
+    public Context getContext() {
+        return context;
     }
 
     Scanner in;
@@ -45,7 +32,7 @@ public class Parser {
     /* Combinators */
 
     private void error(String msg, int offset) {
-        reporter.error(source.getPositionFromOffset(offset), msg);
+        context.getReporter().error(source.getPositionFromOffset(offset), msg);
     }
 
     private void error(String msg) {
@@ -140,7 +127,7 @@ public class Parser {
     }
 
     UsingDef usingDirective() {
-        if (in.td.token == Tokens.ATUSING) {
+        if (isValidUsingDirectiveStart(in.td.token, context.getSettings())) {
             int offset = in.td.offset;
             in.nextToken();
             return new UsingDef(settings(), source.getPositionFromOffset(offset));
