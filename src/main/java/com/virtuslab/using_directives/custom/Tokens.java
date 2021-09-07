@@ -1,6 +1,6 @@
 package com.virtuslab.using_directives.custom;
 
-import static com.virtuslab.using_directives.custom.utils.TokenUtils.*;
+import static com.virtuslab.using_directives.custom.utils.TokenUtils.keywords;
 
 public enum Tokens {
     EMPTY("<empty>"),

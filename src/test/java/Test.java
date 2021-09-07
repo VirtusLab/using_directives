@@ -7,11 +7,13 @@ import com.virtuslab.using_directives.custom.utils.Source;
 import com.virtuslab.using_directives.custom.utils.ast.UsingDefs;
 import com.virtuslab.using_directives.custom.utils.ast.UsingTree;
 import json.CustomGsonInstance;
+import org.junit.jupiter.api.Disabled;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class Test extends TestUtils {
+    @Disabled
     @org.junit.jupiter.api.Test
     public void test() throws IOException, URISyntaxException {
         Gson gson = CustomGsonInstance.get();

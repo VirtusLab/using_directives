@@ -1,18 +1,15 @@
 package com.virtuslab.using_directives.custom;
 
 import com.virtuslab.using_directives.Context;
-import com.virtuslab.using_directives.config.Settings;
-import com.virtuslab.using_directives.custom.utils.ast.*;
 import com.virtuslab.using_directives.custom.utils.Source;
+import com.virtuslab.using_directives.custom.utils.ast.*;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Arrays;
-
+import java.util.List;
 import java.util.function.Supplier;
 
 import static com.virtuslab.using_directives.custom.utils.TokenUtils.*;
-import static com.virtuslab.using_directives.custom.utils.TokenUtils.isValidUsingDirectiveStart;
 
 public class Parser {
 

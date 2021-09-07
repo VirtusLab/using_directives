@@ -6,16 +6,16 @@ import com.virtuslab.using_directives.config.Settings;
 import com.virtuslab.using_directives.custom.Parser;
 import com.virtuslab.using_directives.custom.utils.Source;
 import com.virtuslab.using_directives.custom.utils.ast.UsingTree;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import json.CustomGsonInstance;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ParserTest extends TestUtils {
     private final String inputsRoot = "parser_tests/inputs/";
     private final String resultsRoot = "parser_tests/asts/";
     private final String configsRoot = "parser_tests/configs/";
+
     private UsingTree parseFile(String path, Settings settings) {
         char[] content = getContent(path).toCharArray();
         return new Parser(new Source(content), new Context()).parse();

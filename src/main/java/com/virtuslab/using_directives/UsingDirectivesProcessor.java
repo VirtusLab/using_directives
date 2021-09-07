@@ -1,10 +1,8 @@
 package com.virtuslab.using_directives;
 
-import com.virtuslab.using_directives.custom.*;
-import com.virtuslab.using_directives.config.Settings;
+import com.virtuslab.using_directives.custom.Parser;
+import com.virtuslab.using_directives.custom.Visitor;
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
-import com.virtuslab.using_directives.reporter.ConsoleReporter;
-import com.virtuslab.using_directives.reporter.Reporter;
 import com.virtuslab.using_directives.custom.utils.Source;
 import com.virtuslab.using_directives.custom.utils.ast.UsingTree;
 
