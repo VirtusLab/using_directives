@@ -4,9 +4,13 @@ public class Position {
     private int line;
     private int column;
 
-    public Position(int line, int column) {
+    private int offset;
+
+
+    public Position(int line, int column, int offset) {
         this.line = line;
         this.column = column;
+        this.offset = offset;
     }
 
     public Position() { }
@@ -25,6 +29,14 @@ public class Position {
 
     public int getColumn() {
         return column;
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
     }
 
     public String show() {
