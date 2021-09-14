@@ -27,7 +27,7 @@ public class Source {
                 break;
             }
         }
-        return new Position(lineNumber, columnNumber);
+        return new Position(lineNumber, columnNumber, offset);
     }
 
 
