@@ -116,14 +116,16 @@ public class Parser {
 
     UsingTree usingDirectives() {
         ArrayList<UsingDef> usingTrees = new ArrayList<>();
+        int codeOffset = 0;
         UsingDef ud = usingDirective();
         int offset = in.td.offset;
         while(ud != null) {
             usingTrees.add(ud);
+            codeOffset = in.td.lastOffset + 1;
             in.nextToken();
             ud = usingDirective();
         }
-        return new UsingDefs(usingTrees, in.td.offset, source.getPositionFromOffset(offset));
+        return new UsingDefs(usingTrees, codeOffset, source.getPositionFromOffset(offset));
     }
 
     UsingDef usingDirective() {

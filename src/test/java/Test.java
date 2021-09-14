@@ -13,17 +13,18 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class Test extends TestUtils {
-    @Disabled
+
     @org.junit.jupiter.api.Test
     public void test() throws IOException, URISyntaxException {
         Gson gson = CustomGsonInstance.get();
         Context ctx = new Context();
-        UsingTree ast = new Parser(new Source(getContent("parser_tests/inputs/testcase9.txt").toCharArray()), ctx).parse();
+        UsingTree ast = new Parser(new Source(getContent("parser_tests/inputs/testcase10.txt").toCharArray()), ctx).parse();
         System.out.println(ast);
+        System.out.println(gson.toJson(ast));
         int codeOffset = ((UsingDefs) ast).getCodeOffset();
-        System.out.println(getContent("parser_tests/inputs/testcase9.txt").substring(codeOffset));
+        System.out.println(getContent("parser_tests/inputs/testcase10.txt").substring(codeOffset));
         System.out.println(new Visitor(ast, ctx).visit().getFlattenedMap());
-        System.out.println(new UsingDirectivesProcessor().extract(getContent("parser_tests/inputs/testcase9.txt").toCharArray()).getFlattenedMap());
+        System.out.println(new UsingDirectivesProcessor().extract(getContent("parser_tests/inputs/testcase10.txt").toCharArray()).getFlattenedMap());
     }
 
 }
