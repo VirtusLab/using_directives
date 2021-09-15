@@ -27,7 +27,7 @@ public class Visitor {
     }
 
     public UsingDirectives visit() {
-        Map<Path, Value<?>> flattenView = getFlatView(root);
+        Map<Path, List<Value<?>>> flattenView = getFlatView(root);
         int codeOffset;
         if(root instanceof UsingDefs) {
             codeOffset = ((UsingDefs) root).getCodeOffset();
@@ -37,7 +37,7 @@ public class Visitor {
         return new UsingDirectivesImpl(null, flattenView, root, codeOffset);
     }
 
-    private Map<String, Value<?>> visitSettingsFlat(UsingTree root) {
+    private Map<String, List<Value<?>>> visitSettingsFlat(UsingTree root) {
         if(root instanceof UsingDefs) {
             return ((UsingDefs) root)
                     .getUsingDefs()
@@ -65,8 +65,8 @@ public class Visitor {
 
         }
         else if(root instanceof SettingDef) {
-            Map<String, Value<?>> map = new HashMap<>();
-            List<KeyValue<String, Value<?>>> keyValueList = visitSettingFlat((SettingDef) root);
+            Map<String, List<Value<?>>> map = new HashMap<>();
+            List<KeyValue<String, List<Value<?>>>> keyValueList = visitSettingFlat((SettingDef) root);
             keyValueList.forEach(kv -> map.merge(kv.getKey(), kv.getValue(), this::merge));
             return map;
         }
@@ -76,14 +76,13 @@ public class Visitor {
         }
     }
 
-    private List<KeyValue<String, Value<?>>> visitSettingFlat(SettingDef setting) {
+    private List<KeyValue<String, List<Value<?>>>> visitSettingFlat(SettingDef setting) {
         String key = setting.getKey();
         if(setting.getValue() instanceof SettingDefs) {
-            List<KeyValue<String, Value<?>>> flatList = ((SettingDefs) setting.getValue()).getSettings().stream()
+            return ((SettingDefs) setting.getValue()).getSettings().stream()
                     .flatMap(s -> visitSettingFlat(s).stream())
                     .map(kv -> kv.withNewKey(String.format("%s.%s", key, kv.getKey())))
                     .collect(Collectors.toList());
-            return flatList;
         }
         else {
             return new ArrayList<>(
@@ -143,71 +142,42 @@ public class Visitor {
 //        return new KeyValue<>(key, v);
 //    }
 
-    private Value<?> parseValue(UsingValue value) {
+    private List<Value<?>> parseValue(UsingValue value) {
         if(value instanceof UsingPrimitive) {
+            List<Value<?>> lst = new ArrayList<>();
             if(value instanceof BooleanLiteral) {
-                return new BooleanValue(((BooleanLiteral) value).getValue());
+                lst.add(new BooleanValue(((BooleanLiteral) value).getValue()));
             }
             else if(value instanceof NumericLiteral) {
-                return new NumericValue(((NumericLiteral) value).getValue());
+                lst.add(new NumericValue(((NumericLiteral) value).getValue()));
             }
             else {
-                return new StringValue(((StringLiteral) value).getValue());
+                lst.add(new StringValue(((StringLiteral) value).getValue()));
             }
+            return lst;
         }
         else {
             return parseValues((UsingValues) value);
         }
     }
 
-    private ListValue parseValues(UsingValues value) {
-        return new ListValue(value.values.stream().map(this::parseValue).collect(Collectors.toList()));
+    private List<Value<?>> parseValues(UsingValues value) {
+        return value.values.stream().flatMap(p -> parseValue(p).stream()).collect(Collectors.toList());
     }
 
-    private BinaryOperator<ValueOrSetting<?>> mergeFunc() {
-        return (v1, v2) -> {
-            if(v1 instanceof Value<?> && v2 instanceof Value<?>) {
-                return merge((Value<?>) v1,(Value<?>)  v2);
-            }
-            else if(v1 instanceof Value<?> || v2 instanceof Value<?>) {
-                return null;
-            }
-            else {
-                Setting s1 = (Setting) v1;
-                Setting s2 = (Setting) v2;
-                s2.get().forEach(
-                        (key, value) -> s1.get().merge(key, value, mergeFunc())
-                );
-                return s1;
-            }
-        };
-    }
-
-    private Value<?> merge(Value<?> v1, Value<?> v2) {
-        if(v1 instanceof ListValue && v2 instanceof ListValue) {
-            ArrayList<Value<?>> newList = new ArrayList<>(((ListValue) v1).get());
-            newList.addAll(((ListValue) v2).get());
-            return new ListValue(newList);
-        } else if(v1 instanceof ListValue) {
-            ArrayList<Value<?>> newList = new ArrayList<>(((ListValue) v1).get());
-            newList.add(v2);
-            return new ListValue(newList);
-        } else if(v2 instanceof ListValue) {
-            ArrayList<Value<?>> newList = new ArrayList<>(((ListValue) v2).get());
-            newList.add(v1);
-            return new ListValue(newList);
-        } else {
-            return new ListValue(new ArrayList<>(Arrays.asList(v1, v2)));
-        }
+    private List<Value<?>> merge(List<Value<?>> v1, List<Value<?>> v2) {
+        List<Value<?>> copied = new ArrayList<>(v1);
+        copied.addAll(v2);
+        return copied;
     }
 
     private Map<String, ValueOrSetting<?>> nest(Map<String, ValueOrSetting<?>> raw) {
         return raw.entrySet().stream()
-                .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private Map<Path, Value<?>> getFlatView(UsingTree root) {
-        Map<String, Value<?>> intermediate = visitSettingsFlat(root);
+    private Map<Path, List<Value<?>>> getFlatView(UsingTree root) {
+        Map<String, List<Value<?>>> intermediate = visitSettingsFlat(root);
         return intermediate.entrySet().stream()
                 .collect(
                         Collectors.toMap(e ->

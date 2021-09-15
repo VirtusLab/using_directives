@@ -18,6 +18,8 @@ public class ParserTest extends TestUtils {
 
     private UsingTree parseFile(String path, Settings settings) {
         char[] content = getContent(path).toCharArray();
+        Context ctx = new Context();
+        ctx.setSettings(settings);
         return new Parser(new Source(content), new Context()).parse();
     }
 

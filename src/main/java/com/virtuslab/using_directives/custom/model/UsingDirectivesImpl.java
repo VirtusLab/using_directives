@@ -2,15 +2,16 @@ package com.virtuslab.using_directives.custom.model;
 
 import com.virtuslab.using_directives.custom.utils.ast.UsingTree;
 
+import java.util.List;
 import java.util.Map;
 
 public class UsingDirectivesImpl implements UsingDirectives {
     private final Map<String, ValueOrSetting<?>> nestedMap;
-    private final Map<Path, Value<?>> flattenedMap;
+    private final Map<Path, List<Value<?>>> flattenedMap;
     private final UsingTree ast;
     private final int codeOffset;
 
-    public UsingDirectivesImpl(Map<String, ValueOrSetting<?>> nestedMap, Map<Path, Value<?>> flattenedMap, UsingTree ast, int codeOffset) {
+    public UsingDirectivesImpl(Map<String, ValueOrSetting<?>> nestedMap, Map<Path, List<Value<?>>> flattenedMap, UsingTree ast, int codeOffset) {
         this.nestedMap = nestedMap;
         this.flattenedMap = flattenedMap;
         this.ast = ast;
@@ -19,7 +20,7 @@ public class UsingDirectivesImpl implements UsingDirectives {
 
 
     @Override
-    public Map<Path, Value<?>> getFlattenedMap() {
+    public Map<Path, List<Value<?>>> getFlattenedMap() {
         return flattenedMap;
     }
 
