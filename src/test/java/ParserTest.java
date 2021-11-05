@@ -20,7 +20,7 @@ public class ParserTest extends TestUtils {
         char[] content = getContent(path).toCharArray();
         Context ctx = new Context();
         ctx.setSettings(settings);
-        return new Parser(new Source(content), new Context()).parse();
+        return new Parser(new Source(content), ctx).parse();
     }
 
     private void compareAST(String pathToInput, String pathToExpectedResult, String pathToConfig) {

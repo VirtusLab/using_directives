@@ -36,7 +36,11 @@ public class Parser {
     }
 
     private void error(String msg) {
-        error(msg, in.td.offset);
+        error(msg, offset(in.td.offset));
+    }
+
+    private int offset(int off) {
+        return source.translateOffset(off);
     }
 
     public boolean isStatSep() {
@@ -100,28 +104,19 @@ public class Parser {
 
     /* */
 
-    Integer nameStart() {
-        if (in.td.token == Tokens.BACKQUOTED_IDENT) {
-            return in.td.offset + 1;
-        }
-        else {
-            return in.td.offset;
-        }
-    }
-
-    public UsingTree parse() {
-        UsingTree t = usingDirectives();
+    public UsingDefs parse() {
+        UsingDefs t = usingDirectives();
         return t;
     }
 
-    UsingTree usingDirectives() {
+    UsingDefs usingDirectives() {
         ArrayList<UsingDef> usingTrees = new ArrayList<>();
         int codeOffset = 0;
         UsingDef ud = usingDirective();
-        int offset = in.td.offset;
+        int offset = offset(in.td.offset);
         while(ud != null) {
             usingTrees.add(ud);
-            codeOffset = in.td.lastOffset + 1;
+            codeOffset = offset(in.td.lastOffset + 1);
             in.nextToken();
             ud = usingDirective();
         }
@@ -130,7 +125,7 @@ public class Parser {
 
     UsingDef usingDirective() {
         if (isValidUsingDirectiveStart(in.td.token, context.getSettings())) {
-            int offset = in.td.offset;
+            int offset = offset(in.td.offset);
             in.nextToken();
             return new UsingDef(settings(), source.getPositionFromOffset(offset));
         }
@@ -162,7 +157,7 @@ public class Parser {
     SettingDefs settings() {
         possibleTemplateStart();
         ArrayList<SettingDef> settings = new ArrayList<>();
-        int offset = in.td.offset;
+        int offset = offset(in.td.offset);
         if(in.td.token == Tokens.IDENTIFIER) {
             settings.add(setting());
         } else {
@@ -172,7 +167,7 @@ public class Parser {
     }
 
     SettingDef setting() {
-        int offset = in.td.offset;
+        int offset = offset(in.td.offset);
         String key = key();
         SettingDefOrUsingValue value = valueOrSetting();
         return new SettingDef(key, value, source.getPositionFromOffset(offset));
@@ -204,7 +199,7 @@ public class Parser {
 
     UsingValue value() {
         UsingPrimitive p = primitive();
-        int offset = in.td.offset;
+        int offset = offset(in.td.offset);
         in.nextToken();
         if(in.td.token == Tokens.COMMA) {
             in.nextToken();

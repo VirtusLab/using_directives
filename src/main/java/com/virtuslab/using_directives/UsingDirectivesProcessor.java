@@ -1,9 +1,13 @@
 package com.virtuslab.using_directives;
 
+import com.virtuslab.using_directives.Context;
+import com.virtuslab.using_directives.custom.CommentExtractor;
 import com.virtuslab.using_directives.custom.Parser;
 import com.virtuslab.using_directives.custom.Visitor;
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
+import com.virtuslab.using_directives.custom.utils.CommentSource;
 import com.virtuslab.using_directives.custom.utils.Source;
+import com.virtuslab.using_directives.custom.utils.ast.UsingDefs;
 import com.virtuslab.using_directives.custom.utils.ast.UsingTree;
 
 public class UsingDirectivesProcessor {
@@ -18,9 +22,22 @@ public class UsingDirectivesProcessor {
     }
 
     public UsingDirectives extract(char[] content) {
+        // Try to extract comments from the start of file
+        CommentExtractor extractor = new CommentExtractor(content);
+        CommentSource cs = extractor.getCommentSource();
+
         context.getReporter().reset();
-        UsingTree ast = new Parser(new Source(content), context).parse();
-        return new Visitor(ast, context).visit();
+
+        // Parse comment and standard syntax
+        UsingDefs astFromComments = new Parser(cs, context).parse();
+        UsingDefs ast = new Parser(new Source(content), context).parse();
+
+        // If standard syntax is empty, fallback to comments
+        if(ast.getUsingDefs().isEmpty()){
+            return new Visitor(astFromComments, context).visit();
+        } else {
+            return new Visitor(ast, context).visit();
+        }
     }
 
     public Context getContext() {
