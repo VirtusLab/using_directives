@@ -223,21 +223,22 @@ public class Parser {
           Tokens.DOUBLELIT);
 
   UsingPrimitive primitive() {
+    int offset = offset(in.td.offset);
     if (in.td.token == Tokens.STRINGLIT) {
-      return new StringLiteral(in.td.strVal, source.getPositionFromOffset(in.td.offset));
+      return new StringLiteral(in.td.strVal, source.getPositionFromOffset(offset));
     } else if (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("-")) {
       in.nextToken();
       if (numericTokens.contains(in.td.token)) {
-        return new NumericLiteral("-" + in.td.strVal, source.getPositionFromOffset(in.td.offset));
+        return new NumericLiteral("-" + in.td.strVal, source.getPositionFromOffset(offset));
       } else {
         error(String.format("Expected numeric value but found %s", in.td.token.str));
       }
     } else if (numericTokens.contains(in.td.token)) {
-      return new NumericLiteral(in.td.strVal, source.getPositionFromOffset(in.td.offset));
+      return new NumericLiteral(in.td.strVal, source.getPositionFromOffset(offset));
     } else if (in.td.token == Tokens.TRUE) {
-      return new BooleanLiteral(true, source.getPositionFromOffset(in.td.offset));
+      return new BooleanLiteral(true, source.getPositionFromOffset(offset));
     } else if (in.td.token == Tokens.FALSE) {
-      return new BooleanLiteral(false, source.getPositionFromOffset(in.td.offset));
+      return new BooleanLiteral(false, source.getPositionFromOffset(offset));
     }
     error(String.format("Expected primitive value but found %s", in.td.token.str));
     return null;
