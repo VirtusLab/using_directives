@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Source {
-    private final char[] content;
+    protected final char[] content;
 
-    private final List<Integer> lineStarts;
+    protected final List<Integer> lineStarts;
 
     public Source(char[] content) {
         lineStarts = calculateLineStarts(content);
@@ -30,13 +30,17 @@ public class Source {
         return new Position(lineNumber, columnNumber, offset);
     }
 
+    public int translateOffset(int offset) {
+        return offset;
+    }
+
 
     private List<Integer> calculateLineStarts(char[] content) {
         List<Integer> result = new ArrayList<>();
         result.add(0);
         for(int i = 0; i < content.length; i++) {
             if(content[i] == Chars.LF) {
-                result.add(i);
+                result.add(i + 1);
             }
         }
         return result;
