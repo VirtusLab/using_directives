@@ -1,11 +1,13 @@
 package com.virtuslab.using_directives.custom.model;
 
+import com.virtuslab.using_directives.custom.utils.ast.UsingTree;
 import java.util.Objects;
 
-public class StringValue implements Value<String> {
+public class StringValue extends Value<String> {
   private final String v;
 
-  public StringValue(String v) {
+  public StringValue(String v, UsingTree astNode) {
+    super(astNode);
     this.v = v;
   }
 

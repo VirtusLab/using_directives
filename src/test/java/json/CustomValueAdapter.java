@@ -15,11 +15,11 @@ public class CustomValueAdapter implements JsonDeserializer<Value<?>>, JsonSeria
     String type = jsonObj.get("type").getAsString();
     switch (type) {
       case "boolean":
-        return new BooleanValue(jsonObj.get("value").getAsBoolean());
+        return new BooleanValue(jsonObj.get("value").getAsBoolean(), null);
       case "numeric":
-        return new NumericValue(jsonObj.get("value").getAsString());
+        return new NumericValue(jsonObj.get("value").getAsString(), null);
       case "string":
-        return new StringValue(jsonObj.get("value").getAsString());
+        return new StringValue(jsonObj.get("value").getAsString(), null);
       default:
         return null;
     }
