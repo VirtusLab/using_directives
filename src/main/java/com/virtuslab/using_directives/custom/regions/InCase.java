@@ -2,19 +2,19 @@ package com.virtuslab.using_directives.custom.regions;
 
 public class InCase extends Region {
 
-    public Region outer;
+  public Region outer;
 
-    @Override
-    public Region outer() {
-        return outer;
-    }
+  @Override
+  public Region outer() {
+    return outer;
+  }
 
-    @Override
-    protected String delimiter() {
-        return "=>";
-    }
+  @Override
+  protected String delimiter() {
+    return "=>";
+  }
 
-    public InCase(Region outer) {
-        this.outer = outer;
-    }
+  public InCase(Region outer) {
+    this.outer = outer;
+  }
 }
