@@ -6,6 +6,7 @@ plugins {
     `maven-publish`
     signing
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
+    id("com.diffplug.spotless") version "5.17.1"
 }
 
 apply {
@@ -173,3 +174,10 @@ signing {
     sign(publishing.publications)
 }
 
+spotless {
+    java {
+        importOrder()
+        googleJavaFormat()
+        removeUnusedImports()
+    }
+}

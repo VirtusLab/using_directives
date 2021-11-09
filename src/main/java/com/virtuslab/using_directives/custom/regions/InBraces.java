@@ -1,18 +1,19 @@
 package com.virtuslab.using_directives.custom.regions;
 
 public class InBraces extends Region {
-    public Region outer;
-    @Override
-    public Region outer() {
-        return outer;
-    }
+  public Region outer;
 
-    @Override
-    protected String delimiter() {
-        return "}";
-    }
+  @Override
+  public Region outer() {
+    return outer;
+  }
 
-    public InBraces(Region outer) {
-        this.outer = outer;
-    }
+  @Override
+  protected String delimiter() {
+    return "}";
+  }
+
+  public InBraces(Region outer) {
+    this.outer = outer;
+  }
 }
