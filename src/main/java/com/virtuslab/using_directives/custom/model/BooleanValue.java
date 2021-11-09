@@ -1,11 +1,13 @@
 package com.virtuslab.using_directives.custom.model;
 
+import com.virtuslab.using_directives.custom.utils.ast.UsingTree;
 import java.util.Objects;
 
-public class BooleanValue implements Value<Boolean> {
+public class BooleanValue extends Value<Boolean> {
   private final Boolean v;
 
-  public BooleanValue(Boolean v) {
+  public BooleanValue(Boolean v, UsingTree astNode) {
+    super(astNode);
     this.v = v;
   }
 
