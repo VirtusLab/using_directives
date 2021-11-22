@@ -13,4 +13,9 @@ public abstract class Value<T> implements ValueOrSetting<T> {
   public UsingTree getRelatedASTNode() {
     return astNode;
   }
+
+  @Override
+  public String toString() {
+    return get().toString();
+  }
 }
