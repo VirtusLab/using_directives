@@ -54,5 +54,6 @@ public class ParserTest extends TestUtils {
     compareAST("testcase12.txt", "ast12.txt", "config12.json");
     compareAST("testcase13.txt", "ast13.txt", "config13.json");
     compareAST("testcase14.txt", "ast14.txt", "config14.json");
+    compareAST("testcase15.txt", "ast15.txt", "config15.json");
   }
 }

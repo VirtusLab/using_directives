@@ -885,6 +885,7 @@ public class Scanner {
         putChar(reader.ch);
         reader.nextChar();
         getOperatorRest();
+        break;
       case '/':
         char nxch = reader.lookaheadChar();
         if (nxch == '/' || nxch == '*') finishNamed(Tokens.IDENTIFIER, td);

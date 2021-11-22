@@ -1,0 +1,1 @@
+{"usingDefs":[{"settingDefs":{"settings":[{"key":"target.scala","value":{"settings":[{"key":">=","value":{"type":"string","value":"2.13"}},{"key":"<=","value":{"type":"string","value":"3.1.0"}},{"key":">","value":{"type":"string","value":"2.12"}},{"key":"<","value":{"type":"string","value":"2.11"}}]}}]}}],"codeOffset":96}

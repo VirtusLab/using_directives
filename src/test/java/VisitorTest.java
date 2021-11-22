@@ -56,5 +56,6 @@ public class VisitorTest extends TestUtils {
     compareOutputs("ast1.txt", "output1.txt");
     compareOutputs("ast3.txt", "output3.txt");
     compareOutputs("ast4.txt", "output4.txt");
+    compareOutputs("ast15.txt", "output5.txt");
   }
 }
