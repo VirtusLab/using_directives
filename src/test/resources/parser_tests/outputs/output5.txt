@@ -1,0 +1,6 @@
+{
+    "target.scala.\u003e":[{"type":"string","value":"2.12"}],
+    "target.scala.\u003c":[{"type":"string","value":"2.11"}],
+    "target.scala.\u003c\u003d":[{"type":"string","value":"3.1.0"}],
+    "target.scala.\u003e\u003d":[{"type":"string","value":"2.13"}]
+}

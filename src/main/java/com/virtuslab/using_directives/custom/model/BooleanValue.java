@@ -11,6 +11,11 @@ public class BooleanValue extends Value<Boolean> {
     this.v = v;
   }
 
+  public BooleanValue(Boolean v, UsingTree astNode, String scope) {
+    super(astNode, scope);
+    this.v = v;
+  }
+
   @Override
   public Boolean get() {
     return v;
@@ -26,7 +31,7 @@ public class BooleanValue extends Value<Boolean> {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     BooleanValue that = (BooleanValue) o;
-    return Objects.equals(v, that.v);
+    return Objects.equals(v, that.v) && Objects.equals(getScope(), that.getScope());
   }
 
   @Override

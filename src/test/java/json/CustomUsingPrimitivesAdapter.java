@@ -17,12 +17,15 @@ public class CustomUsingPrimitivesAdapter
     JsonObject jsonObj = json.getAsJsonObject();
     String type = jsonObj.get("type").getAsString();
     Position pos = context.deserialize(jsonObj.getAsJsonObject("position"), Position.class);
+    JsonElement scopeJson = jsonObj.get("scope");
+    String scope = null;
+    if (scopeJson != null) scope = scopeJson.getAsString();
     if (type.equals("boolean")) {
-      return new BooleanLiteral(jsonObj.get("value").getAsBoolean(), pos);
+      return new BooleanLiteral(jsonObj.get("value").getAsBoolean(), pos, scope);
     } else if (type.equals("numeric")) {
-      return new NumericLiteral(jsonObj.get("value").getAsString(), pos);
+      return new NumericLiteral(jsonObj.get("value").getAsString(), pos, scope);
     } else if (type.equals("string")) {
-      return new StringLiteral(jsonObj.get("value").getAsString(), pos);
+      return new StringLiteral(jsonObj.get("value").getAsString(), pos, scope);
     } else {
       return null;
     }
@@ -33,6 +36,9 @@ public class CustomUsingPrimitivesAdapter
       UsingPrimitive src, Type typeOfSrc, JsonSerializationContext context) {
     JsonObject jsonObj = new JsonObject();
     jsonObj.add("position", context.serialize(src.getPosition(), Position.class));
+    if (src.getScope() != null) {
+      jsonObj.addProperty("scope", src.getScope());
+    }
     if (src instanceof BooleanLiteral) {
       jsonObj.addProperty("type", "boolean");
       jsonObj.addProperty("value", ((BooleanLiteral) src).getValue());

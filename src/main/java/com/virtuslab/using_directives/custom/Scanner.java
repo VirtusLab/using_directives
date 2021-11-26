@@ -168,6 +168,9 @@ public class Scanner {
         currentRegion = new InParens(lastToken, currentRegion);
         break;
       case LBRACE:
+        currentRegion = new InBraces(currentRegion);
+        break;
+      case RBRACE:
         dropBraces();
         break;
       case RPAREN:
@@ -885,6 +888,7 @@ public class Scanner {
         putChar(reader.ch);
         reader.nextChar();
         getOperatorRest();
+        break;
       case '/':
         char nxch = reader.lookaheadChar();
         if (nxch == '/' || nxch == '*') finishNamed(Tokens.IDENTIFIER, td);
