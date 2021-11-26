@@ -11,6 +11,11 @@ public class NumericValue extends Value<String> {
     this.v = v;
   }
 
+  public NumericValue(String v, UsingTree astNode, String scope) {
+    super(astNode, scope);
+    this.v = v;
+  }
+
   @Override
   public String get() {
     return v;
@@ -26,7 +31,7 @@ public class NumericValue extends Value<String> {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     NumericValue that = (NumericValue) o;
-    return Objects.equals(v, that.v);
+    return Objects.equals(v, that.v) && Objects.equals(getScope(), that.getScope());
   }
 
   @Override

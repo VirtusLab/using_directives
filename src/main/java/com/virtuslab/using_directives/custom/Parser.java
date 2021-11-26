@@ -186,7 +186,16 @@ public class Parser {
   SettingDefOrUsingValue valueOrSetting() {
     if (literalTokens.contains(in.td.token)
         || (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("-"))) {
-      return value();
+      UsingValue v = value();
+      String scope = scope();
+      if (scope != null) {
+        if (v instanceof UsingPrimitive) {
+          ((UsingPrimitive) v).setScope(scope);
+        } else {
+          ((UsingValues) v).getValues().forEach(p -> p.setScope(scope));
+        }
+      }
+      return v;
     } else {
       return settings();
     }
@@ -210,6 +219,22 @@ public class Parser {
       }
     } else {
       return p;
+    }
+  }
+
+  String scope() {
+    if (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("in")) {
+      in.nextToken();
+      if (in.td.token == Tokens.STRINGLIT) {
+        String scope = in.td.strVal;
+        in.nextToken();
+        return scope;
+      } else {
+        error(String.format("Expected token STRINGLIT but found %s", in.td.token.str));
+        return null;
+      }
+    } else {
+      return null;
     }
   }
 

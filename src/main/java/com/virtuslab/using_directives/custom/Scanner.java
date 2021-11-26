@@ -168,6 +168,9 @@ public class Scanner {
         currentRegion = new InParens(lastToken, currentRegion);
         break;
       case LBRACE:
+        currentRegion = new InBraces(currentRegion);
+        break;
+      case RBRACE:
         dropBraces();
         break;
       case RPAREN:

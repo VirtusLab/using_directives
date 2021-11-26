@@ -37,16 +37,9 @@ public class CustomUsingValueAdapter
       JsonElement serializedValues =
           context.serialize(((UsingValues) src).values.toArray(), UsingPrimitive[].class);
       jsonObj.add("value", serializedValues);
-    } else if (src instanceof BooleanLiteral) {
-      jsonObj.addProperty("type", "boolean");
-      jsonObj.addProperty("value", ((BooleanLiteral) src).getValue());
-    } else if (src instanceof NumericLiteral) {
-      jsonObj.addProperty("type", "numeric");
-      jsonObj.addProperty("value", ((NumericLiteral) src).getValue());
-    } else if (src instanceof StringLiteral) {
-      jsonObj.addProperty("type", "string");
-      jsonObj.addProperty("value", ((StringLiteral) src).getValue());
+      return jsonObj;
+    } else {
+      return context.serialize(src, UsingPrimitive.class);
     }
-    return jsonObj;
   }
 }

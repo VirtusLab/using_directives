@@ -30,6 +30,7 @@ public class Test extends TestUtils {
         new UsingDirectivesProcessor()
             .extract(getContent("comment_extractor_tests/inputs/comment2.txt").toCharArray());
     System.out.println(ud.getFlattenedMap());
+    System.out.println(ud.toString());
     codeOffset = ud.getCodeOffset();
     System.out.println(ud.getCodeOffset());
     System.out.println(

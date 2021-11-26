@@ -18,6 +18,11 @@ public class BooleanLiteral extends UsingPrimitive {
     this.value = value;
   }
 
+  public BooleanLiteral(Boolean value, Position position, String scope) {
+    super(position, scope);
+    this.value = value;
+  }
+
   public BooleanLiteral() {}
 
   @Override

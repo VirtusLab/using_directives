@@ -40,20 +40,21 @@ public class ParserTest extends TestUtils {
 
   @Test
   public void testParser() {
-    compareAST("testcase1.txt", "ast1.txt", "config1.json");
-    compareAST("testcase2.txt", "ast2.txt", "config2.json");
-    compareAST("testcase3.txt", "ast3.txt", "config3.json");
-    compareAST("testcase4.txt", "ast4.txt", "config4.json");
-    compareAST("testcase5.txt", "ast5.txt", "config5.json");
-    compareAST("testcase6.txt", "ast6.txt", "config6.json");
-    compareAST("testcase7.txt", "ast7.txt", "config7.json");
-    compareAST("testcase8.txt", "ast8.txt", "config8.json");
-    compareAST("testcase9.txt", "ast9.txt", "config9.json");
-    compareAST("testcase10.txt", "ast10.txt", "config10.json");
-    compareAST("testcase11.txt", "ast11.txt", "config11.json");
-    compareAST("testcase12.txt", "ast12.txt", "config12.json");
-    compareAST("testcase13.txt", "ast13.txt", "config13.json");
-    compareAST("testcase14.txt", "ast14.txt", "config14.json");
-    compareAST("testcase15.txt", "ast15.txt", "config15.json");
+    compareAST("testcase1.txt", "ast1.json", "config1.json");
+    compareAST("testcase2.txt", "ast2.json", "config2.json");
+    compareAST("testcase3.txt", "ast3.json", "config3.json");
+    compareAST("testcase4.txt", "ast4.json", "config4.json");
+    compareAST("testcase5.txt", "ast5.json", "config5.json");
+    compareAST("testcase6.txt", "ast6.json", "config6.json");
+    compareAST("testcase7.txt", "ast7.json", "config7.json");
+    compareAST("testcase8.txt", "ast8.json", "config8.json");
+    compareAST("testcase9.txt", "ast9.json", "config9.json");
+    compareAST("testcase10.txt", "ast10.json", "config10.json");
+    compareAST("testcase11.txt", "ast11.json", "config11.json");
+    compareAST("testcase12.txt", "ast12.json", "config12.json");
+    compareAST("testcase13.txt", "ast13.json", "config13.json");
+    compareAST("testcase14.txt", "ast14.json", "config14.json");
+    compareAST("testcase15.txt", "ast15.json", "config15.json");
+    compareAST("testcase16.txt", "ast16.json", "config16.json");
   }
 }

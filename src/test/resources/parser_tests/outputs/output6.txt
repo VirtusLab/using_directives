@@ -1,0 +1,9 @@
+{
+    "target.scope":[{"scope":"test/","type":"string","value":"test"}],
+    "target.scala.\u003c\u003d":[{"scope":"3.1.0/","type":"string","value":"3.1.0"}],
+    "target.scala.\u003e\u003d":[{"scope":"2.13/","type":"string","value":"2.13"}],
+    "target.platform":[
+        {"scope":"js/","type":"string","value":"scala-js"},
+        {"scope":"js/","type":"string","value":"scala-native"}
+    ]
+}

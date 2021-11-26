@@ -13,13 +13,14 @@ public class CustomValueAdapter implements JsonDeserializer<Value<?>>, JsonSeria
       throws JsonParseException {
     JsonObject jsonObj = json.getAsJsonObject();
     String type = jsonObj.get("type").getAsString();
+    String scope = jsonObj.get("scope") != null ? jsonObj.get("scope").getAsString() : null;
     switch (type) {
       case "boolean":
-        return new BooleanValue(jsonObj.get("value").getAsBoolean(), null);
+        return new BooleanValue(jsonObj.get("value").getAsBoolean(), null, scope);
       case "numeric":
-        return new NumericValue(jsonObj.get("value").getAsString(), null);
+        return new NumericValue(jsonObj.get("value").getAsString(), null, scope);
       case "string":
-        return new StringValue(jsonObj.get("value").getAsString(), null);
+        return new StringValue(jsonObj.get("value").getAsString(), null, scope);
       default:
         return null;
     }
@@ -28,6 +29,7 @@ public class CustomValueAdapter implements JsonDeserializer<Value<?>>, JsonSeria
   @Override
   public JsonElement serialize(Value<?> src, Type typeOfSrc, JsonSerializationContext context) {
     JsonObject jsonObj = new JsonObject();
+    if (src.getScope() != null) jsonObj.addProperty("scope", src.getScope());
     if (src instanceof BooleanValue) {
       jsonObj.addProperty("type", "boolean");
       jsonObj.addProperty("value", ((BooleanValue) src).get());

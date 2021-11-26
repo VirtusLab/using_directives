@@ -18,6 +18,11 @@ public class NumericLiteral extends UsingPrimitive {
     this.value = value;
   }
 
+  public NumericLiteral(String value, Position position, String scope) {
+    super(position, scope);
+    this.value = value;
+  }
+
   public NumericLiteral() {}
 
   @Override

@@ -11,6 +11,11 @@ public class StringValue extends Value<String> {
     this.v = v;
   }
 
+  public StringValue(String v, UsingTree astNode, String scope) {
+    super(astNode, scope);
+    this.v = v;
+  }
+
   @Override
   public String get() {
     return v;
@@ -26,7 +31,7 @@ public class StringValue extends Value<String> {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     StringValue that = (StringValue) o;
-    return Objects.equals(v, that.v);
+    return Objects.equals(v, that.v) && Objects.equals(getScope(), that.getScope());
   }
 
   @Override

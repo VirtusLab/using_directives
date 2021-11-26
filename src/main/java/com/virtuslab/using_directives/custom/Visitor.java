@@ -130,11 +130,17 @@ public class Visitor {
     if (value instanceof UsingPrimitive) {
       List<Value<?>> lst = new ArrayList<>();
       if (value instanceof BooleanLiteral) {
-        lst.add(new BooleanValue(((BooleanLiteral) value).getValue(), value));
+        lst.add(
+            new BooleanValue(
+                ((BooleanLiteral) value).getValue(), value, ((UsingPrimitive) value).getScope()));
       } else if (value instanceof NumericLiteral) {
-        lst.add(new NumericValue(((NumericLiteral) value).getValue(), value));
+        lst.add(
+            new NumericValue(
+                ((NumericLiteral) value).getValue(), value, ((NumericLiteral) value).getScope()));
       } else {
-        lst.add(new StringValue(((StringLiteral) value).getValue(), value));
+        lst.add(
+            new StringValue(
+                ((StringLiteral) value).getValue(), value, ((UsingPrimitive) value).getScope()));
       }
       return lst;
     } else {
