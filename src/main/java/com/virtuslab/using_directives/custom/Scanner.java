@@ -824,7 +824,7 @@ public class Scanner {
     getLitChars('`');
     if (reader.ch == '`') {
       reader.nextChar();
-      finishNamed(Tokens.BACKQUOTED_IDENT, td);
+      finishNamed(Tokens.IDENTIFIER, td);
       if (td.name.length() == 0) {
         error("empty quoted identifier");
       } else if (td.name.contains("_")) {
