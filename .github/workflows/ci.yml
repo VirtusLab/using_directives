@@ -7,8 +7,11 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: ${{ matrix.OS }}
+    strategy:
+      fail-fast: false
+      matrix:
+        OS: ["ubuntu-latest", "macos-latest", "windows-latest"]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -23,7 +26,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
       - name: Publish snapshot
-        if: github.event_name == 'push'
+        if: ${{ github.event_name == 'push' && matrix.OS == 'ubuntu-latest' }}
         run: ./gradlew publishReleasePublicationToSonatypeRepository --max-workers 1 closeAndReleaseSonatypeStagingRepository
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
