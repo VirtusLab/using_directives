@@ -111,7 +111,7 @@ public class Parser {
     int offset = offset(in.td.offset);
     while (ud != null) {
       usingTrees.add(ud);
-      codeOffset = offset(in.td.lastOffset + 1);
+      codeOffset = offset(in.td.lastOffset);
       in.nextToken();
       ud = usingDirective();
     }

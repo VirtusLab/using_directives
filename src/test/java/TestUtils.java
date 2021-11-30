@@ -1,12 +1,15 @@
-import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.stream.Collectors;
+import org.apache.commons.io.IOUtils;
 
 class TestUtils {
   public String getContent(String path) {
     InputStream is = getClass().getResourceAsStream(path);
-    BufferedReader br = new BufferedReader(new InputStreamReader(is));
-    return br.lines().collect(Collectors.joining("\n"));
+    try {
+      byte[] bytes = IOUtils.toByteArray(is);
+      return new String(bytes);
+    } catch (IOException io) {
+      return null;
+    }
   }
 }

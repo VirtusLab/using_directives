@@ -14,6 +14,10 @@ public class CommentSource extends Source {
     for (int i = 1; i < lineOffsets.size(); i++) {
       lineOffsetsSums.add(lineOffsetsSums.get(i - 1) + lineOffsets.get(i));
     }
+
+    // Synthetic line offset sum to handle end of file (technically being after the last line end)
+    if (lineOffsetsSums.size() > 0) lineOffsetsSums.add(lineOffsetsSums.size() - 1);
+
     this.lineOffsetSums = lineOffsetsSums;
     this.lineOffsets = lineOffsets;
   }
