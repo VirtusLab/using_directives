@@ -2,4 +2,3 @@
   lib.cs "org.scalameta :: munit : 0.4.3"
 }
 Some comment
-

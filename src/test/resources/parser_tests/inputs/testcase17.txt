@@ -1,0 +1,2 @@
+@using `native-gc` 78, 12
+def foo() = println("hello foo")

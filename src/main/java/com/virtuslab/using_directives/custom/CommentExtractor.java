@@ -50,12 +50,6 @@ public class CommentExtractor {
           while (reader.ch != CR && reader.ch != LF && reader.ch != SU) {
             reader.nextChar();
           }
-          while (reader.ch == CR) {
-            reader.nextChar();
-          }
-          if (reader.ch == LF) {
-            reader.nextChar();
-          }
         };
     Runnable skipComment =
         () -> {
@@ -89,8 +83,8 @@ public class CommentExtractor {
       int commentStart = reader.charOffset;
       lineOffsets.add(reader.charOffset - reader.lineStartOffset);
       skipLine.run();
-      // We need to take one step back because we finished scanning on first non-comment char
-      int commentEnd = reader.charOffset - 1;
+
+      int commentEnd = reader.charOffset;
       lines.add(Arrays.copyOfRange(reader.buf, commentStart, commentEnd));
       return true;
     } else if (reader.ch == '*') {

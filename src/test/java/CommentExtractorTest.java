@@ -48,5 +48,7 @@ public class CommentExtractorTest extends TestUtils {
     compare("comment1.txt", "output1.txt", "lines1.json");
     compare("comment2.txt", "output2.txt", "lines2.json");
     compare("comment3.txt", "output3.txt", "lines3.json");
+    compare("comment4.txt", "output4.txt", "lines4.json");
+    compare("comment5.txt", "output5.txt", "lines5.json");
   }
 }
