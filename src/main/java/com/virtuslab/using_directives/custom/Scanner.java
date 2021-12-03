@@ -741,7 +741,7 @@ public class Scanner {
         getOperatorRest();
       } else {
         // FIXME: Dotty deviation: f"" interpolator is not supported (#1814)
-        error(String.format("illegal character '\\u%04x'", reader.ch));
+        error(String.format("illegal character '\\u%04x'", (int) reader.ch));
         reader.nextChar();
       }
     }

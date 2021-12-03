@@ -84,7 +84,13 @@ public class CommentExtractor {
       lineOffsets.add(reader.charOffset - reader.lineStartOffset);
       skipLine.run();
 
-      int commentEnd = reader.charOffset;
+      int commentEnd;
+      // CharArrayReader returns SU if it reaches the end of file
+      if (reader.ch == SU) {
+        commentEnd = reader.charOffset - 1;
+      } else {
+        commentEnd = reader.charOffset;
+      }
       lines.add(Arrays.copyOfRange(reader.buf, commentStart, commentEnd));
       return true;
     } else if (reader.ch == '*') {

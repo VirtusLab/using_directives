@@ -22,7 +22,9 @@ public class CommentExtractorIntegrationTest extends TestUtils {
     setts.setAllowStartWithoutAt(true);
     ctx.setSettings(setts);
     processor.setContext(ctx);
-    return processor.extract(content);
+    UsingDirectives res = processor.extract(content);
+    assertFalse(processor.getContext().getReporter().hasErrors());
+    return res;
   }
 
   private void integrationTest(String inputPath, String restPath) {
@@ -47,5 +49,6 @@ public class CommentExtractorIntegrationTest extends TestUtils {
     integrationTest("comment3.txt", "rest3.txt");
     integrationTest("comment4.txt", "rest4.txt");
     integrationTest("comment5.txt", "rest5.txt");
+    integrationTest("comment6.txt", "rest6.txt");
   }
 }
