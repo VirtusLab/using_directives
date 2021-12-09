@@ -11,5 +11,7 @@ public interface UsingDirectives {
 
   UsingTree getAst();
 
+  boolean isCommentSyntax();
+
   int getCodeOffset();
 }

@@ -32,9 +32,9 @@ public class UsingDirectivesProcessor {
 
     // If standard syntax is empty, fallback to comments
     if (ast.getUsingDefs().isEmpty()) {
-      return new Visitor(astFromComments, context).visit();
+      return new Visitor(astFromComments, context).visit(true);
     } else {
-      return new Visitor(ast, context).visit();
+      return new Visitor(ast, context).visit(false);
     }
   }
 

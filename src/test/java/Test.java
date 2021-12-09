@@ -25,7 +25,7 @@ public class Test extends TestUtils {
     int codeOffset = ((UsingDefs) ast).getCodeOffset();
     System.out.println(
         getContent("comment_extractor_tests/inputs/comment1.txt").substring(codeOffset));
-    System.out.println(new Visitor(ast, ctx).visit().getFlattenedMap());
+    System.out.println(new Visitor(ast, ctx).visit(true).getFlattenedMap());
     UsingDirectives ud =
         new UsingDirectivesProcessor()
             .extract(getContent("comment_extractor_tests/inputs/comment2.txt").toCharArray());
