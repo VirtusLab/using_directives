@@ -32,14 +32,10 @@ public class TokenUtils {
   }
 
   public static boolean isValidUsingDirectiveStart(Tokens token, Settings settings) {
-
-    boolean res =
-        (settings.isAllowStartWithoutAt()
-                && (token == Tokens.USING
-                    || (settings.isAllowRequire() && token == Tokens.REQUIRE)))
-            || token == Tokens.ATUSING
-            || (settings.isAllowRequire() && token == Tokens.ATREQUIRE);
-    return res;
+    return (settings.isAllowStartWithoutAt()
+            && (token == Tokens.USING || (settings.isAllowRequire() && token == Tokens.REQUIRE)))
+        || token == Tokens.ATUSING
+        || (settings.isAllowRequire() && token == Tokens.ATREQUIRE);
   }
 
   public static Set<Tokens> alphaKeywords = new HashSet<>(tokenRange(Tokens.USING, Tokens.END));
@@ -127,7 +123,7 @@ public class TokenUtils {
 
   private static Set<Tokens> atomicExprTokens() {
     Set<Tokens> set = new HashSet<>(literalTokens());
-    set.addAll(identifierTokens());
+    //    set.addAll(identifierTokens());
     set.add(Tokens.USCORE);
     set.add(Tokens.NULL);
     set.add(Tokens.THIS);
