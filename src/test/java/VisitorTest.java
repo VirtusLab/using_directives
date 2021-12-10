@@ -33,7 +33,7 @@ public class VisitorTest extends TestUtils {
 
   private UsingDirectives visitAst(UsingTree ast) {
     Visitor visitor = new Visitor(ast, new Context());
-    return visitor.visit();
+    return visitor.visit(false);
   }
 
   private void compareOutputs(String pathToAst, String pathToOutput) {

@@ -24,7 +24,7 @@ public class Visitor {
     return context;
   }
 
-  public UsingDirectives visit() {
+  public UsingDirectives visit(boolean commentSyntax) {
     Map<Path, List<Value<?>>> flattenView = getFlatView(root);
     int codeOffset;
     if (root instanceof UsingDefs) {
@@ -32,7 +32,7 @@ public class Visitor {
     } else {
       codeOffset = -1;
     }
-    return new UsingDirectivesImpl(null, flattenView, root, codeOffset);
+    return new UsingDirectivesImpl(null, flattenView, root, codeOffset, commentSyntax);
   }
 
   private Map<String, List<Value<?>>> visitSettingsFlat(UsingTree root) {

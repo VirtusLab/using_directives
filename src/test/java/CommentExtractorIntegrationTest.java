@@ -24,6 +24,7 @@ public class CommentExtractorIntegrationTest extends TestUtils {
     processor.setContext(ctx);
     UsingDirectives res = processor.extract(content);
     assertFalse(processor.getContext().getReporter().hasErrors());
+    assertTrue(res.isCommentSyntax());
     return res;
   }
 

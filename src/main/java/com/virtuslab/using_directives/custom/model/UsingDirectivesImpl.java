@@ -10,16 +10,19 @@ public class UsingDirectivesImpl implements UsingDirectives {
   private final Map<Path, List<Value<?>>> flattenedMap;
   private final UsingTree ast;
   private final int codeOffset;
+  private final boolean commentSyntax;
 
   public UsingDirectivesImpl(
       Map<String, ValueOrSetting<?>> nestedMap,
       Map<Path, List<Value<?>>> flattenedMap,
       UsingTree ast,
-      int codeOffset) {
+      int codeOffset,
+      boolean commentSyntax) {
     this.nestedMap = nestedMap;
     this.flattenedMap = flattenedMap;
     this.ast = ast;
     this.codeOffset = codeOffset;
+    this.commentSyntax = commentSyntax;
   }
 
   @Override
@@ -40,6 +43,11 @@ public class UsingDirectivesImpl implements UsingDirectives {
   @Override
   public int getCodeOffset() {
     return codeOffset;
+  }
+
+  @Override
+  public boolean isCommentSyntax() {
+    return commentSyntax;
   }
 
   @Override

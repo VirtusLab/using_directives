@@ -185,7 +185,10 @@ public class Parser {
 
   SettingDefOrUsingValue valueOrSetting() {
     if (literalTokens.contains(in.td.token)
-        || (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("-"))) {
+        || (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("-"))
+        || (in.td.token != Tokens.IDENTIFIER
+            && in.td.token != Tokens.LBRACE
+            && in.td.token != Tokens.COLON)) {
       UsingValue v = value();
       String scope = scope();
       if (scope != null) {
@@ -202,9 +205,9 @@ public class Parser {
   }
 
   UsingValue value() {
-    UsingPrimitive p = primitive();
     int offset = offset(in.td.offset);
-    in.nextToken();
+    UsingPrimitive p = primitive();
+
     if (in.td.token == Tokens.COMMA) {
       in.nextToken();
       UsingValue rest = value();
@@ -249,23 +252,30 @@ public class Parser {
 
   UsingPrimitive primitive() {
     int offset = offset(in.td.offset);
+    UsingPrimitive res = null;
     if (in.td.token == Tokens.STRINGLIT) {
-      return new StringLiteral(in.td.strVal, source.getPositionFromOffset(offset));
+      res = new StringLiteral(in.td.strVal, source.getPositionFromOffset(offset));
+      in.nextToken();
     } else if (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("-")) {
       in.nextToken();
       if (numericTokens.contains(in.td.token)) {
-        return new NumericLiteral("-" + in.td.strVal, source.getPositionFromOffset(offset));
+        res = new NumericLiteral("-" + in.td.strVal, source.getPositionFromOffset(offset));
+        in.nextToken();
       } else {
         error(String.format("Expected numeric value but found %s", in.td.token.str));
       }
     } else if (numericTokens.contains(in.td.token)) {
-      return new NumericLiteral(in.td.strVal, source.getPositionFromOffset(offset));
+      res = new NumericLiteral(in.td.strVal, source.getPositionFromOffset(offset));
+      in.nextToken();
     } else if (in.td.token == Tokens.TRUE) {
-      return new BooleanLiteral(true, source.getPositionFromOffset(offset));
+      res = new BooleanLiteral(true, source.getPositionFromOffset(offset));
+      in.nextToken();
     } else if (in.td.token == Tokens.FALSE) {
-      return new BooleanLiteral(false, source.getPositionFromOffset(offset));
+      res = new BooleanLiteral(false, source.getPositionFromOffset(offset));
+      in.nextToken();
+    } else {
+      res = new BooleanLiteral(true, source.getPositionFromOffset(offset));
     }
-    error(String.format("Expected primitive value but found %s", in.td.token.str));
-    return null;
+    return res;
   }
 }
