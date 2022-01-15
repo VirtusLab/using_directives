@@ -6,13 +6,8 @@ import java.util.Objects;
 public class BooleanValue extends Value<Boolean> {
   private final Boolean v;
 
-  public BooleanValue(Boolean v, UsingTree astNode) {
-    super(astNode);
-    this.v = v;
-  }
-
-  public BooleanValue(Boolean v, UsingTree astNode, String scope) {
-    super(astNode, scope);
+  public BooleanValue(Boolean v, UsingTree astNode, UsingDirectiveSyntax syntax, String scope) {
+    super(astNode, scope, syntax);
     this.v = v;
   }
 

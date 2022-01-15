@@ -3,8 +3,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.virtuslab.using_directives.Context;
 import com.virtuslab.using_directives.UsingDirectivesProcessor;
 import com.virtuslab.using_directives.config.Settings;
+import com.virtuslab.using_directives.custom.model.UsingDirectiveKind;
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class CommentExtractorIntegrationTest extends TestUtils {
   private final String inputsRoot = "comment_extractor_tests/inputs/";
@@ -22,9 +24,9 @@ public class CommentExtractorIntegrationTest extends TestUtils {
     setts.setAllowStartWithoutAt(true);
     ctx.setSettings(setts);
     processor.setContext(ctx);
-    UsingDirectives res = processor.extract(content);
+    UsingDirectives res = processor.extract(content, true, false).get(1);
     assertFalse(processor.getContext().getReporter().hasErrors());
-    assertTrue(res.isCommentSyntax());
+    assertEquals(UsingDirectiveKind.SpecialComment, res.getKind());
     return res;
   }
 
@@ -39,17 +41,14 @@ public class CommentExtractorIntegrationTest extends TestUtils {
         expectedRest,
         foundRest,
         String.format(
-            "Test failed for filename: %s\nExpected:\n%sFound:\n%s",
+            "Test failed for filename: %s\nExpected:\n%s\nFound:\n%s",
             inputPath, expectedRest, foundRest));
   }
 
-  @Test
-  public void tests() {
-    integrationTest("comment1.txt", "rest1.txt");
-    integrationTest("comment2.txt", "rest2.txt");
-    integrationTest("comment3.txt", "rest3.txt");
-    integrationTest("comment4.txt", "rest4.txt");
-    integrationTest("comment5.txt", "rest5.txt");
-    integrationTest("comment6.txt", "rest6.txt");
+  // TODO make 8 work
+  @ParameterizedTest(name = "Run comment extractor testcase no. {0}")
+  @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
+  public void tests(int no) {
+    integrationTest("comment" + no + ".txt", "rest" + no + ".txt");
   }
 }

@@ -1,5 +1,6 @@
 package com.virtuslab.using_directives.custom.utils.ast;
 
+import com.virtuslab.using_directives.custom.model.UsingDirectiveSyntax;
 import com.virtuslab.using_directives.custom.utils.Position;
 
 public class StringLiteral extends UsingPrimitive {
@@ -7,23 +8,19 @@ public class StringLiteral extends UsingPrimitive {
     return value;
   }
 
-  public void setValue(String value) {
-    this.value = value;
-  }
+  private final String value;
+  private final UsingDirectiveSyntax syntax;
 
-  private String value;
-
-  public StringLiteral(String value, Position position) {
-    super(position);
-    this.value = value;
-  }
-
-  public StringLiteral(String value, Position position, String scope) {
+  public StringLiteral(String value, Position position, String scope, UsingDirectiveSyntax syntax) {
     super(position, scope);
     this.value = value;
+    this.syntax = syntax;
   }
 
-  public StringLiteral() {}
+  @Override
+  public UsingDirectiveSyntax getSyntax() {
+    return syntax;
+  }
 
   @Override
   public String toString() {

@@ -6,13 +6,8 @@ import java.util.Objects;
 public class NumericValue extends Value<String> {
   private final String v;
 
-  public NumericValue(String v, UsingTree astNode) {
-    super(astNode);
-    this.v = v;
-  }
-
-  public NumericValue(String v, UsingTree astNode, String scope) {
-    super(astNode, scope);
+  public NumericValue(String v, UsingTree astNode, UsingDirectiveSyntax syntax, String scope) {
+    super(astNode, scope, syntax);
     this.v = v;
   }
 

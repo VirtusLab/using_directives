@@ -1,10 +1,7 @@
 package json;
 
 import com.google.gson.*;
-import com.virtuslab.using_directives.custom.model.BooleanValue;
-import com.virtuslab.using_directives.custom.model.NumericValue;
-import com.virtuslab.using_directives.custom.model.StringValue;
-import com.virtuslab.using_directives.custom.model.Value;
+import com.virtuslab.using_directives.custom.model.*;
 import java.lang.reflect.Type;
 
 public class CustomValueAdapter implements JsonDeserializer<Value<?>>, JsonSerializer<Value<?>> {
@@ -14,13 +11,14 @@ public class CustomValueAdapter implements JsonDeserializer<Value<?>>, JsonSeria
     JsonObject jsonObj = json.getAsJsonObject();
     String type = jsonObj.get("type").getAsString();
     String scope = jsonObj.get("scope") != null ? jsonObj.get("scope").getAsString() : null;
+    UsingDirectiveSyntax syntax = UsingDirectiveSyntax.Using;
     switch (type) {
       case "boolean":
-        return new BooleanValue(jsonObj.get("value").getAsBoolean(), null, scope);
+        return new BooleanValue(jsonObj.get("value").getAsBoolean(), null, syntax, scope);
       case "numeric":
-        return new NumericValue(jsonObj.get("value").getAsString(), null, scope);
+        return new NumericValue(jsonObj.get("value").getAsString(), null, syntax, scope);
       case "string":
-        return new StringValue(jsonObj.get("value").getAsString(), null, scope);
+        return new StringValue(jsonObj.get("value").getAsString(), null, syntax, scope);
       default:
         return null;
     }

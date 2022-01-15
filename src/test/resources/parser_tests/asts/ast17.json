@@ -1,1 +1,28 @@
-{"usingDefs":[{"settingDefs":{"settings":[{"key":"native-gc","value":{"type":"list","value":[{"type":"numeric","value":"78"},{"type":"numeric","value":"12"}]}}]}}],"codeOffset":25}
+{
+  "usingDefs": [
+    {
+      "settingDefs": {
+        "settings": [
+          {
+            "key": "native-gc",
+            "value": {
+              "type": "list",
+              "value": [
+                {
+                  "type": "numeric",
+                  "value": "78"
+                },
+                {
+                  "type": "numeric",
+                  "value": "12"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "codeOffset": 25,
+  "codeStart": 26
+}

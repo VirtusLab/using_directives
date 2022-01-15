@@ -1,6 +1,7 @@
 package json;
 
 import com.google.gson.*;
+import com.virtuslab.using_directives.custom.model.UsingDirectiveSyntax;
 import com.virtuslab.using_directives.custom.utils.Position;
 import com.virtuslab.using_directives.custom.utils.ast.BooleanLiteral;
 import com.virtuslab.using_directives.custom.utils.ast.NumericLiteral;
@@ -20,12 +21,13 @@ public class CustomUsingPrimitivesAdapter
     JsonElement scopeJson = jsonObj.get("scope");
     String scope = null;
     if (scopeJson != null) scope = scopeJson.getAsString();
+    UsingDirectiveSyntax syntax = UsingDirectiveSyntax.Using;
     if (type.equals("boolean")) {
-      return new BooleanLiteral(jsonObj.get("value").getAsBoolean(), pos, scope);
+      return new BooleanLiteral(jsonObj.get("value").getAsBoolean(), pos, scope, syntax);
     } else if (type.equals("numeric")) {
-      return new NumericLiteral(jsonObj.get("value").getAsString(), pos, scope);
+      return new NumericLiteral(jsonObj.get("value").getAsString(), pos, scope, syntax);
     } else if (type.equals("string")) {
-      return new StringLiteral(jsonObj.get("value").getAsString(), pos, scope);
+      return new StringLiteral(jsonObj.get("value").getAsString(), pos, scope, syntax);
     } else {
       return null;
     }

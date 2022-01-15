@@ -24,7 +24,7 @@ public class Visitor {
     return context;
   }
 
-  public UsingDirectives visit(boolean commentSyntax) {
+  public UsingDirectives visit(UsingDirectiveKind kind) {
     Map<Path, List<Value<?>>> flattenView = getFlatView(root);
     int codeOffset;
     if (root instanceof UsingDefs) {
@@ -32,7 +32,7 @@ public class Visitor {
     } else {
       codeOffset = -1;
     }
-    return new UsingDirectivesImpl(null, flattenView, root, codeOffset, commentSyntax);
+    return new UsingDirectivesImpl(null, flattenView, root, codeOffset, kind);
   }
 
   private Map<String, List<Value<?>>> visitSettingsFlat(UsingTree root) {
@@ -129,18 +129,28 @@ public class Visitor {
   private List<Value<?>> parseValue(UsingValue value) {
     if (value instanceof UsingPrimitive) {
       List<Value<?>> lst = new ArrayList<>();
+      UsingDirectiveSyntax syntax = value.getSyntax();
       if (value instanceof BooleanLiteral) {
         lst.add(
             new BooleanValue(
-                ((BooleanLiteral) value).getValue(), value, ((UsingPrimitive) value).getScope()));
+                ((BooleanLiteral) value).getValue(),
+                value,
+                syntax,
+                ((UsingPrimitive) value).getScope()));
       } else if (value instanceof NumericLiteral) {
         lst.add(
             new NumericValue(
-                ((NumericLiteral) value).getValue(), value, ((NumericLiteral) value).getScope()));
+                ((NumericLiteral) value).getValue(),
+                value,
+                syntax,
+                ((NumericLiteral) value).getScope()));
       } else {
         lst.add(
             new StringValue(
-                ((StringLiteral) value).getValue(), value, ((UsingPrimitive) value).getScope()));
+                ((StringLiteral) value).getValue(),
+                value,
+                syntax,
+                ((UsingPrimitive) value).getScope()));
       }
       return lst;
     } else {
@@ -149,7 +159,9 @@ public class Visitor {
   }
 
   private List<Value<?>> parseValues(UsingValues value) {
-    return value.values.stream().flatMap(p -> parseValue(p).stream()).collect(Collectors.toList());
+    return value.getValues().stream()
+        .flatMap(p -> parseValue(p).stream())
+        .collect(Collectors.toList());
   }
 
   private List<Value<?>> merge(List<Value<?>> v1, List<Value<?>> v2) {

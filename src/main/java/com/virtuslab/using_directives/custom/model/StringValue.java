@@ -6,13 +6,8 @@ import java.util.Objects;
 public class StringValue extends Value<String> {
   private final String v;
 
-  public StringValue(String v, UsingTree astNode) {
-    super(astNode);
-    this.v = v;
-  }
-
-  public StringValue(String v, UsingTree astNode, String scope) {
-    super(astNode, scope);
+  public StringValue(String v, UsingTree astNode, UsingDirectiveSyntax syntax, String scope) {
+    super(astNode, scope, syntax);
     this.v = v;
   }
 

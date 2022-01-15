@@ -1,1 +1,19 @@
-{"usingDefs":[{"settingDefs":{"settings":[{"key":"lib.allowSth","value":{"type":"boolean","value":true}}]}}],"codeOffset":19}
+{
+  "usingDefs": [
+    {
+      "settingDefs": {
+        "settings": [
+          {
+            "key": "lib.allowSth",
+            "value": {
+              "type": "boolean",
+              "value": true
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "codeOffset": 19,
+  "codeStart": 19
+}

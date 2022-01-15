@@ -3,6 +3,7 @@ package com.virtuslab.using_directives.custom;
 import static com.virtuslab.using_directives.custom.utils.TokenUtils.*;
 
 import com.virtuslab.using_directives.Context;
+import com.virtuslab.using_directives.custom.model.UsingDirectiveSyntax;
 import com.virtuslab.using_directives.custom.utils.Source;
 import com.virtuslab.using_directives.custom.utils.ast.*;
 import java.util.ArrayList;
@@ -112,59 +113,66 @@ public class Parser {
     while (ud != null) {
       usingTrees.add(ud);
       codeOffset = offset(in.td.lastOffset);
-      in.nextToken();
+      if (in.td.token == Tokens.NEWLINE || in.td.token == Tokens.NEWLINES) in.nextToken();
       ud = usingDirective();
     }
-    return new UsingDefs(usingTrees, codeOffset, source.getPositionFromOffset(offset));
+    return new UsingDefs(
+        usingTrees, codeOffset, offset(in.td.offset), source.getPositionFromOffset(offset));
   }
 
   UsingDef usingDirective() {
     if (isValidUsingDirectiveStart(in.td.token, context.getSettings())) {
       int offset = offset(in.td.offset);
+
+      UsingDirectiveSyntax syntax = UsingDirectiveSyntax.Using;
+      if (in.td.token == Tokens.ATUSING) syntax = UsingDirectiveSyntax.AtUsing;
+      else if (in.td.token == Tokens.ATREQUIRE) syntax = UsingDirectiveSyntax.AtRequire;
+      else if (in.td.token == Tokens.REQUIRE) syntax = UsingDirectiveSyntax.Require;
+
       in.nextToken();
-      return new UsingDef(settings(), source.getPositionFromOffset(offset));
+      return new UsingDef(settings(syntax), source.getPositionFromOffset(offset));
     }
 
     return null;
   }
 
-  private List<SettingDef> parseSettings() {
+  private List<SettingDef> parseSettings(UsingDirectiveSyntax syntax) {
     if (isStatSep()) {
       if (in.lookahead().token == Tokens.IDENTIFIER) {
         in.nextToken();
         List<SettingDef> settings = new ArrayList<>();
-        settings.add(setting());
-        settings.addAll(parseSettings());
+        settings.add(setting(syntax));
+        settings.addAll(parseSettings(syntax));
         return settings;
       } else {
         return new ArrayList<>();
       }
     } else if (in.td.token == Tokens.IDENTIFIER) {
       List<SettingDef> settings = new ArrayList<>();
-      settings.add(setting());
-      settings.addAll(parseSettings());
+      settings.add(setting(syntax));
+      settings.addAll(parseSettings(syntax));
       return settings;
     } else {
       return new ArrayList<>();
     }
   }
 
-  SettingDefs settings() {
+  SettingDefs settings(UsingDirectiveSyntax syntax) {
     possibleTemplateStart();
     ArrayList<SettingDef> settings = new ArrayList<>();
     int offset = offset(in.td.offset);
     if (in.td.token == Tokens.IDENTIFIER) {
-      settings.add(setting());
+      settings.add(setting(syntax));
     } else {
-      settings.addAll(inBracesOrIndented(this::parseSettings));
+      settings.addAll(inBracesOrIndented(() -> this.parseSettings(syntax)));
     }
     return new SettingDefs(settings, source.getPositionFromOffset(offset));
   }
 
-  SettingDef setting() {
+  SettingDef setting(UsingDirectiveSyntax syntax) {
     int offset = offset(in.td.offset);
     String key = key();
-    SettingDefOrUsingValue value = valueOrSetting();
+    SettingDefOrUsingValue value = valueOrSetting(syntax);
     return new SettingDef(key, value, source.getPositionFromOffset(offset));
   }
 
@@ -183,13 +191,13 @@ public class Parser {
     return null;
   }
 
-  SettingDefOrUsingValue valueOrSetting() {
+  SettingDefOrUsingValue valueOrSetting(UsingDirectiveSyntax syntax) {
     if (literalTokens.contains(in.td.token)
         || (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("-"))
         || (in.td.token != Tokens.IDENTIFIER
             && in.td.token != Tokens.LBRACE
             && in.td.token != Tokens.COLON)) {
-      UsingValue v = value();
+      UsingValue v = value(syntax);
       String scope = scope();
       if (scope != null) {
         if (v instanceof UsingPrimitive) {
@@ -200,24 +208,24 @@ public class Parser {
       }
       return v;
     } else {
-      return settings();
+      return settings(syntax);
     }
   }
 
-  UsingValue value() {
+  UsingValue value(UsingDirectiveSyntax syntax) {
     int offset = offset(in.td.offset);
-    UsingPrimitive p = primitive();
+    UsingPrimitive p = primitive(syntax);
 
     if (in.td.token == Tokens.COMMA) {
       in.nextToken();
-      UsingValue rest = value();
+      UsingValue rest = value(syntax);
       if (rest instanceof UsingPrimitive) {
         ArrayList<UsingPrimitive> res = new ArrayList<>();
         res.add(p);
         res.add((UsingPrimitive) rest);
-        return new UsingValues(res, source.getPositionFromOffset(offset));
+        return new UsingValues(res, source.getPositionFromOffset(offset), syntax);
       } else {
-        ((UsingValues) rest).values.add(0, p);
+        ((UsingValues) rest).getValues().add(0, p);
         return rest;
       }
     } else {
@@ -250,31 +258,33 @@ public class Parser {
           Tokens.FLOATLIT,
           Tokens.DOUBLELIT);
 
-  UsingPrimitive primitive() {
+  UsingPrimitive primitive(UsingDirectiveSyntax syntax) {
     int offset = offset(in.td.offset);
     UsingPrimitive res = null;
     if (in.td.token == Tokens.STRINGLIT) {
-      res = new StringLiteral(in.td.strVal, source.getPositionFromOffset(offset));
+      res = new StringLiteral(in.td.strVal, source.getPositionFromOffset(offset), null, syntax);
       in.nextToken();
     } else if (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("-")) {
       in.nextToken();
       if (numericTokens.contains(in.td.token)) {
-        res = new NumericLiteral("-" + in.td.strVal, source.getPositionFromOffset(offset));
+        res =
+            new NumericLiteral(
+                "-" + in.td.strVal, source.getPositionFromOffset(offset), null, syntax);
         in.nextToken();
       } else {
         error(String.format("Expected numeric value but found %s", in.td.token.str));
       }
     } else if (numericTokens.contains(in.td.token)) {
-      res = new NumericLiteral(in.td.strVal, source.getPositionFromOffset(offset));
+      res = new NumericLiteral(in.td.strVal, source.getPositionFromOffset(offset), null, syntax);
       in.nextToken();
     } else if (in.td.token == Tokens.TRUE) {
-      res = new BooleanLiteral(true, source.getPositionFromOffset(offset));
+      res = new BooleanLiteral(true, source.getPositionFromOffset(offset), null, syntax);
       in.nextToken();
     } else if (in.td.token == Tokens.FALSE) {
-      res = new BooleanLiteral(false, source.getPositionFromOffset(offset));
+      res = new BooleanLiteral(false, source.getPositionFromOffset(offset), null, syntax);
       in.nextToken();
     } else {
-      res = new BooleanLiteral(true, source.getPositionFromOffset(offset));
+      res = new BooleanLiteral(true, source.getPositionFromOffset(offset), null, syntax);
     }
     return res;
   }

@@ -93,6 +93,7 @@ public enum Tokens {
   VIEWBOUND("<%"),
   TLARROW("=>>"),
   ATUSING("@using"),
+  COLON_USING("@using"),
   ATREQUIRE("@require"),
   CTXARROW("?=>"),
   QUOTE("'"),
