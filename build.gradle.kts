@@ -22,7 +22,7 @@ repositories {
 
 dependencies {
     testImplementation("com.google.code.gson:gson:2.8.7")
-    testCompile("org.junit.jupiter:junit-jupiter-params:5.8.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("commons-io:commons-io:2.11.0")
 }
@@ -166,14 +166,15 @@ afterEvaluate {
     }
 }
 
-signing {
-    useInMemoryPgpKeys(
-            rootProject.ext["signing.keyId"] as String,
-            rootProject.ext["signing.key"] as String,
-            rootProject.ext["signing.password"] as String
-    )
-    sign(publishing.publications)
-}
+if (System.getenv("CI") != null)
+    signing {
+        useInMemoryPgpKeys(
+                rootProject.ext["signing.keyId"] as String,
+                rootProject.ext["signing.key"] as String,
+                rootProject.ext["signing.password"] as String
+        )
+        sign(publishing.publications)
+    }
 
 spotless {
     this.lineEndings = com.diffplug.spotless.LineEnding.UNIX

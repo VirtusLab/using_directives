@@ -1,0 +1,7 @@
+
+
+object Foo extends App {
+    try {
+        2 + 2
+    }
+}

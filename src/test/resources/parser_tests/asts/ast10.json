@@ -1,1 +1,19 @@
-{"usingDefs":[{"settingDefs":{"settings":[{"key":"lib.cs","value":{"type":"string","value":"org.scalameta :: munit : 0.4.3"}}]}}],"codeOffset":46}
+{
+  "usingDefs": [
+    {
+      "settingDefs": {
+        "settings": [
+          {
+            "key": "lib.cs",
+            "value": {
+              "type": "string",
+              "value": "org.scalameta :: munit : 0.4.3"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "codeOffset": 46,
+  "codeStart": 62
+}

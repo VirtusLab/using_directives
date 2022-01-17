@@ -3,6 +3,7 @@ package com.virtuslab.using_directives.custom;
 import static com.virtuslab.using_directives.custom.utils.TokenUtils.*;
 
 import com.virtuslab.using_directives.Context;
+import com.virtuslab.using_directives.custom.model.UsingDirectiveSyntax;
 import com.virtuslab.using_directives.custom.utils.Source;
 import com.virtuslab.using_directives.custom.utils.ast.*;
 import java.util.ArrayList;
@@ -112,17 +113,24 @@ public class Parser {
     while (ud != null) {
       usingTrees.add(ud);
       codeOffset = offset(in.td.lastOffset);
-      in.nextToken();
+      if (in.td.token == Tokens.NEWLINE || in.td.token == Tokens.NEWLINES) in.nextToken();
       ud = usingDirective();
     }
-    return new UsingDefs(usingTrees, codeOffset, source.getPositionFromOffset(offset));
+    return new UsingDefs(
+        usingTrees, codeOffset, offset(in.td.offset), source.getPositionFromOffset(offset));
   }
 
   UsingDef usingDirective() {
     if (isValidUsingDirectiveStart(in.td.token, context.getSettings())) {
       int offset = offset(in.td.offset);
+
+      UsingDirectiveSyntax syntax = UsingDirectiveSyntax.Using;
+      if (in.td.token == Tokens.ATUSING) syntax = UsingDirectiveSyntax.AtUsing;
+      else if (in.td.token == Tokens.ATREQUIRE) syntax = UsingDirectiveSyntax.AtRequire;
+      else if (in.td.token == Tokens.REQUIRE) syntax = UsingDirectiveSyntax.Require;
+
       in.nextToken();
-      return new UsingDef(settings(), source.getPositionFromOffset(offset));
+      return new UsingDef(settings(), syntax, source.getPositionFromOffset(offset));
     }
 
     return null;
@@ -156,7 +164,7 @@ public class Parser {
     if (in.td.token == Tokens.IDENTIFIER) {
       settings.add(setting());
     } else {
-      settings.addAll(inBracesOrIndented(this::parseSettings));
+      settings.addAll(inBracesOrIndented(() -> this.parseSettings()));
     }
     return new SettingDefs(settings, source.getPositionFromOffset(offset));
   }
@@ -217,7 +225,7 @@ public class Parser {
         res.add((UsingPrimitive) rest);
         return new UsingValues(res, source.getPositionFromOffset(offset));
       } else {
-        ((UsingValues) rest).values.add(0, p);
+        ((UsingValues) rest).getValues().add(0, p);
         return rest;
       }
     } else {

@@ -1,10 +1,12 @@
 package json;
 
 import com.google.gson.*;
+import com.virtuslab.using_directives.custom.model.UsingDirectiveSyntax;
 import com.virtuslab.using_directives.custom.utils.Position;
-import com.virtuslab.using_directives.custom.utils.ast.*;
+import com.virtuslab.using_directives.custom.utils.ast.UsingPrimitive;
+import com.virtuslab.using_directives.custom.utils.ast.UsingValue;
+import com.virtuslab.using_directives.custom.utils.ast.UsingValues;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class CustomUsingValueAdapter
@@ -16,13 +18,12 @@ public class CustomUsingValueAdapter
     JsonObject jsonObj = json.getAsJsonObject();
     String type = jsonObj.get("type").getAsString();
     Position pos = context.deserialize(jsonObj.getAsJsonObject("position"), Position.class);
+    UsingDirectiveSyntax syntax = UsingDirectiveSyntax.Using;
+
     if (type.equals("list")) {
-      return new UsingValues(
-          new ArrayList<>(
-              Arrays.asList(
-                  context.deserialize(
-                      jsonObj.get("value").getAsJsonArray(), UsingPrimitive[].class))),
-          pos);
+      UsingPrimitive[] values =
+          context.deserialize(jsonObj.get("value").getAsJsonArray(), UsingPrimitive[].class);
+      return new UsingValues(Arrays.asList(values), pos);
     } else {
       return context.deserialize(jsonObj, UsingPrimitive.class);
     }
@@ -35,7 +36,7 @@ public class CustomUsingValueAdapter
     if (src instanceof UsingValues) {
       jsonObj.addProperty("type", "list");
       JsonElement serializedValues =
-          context.serialize(((UsingValues) src).values.toArray(), UsingPrimitive[].class);
+          context.serialize(((UsingValues) src).getValues().toArray(), UsingPrimitive[].class);
       jsonObj.add("value", serializedValues);
       return jsonObj;
     } else {

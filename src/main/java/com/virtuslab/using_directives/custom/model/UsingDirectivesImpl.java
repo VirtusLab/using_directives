@@ -10,19 +10,19 @@ public class UsingDirectivesImpl implements UsingDirectives {
   private final Map<Path, List<Value<?>>> flattenedMap;
   private final UsingTree ast;
   private final int codeOffset;
-  private final boolean commentSyntax;
+  private final UsingDirectiveKind kind;
 
   public UsingDirectivesImpl(
       Map<String, ValueOrSetting<?>> nestedMap,
       Map<Path, List<Value<?>>> flattenedMap,
       UsingTree ast,
       int codeOffset,
-      boolean commentSyntax) {
+      UsingDirectiveKind kind) {
     this.nestedMap = nestedMap;
     this.flattenedMap = flattenedMap;
     this.ast = ast;
     this.codeOffset = codeOffset;
-    this.commentSyntax = commentSyntax;
+    this.kind = kind;
   }
 
   @Override
@@ -46,13 +46,15 @@ public class UsingDirectivesImpl implements UsingDirectives {
   }
 
   @Override
-  public boolean isCommentSyntax() {
-    return commentSyntax;
+  public UsingDirectiveKind getKind() {
+    return kind;
   }
 
   @Override
   public String toString() {
-    return "UsingDirectivesImpl{"
+    return "UsingDirectivesImpl("
+        + kind
+        + "){"
         + flattenedMap.entrySet().stream()
             .map(
                 e ->

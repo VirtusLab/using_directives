@@ -4,9 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.virtuslab.using_directives.custom.model.Path;
 import com.virtuslab.using_directives.custom.model.Value;
-import com.virtuslab.using_directives.custom.utils.ast.SettingDefOrUsingValue;
-import com.virtuslab.using_directives.custom.utils.ast.UsingPrimitive;
-import com.virtuslab.using_directives.custom.utils.ast.UsingValue;
+import com.virtuslab.using_directives.custom.utils.ast.*;
 
 public class CustomGsonInstance {
   public static Gson get() {
@@ -17,6 +15,7 @@ public class CustomGsonInstance {
       new GsonBuilder()
           .registerTypeAdapter(
               SettingDefOrUsingValue.class, new CustomSettingDefOrUsingValueAdapter())
+          .registerTypeAdapter(UsingDef.class, new CustomUsingDefAdapter())
           .registerTypeAdapter(UsingValue.class, new CustomUsingValueAdapter())
           .registerTypeAdapter(UsingPrimitive.class, new CustomUsingPrimitivesAdapter())
           .registerTypeHierarchyAdapter(Value.class, new CustomValueAdapter())

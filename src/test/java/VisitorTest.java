@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.virtuslab.using_directives.Context;
 import com.virtuslab.using_directives.custom.Visitor;
 import com.virtuslab.using_directives.custom.model.Path;
+import com.virtuslab.using_directives.custom.model.UsingDirectiveKind;
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
 import com.virtuslab.using_directives.custom.model.Value;
 import com.virtuslab.using_directives.custom.utils.ast.UsingDefs;
@@ -33,7 +34,7 @@ public class VisitorTest extends TestUtils {
 
   private UsingDirectives visitAst(UsingTree ast) {
     Visitor visitor = new Visitor(ast, new Context());
-    return visitor.visit(false);
+    return visitor.visit(UsingDirectiveKind.Code);
   }
 
   private void compareOutputs(String pathToAst, String pathToOutput) {
