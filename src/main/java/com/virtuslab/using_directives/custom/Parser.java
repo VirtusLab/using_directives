@@ -270,7 +270,12 @@ public class Parser {
         res = new NumericLiteral("-" + in.td.strVal, source.getPositionFromOffset(offset));
         in.nextToken();
       } else {
-        error(String.format("Expected numeric value but found %s", in.td.token.str));
+        String solution = "Wrapping identifier in quotes usually solves the problem.";
+
+        error(
+            String.format(
+                "Expected primitive value: string, numeric or boolean but found identifier: '%s'. %s",
+                in.td.token.str, solution));
       }
     } else if (numericTokens.contains(in.td.token)) {
       res = new NumericLiteral(in.td.strVal, source.getPositionFromOffset(offset));
