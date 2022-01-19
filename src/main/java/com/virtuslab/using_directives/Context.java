@@ -5,9 +5,9 @@ import com.virtuslab.using_directives.reporter.ConsoleReporter;
 import com.virtuslab.using_directives.reporter.Reporter;
 
 public class Context {
-  private Reporter reporter;
+  private final Reporter reporter;
 
-  private Settings settings;
+  private final Settings settings;
 
   public Context() {
     reporter = new ConsoleReporter();
@@ -19,19 +19,21 @@ public class Context {
     this.settings = settings;
   }
 
+  public Context(Reporter reporter) {
+    this.reporter = reporter;
+    this.settings = new Settings();
+  }
+
+  public Context(Settings settings) {
+    this.reporter = new ConsoleReporter();
+    this.settings = settings;
+  }
+
   public Reporter getReporter() {
     return reporter;
   }
 
-  public void setReporter(Reporter reporter) {
-    this.reporter = reporter;
-  }
-
   public Settings getSettings() {
     return settings;
-  }
-
-  public void setSettings(Settings settings) {
-    this.settings = settings;
   }
 }

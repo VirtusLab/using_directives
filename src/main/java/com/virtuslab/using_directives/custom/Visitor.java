@@ -68,6 +68,8 @@ public class Visitor {
               .flatMap(s -> visitSettingFlat(s).stream())
               .map(kv -> kv.withNewKey(String.format("%s.%s", key, kv.getKey())))
               .collect(Collectors.toList());
+    } else if (setting.getValue() == null) {
+      return new ArrayList<>();
     } else {
       return new ArrayList<>(
           Collections.singletonList(
@@ -149,6 +151,7 @@ public class Visitor {
   }
 
   private List<Value<?>> parseValues(UsingValues value) {
+
     return value.values.stream().flatMap(p -> parseValue(p).stream()).collect(Collectors.toList());
   }
 

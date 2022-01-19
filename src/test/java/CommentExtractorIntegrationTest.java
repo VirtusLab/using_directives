@@ -19,10 +19,10 @@ public class CommentExtractorIntegrationTest extends TestUtils {
 
   private UsingDirectives extractDirectives(char[] content) {
     UsingDirectivesProcessor processor = new UsingDirectivesProcessor();
-    Context ctx = new Context();
+
     Settings setts = new Settings();
     setts.setAllowStartWithoutAt(true);
-    ctx.setSettings(setts);
+    Context ctx = new Context(setts);
     processor.setContext(ctx);
     UsingDirectives res = processor.extract(content, true, false).get(1);
     assertFalse(processor.getContext().getReporter().hasErrors());
