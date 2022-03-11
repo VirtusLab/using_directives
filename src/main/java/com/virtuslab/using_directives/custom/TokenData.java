@@ -1,5 +1,7 @@
 package com.virtuslab.using_directives.custom;
 
+import static com.virtuslab.using_directives.custom.utils.TokenUtils.*;
+
 public class TokenData {
   public Tokens token = Tokens.EMPTY;
   public int offset = 0;
@@ -57,5 +59,15 @@ public class TokenData {
 
   public boolean isArrow() {
     return token == Tokens.ARROW || token == Tokens.CTXARROW;
+  }
+
+  public String toTokenInfoString() {
+    if(identifierTokens.contains(token)) {
+      return String.format("%s: %s", token.str, name);
+    } else if(literalTokens.contains(token)) {
+      return String.format("%s: %s", token.str, strVal);
+    } else {
+      return String.format("%s", token.str);
+    }
   }
 }

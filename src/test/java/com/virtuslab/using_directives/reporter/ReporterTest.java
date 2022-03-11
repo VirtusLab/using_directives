@@ -31,8 +31,10 @@ class ReporterTest {
   @Test
   public void reportNotQuotedString() {
     PersistentReporter reporter = runTest("\n\n  using options -Xfatal-warnings");
+    reporter.getDiagnostics().forEach(d -> System.out.println(d.getMessage()));
     assertTrue(reporter.hasErrors());
     assertEquals(1, reporter.getDiagnostics().size());
+
 
     checkDiag(
         reporter.getDiagnostics().get(0),
