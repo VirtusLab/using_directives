@@ -62,9 +62,9 @@ public class TokenData {
   }
 
   public String toTokenInfoString() {
-    if(identifierTokens.contains(token)) {
+    if (identifierTokens.contains(token)) {
       return String.format("%s: %s", token.str, name);
-    } else if(literalTokens.contains(token)) {
+    } else if (literalTokens.contains(token)) {
       return String.format("%s: %s", token.str, strVal);
     } else {
       return String.format("%s", token.str);

@@ -30,16 +30,19 @@ class ReporterTest {
 
   @Test
   public void reportNotQuotedString() {
-    PersistentReporter reporter = runTest("\n\n  using options -Xfatal-warnings");
-    reporter.getDiagnostics().forEach(d -> System.out.println(d.getMessage()));
+    PersistentReporter reporter = runTest("\n\n  using options Xfatal-warnings");
     assertTrue(reporter.hasErrors());
-    assertEquals(1, reporter.getDiagnostics().size());
-
+    /* There are two errors reported:
+     - one that reports Xfatal-warnings is not a valid value
+     - one that reports that there's something left in the line
+     Therefore, we need to check for 2 errors
+    */
+    assertEquals(2, reporter.getDiagnostics().size());
 
     checkDiag(
         reporter.getDiagnostics().get(0),
         2,
-        17,
+        16,
         "string",
         "numeric",
         "boolean",

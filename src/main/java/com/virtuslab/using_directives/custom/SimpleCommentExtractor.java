@@ -1,7 +1,5 @@
 package com.virtuslab.using_directives.custom;
 
-import java.util.Arrays;
-
 import static com.virtuslab.using_directives.custom.utils.Chars.*;
 
 public class SimpleCommentExtractor {
@@ -13,7 +11,6 @@ public class SimpleCommentExtractor {
     public SimpleCommentExtractor(char[] source, boolean useIndicator) {
         this.source = source;
         this.useIndicator = useIndicator;
-        //  this.useIndicator = true;
     }
 
     // for iteration
@@ -50,7 +47,6 @@ public class SimpleCommentExtractor {
             res[i + 1] = ' ';
             i++;
         }
-
     }
 
     public char[] extractComments() {
@@ -83,9 +79,8 @@ public class SimpleCommentExtractor {
                         skipNext();
                         boolean hasIndicator = next() == USING_DIRECTIVE_INDICATOR;
                         insideDirective = hasIndicator == useIndicator;
-                        if (useIndicator && hasIndicator) {
-                            skipNext();
-                        }
+                        if (useIndicator && hasIndicator) skipNext();
+
                     }
                 }
                 skip();
