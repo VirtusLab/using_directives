@@ -304,8 +304,8 @@ public class Parser {
     } else if (!in.td.isAfterLineEnd() && in.td.token == Tokens.IDENTIFIER) {
       error(
           String.format(
-              "Expected primitive value: string, numeric or boolean but found identifier: '%s'. %s",
-              in.td.token.str, solution));
+              "Expected primitive value: string, numeric or boolean but found %s. %s",
+              in.td.toTokenInfoString(), solution));
     } else if (numericTokens.contains(in.td.token)) {
       res = new NumericLiteral(in.td.strVal, source.getPositionFromOffset(offset));
       in.nextToken();
@@ -316,7 +316,7 @@ public class Parser {
       res = new BooleanLiteral(false, source.getPositionFromOffset(offset));
       in.nextToken();
     } else {
-      res = new BooleanLiteral(true, source.getPositionFromOffset(offset));
+      res = new EmptyLiteral( source.getPositionFromOffset(offset));
     }
     return res;
   }

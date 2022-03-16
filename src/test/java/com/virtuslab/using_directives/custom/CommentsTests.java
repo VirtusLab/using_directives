@@ -34,6 +34,7 @@ public class CommentsTests {
   String keywordDirective2 = "using keywordDirective2 kdValue2";
   String numericScalaVersionDirective = "//> using scalaFullNumeric 2.4.15 ";
   String binaryScalaVersionNumericComment = "//> using scalaBinary 2.1";
+  String noValueDirective = "//> using noValueKey";
 
   private UsingDirectives testCode(
       UsingDirectiveKind expectedKind, int expectedCount, String... examples) {
@@ -50,6 +51,8 @@ public class CommentsTests {
             .filter(d -> d.getKind() == expectedKind)
             .findFirst()
             .get();
+
+    System.out.println(directives);
 
     assertEquals(expectedCount, directives.getFlattenedMap().size());
     assertEquals(expectedKind, directives.getKind());
@@ -107,6 +110,7 @@ public class CommentsTests {
 
     testCode(UsingDirectiveKind.SpecialComment, 0, plainComment);
     testCode(UsingDirectiveKind.SpecialComment, 0, keywordDirective);
+    testCode(UsingDirectiveKind.SpecialComment, 1, noValueDirective);
   }
 
   @Test
