@@ -138,8 +138,7 @@ public class Parser {
   }
 
   UsingDef usingDirective() {
-    TokenData tokenData = in.td;
-    if (isValidUsingDirectiveStart(tokenData.token, context.getSettings())) {
+    if (isValidUsingDirectiveStart(in.td.token, context.getSettings())) {
       int offset = offset(in.td.offset);
 
       UsingDirectiveSyntax syntax = UsingDirectiveSyntax.Using;
@@ -149,8 +148,7 @@ public class Parser {
 
       in.nextToken();
       possibleTemplateStart();
-      UsingDef res = new UsingDef(settings(), syntax, source.getPositionFromOffset(offset));
-      return res;
+      return new UsingDef(settings(), syntax, source.getPositionFromOffset(offset));
     }
     return null;
   }
@@ -250,7 +248,9 @@ public class Parser {
       if (rest instanceof UsingPrimitive) {
         ArrayList<UsingPrimitive> res = new ArrayList<>();
         res.add(p);
-        res.add((UsingPrimitive) rest);
+        if (!(rest instanceof EmptyLiteral)) {
+          res.add((UsingPrimitive) rest);
+        }
         return new UsingValues(res, source.getPositionFromOffset(offset));
       } else {
         ((UsingValues) rest).getValues().add(0, p);
@@ -316,7 +316,7 @@ public class Parser {
       res = new BooleanLiteral(false, source.getPositionFromOffset(offset));
       in.nextToken();
     } else {
-      res = new EmptyLiteral( source.getPositionFromOffset(offset));
+      res = new EmptyLiteral(source.getPositionFromOffset(offset));
     }
     return res;
   }

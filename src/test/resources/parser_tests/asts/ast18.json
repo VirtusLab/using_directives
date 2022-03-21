@@ -3,7 +3,7 @@
     {"settingDefs":{
       "settings":[
         {"key":"lib","value":{
-          "settings":[{"key":"allowSth","value":{"type":"boolean","value":true}},
+          "settings":[{"key":"allowSth","value":{"type":"empty"}},
             {"key":"cs","value":{"type":"string","value":"org.scalameta :: munit : 0.4.3"}}]
         }}
       ]}
@@ -12,14 +12,14 @@
       "settings":[
         {"key":"lib","value":{
           "settings":[
-            {"key":"allowSth","value":{"type":"boolean","value":true}},
+            {"key":"allowSth","value":{"type":"empty"}},
             {"key":"cs","value":{"type":"string","value":"org.scalameta :: munit : 0.4.3"}}
           ]}}
       ]}},
     {"settingDefs":{
       "settings":[
         {"key":"lib.cs","value":{"type":"string","value":"org.scalameta :: munit : 0.4.3"}},
-        {"key":"lib.allowSth","value":{"type":"boolean","value":true}}
+        {"key":"lib.allowSth","value":{"type":"empty"}}
       ]}
     }
   ],

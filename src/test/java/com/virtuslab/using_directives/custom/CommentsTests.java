@@ -52,8 +52,6 @@ public class CommentsTests {
             .findFirst()
             .get();
 
-    System.out.println(directives);
-
     assertEquals(expectedCount, directives.getFlattenedMap().size());
     assertEquals(expectedKind, directives.getKind());
     return directives;

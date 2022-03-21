@@ -2,10 +2,7 @@ package json;
 
 import com.google.gson.*;
 import com.virtuslab.using_directives.custom.utils.Position;
-import com.virtuslab.using_directives.custom.utils.ast.BooleanLiteral;
-import com.virtuslab.using_directives.custom.utils.ast.NumericLiteral;
-import com.virtuslab.using_directives.custom.utils.ast.StringLiteral;
-import com.virtuslab.using_directives.custom.utils.ast.UsingPrimitive;
+import com.virtuslab.using_directives.custom.utils.ast.*;
 import java.lang.reflect.Type;
 
 public class CustomUsingPrimitivesAdapter
@@ -26,6 +23,8 @@ public class CustomUsingPrimitivesAdapter
       return new NumericLiteral(jsonObj.get("value").getAsString(), pos, scope);
     } else if (type.equals("string")) {
       return new StringLiteral(jsonObj.get("value").getAsString(), pos, scope);
+    } else if (type.equals("empty")) {
+      return new EmptyLiteral(pos, scope);
     } else {
       return null;
     }
@@ -48,6 +47,8 @@ public class CustomUsingPrimitivesAdapter
     } else if (src instanceof StringLiteral) {
       jsonObj.addProperty("type", "string");
       jsonObj.addProperty("value", ((StringLiteral) src).getValue());
+    } else if (src instanceof EmptyLiteral) {
+      jsonObj.addProperty("type", "empty");
     }
     return jsonObj;
   }
