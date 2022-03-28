@@ -15,12 +15,12 @@ public class EmptyValue extends Value<String> {
 
   @Override
   public String get() {
-    return "EmptyValue";
+    return "<EmptyValue>";
   }
 
   @Override
   public String toString() {
-    return "EmptyValue";
+    return "<EmptyValue>";
   }
 
   @Override
@@ -33,6 +33,6 @@ public class EmptyValue extends Value<String> {
 
   @Override
   public int hashCode() {
-    return Objects.hash("EmptyValue");
+    return Objects.hash("<EmptyValue>");
   }
 }

@@ -16,6 +16,6 @@ public class EmptyLiteral extends UsingPrimitive {
 
   @Override
   public String toString() {
-    return "EmptyLiteral";
+    return "<EmptyLiteral>";
   }
 }
