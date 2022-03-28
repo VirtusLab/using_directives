@@ -139,10 +139,12 @@ public class Visitor {
         lst.add(
             new NumericValue(
                 ((NumericLiteral) value).getValue(), value, ((NumericLiteral) value).getScope()));
-      } else {
+      } else if (value instanceof StringLiteral) {
         lst.add(
             new StringValue(
                 ((StringLiteral) value).getValue(), value, ((UsingPrimitive) value).getScope()));
+      } else {
+        lst.add(new EmptyValue(value, ((UsingPrimitive) value).getScope()));
       }
       return lst;
     } else {

@@ -746,6 +746,7 @@ public class Scanner {
       }
     }
   }
+
   // Unsupported: Keeping comments
   private boolean skipComment() {
     Runnable skipLine =

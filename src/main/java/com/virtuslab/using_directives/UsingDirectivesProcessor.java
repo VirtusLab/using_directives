@@ -25,7 +25,6 @@ public class UsingDirectivesProcessor {
   private UsingDirectives extractFromComment(char[] content, boolean commentIndicator) {
     SimpleCommentExtractor extractor = new SimpleCommentExtractor(content, commentIndicator);
     UsingDefs ast = new Parser(new Source(extractor.extractComments()), context).parse();
-
     return new Visitor(ast, context)
         .visit(
             commentIndicator ? UsingDirectiveKind.SpecialComment : UsingDirectiveKind.PlainComment);

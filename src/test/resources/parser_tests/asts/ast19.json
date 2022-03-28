@@ -5,10 +5,7 @@
         "settings": [
           {
             "key": "lib.allowSth",
-            "value": {
-              "type": "boolean",
-              "value": true
-            }
+            "value":{"type":"empty"}
           }
         ]
       }

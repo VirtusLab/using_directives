@@ -43,7 +43,7 @@ public class Parser {
     return source.translateOffset(off);
   }
 
-  public boolean isStatSep() {
+  public boolean isStatementSeparator() {
     return in.td.isNewLine() || in.td.token == Tokens.SEMI;
   }
 
@@ -76,6 +76,13 @@ public class Parser {
     }
   }
 
+  /**
+   * oneBlock: - changes COLON to COLONEOL nested nested
+   *
+   * <p>secondBlock { - stops at LBRACE nested nested }
+   *
+   * <p>thirdBlock { - skips the NEWLINE and stops at LBRACE nested nested }
+   */
   public void possibleTemplateStart() {
     in.observeColonEOL();
     if (in.td.token == Tokens.COLONEOL) {
@@ -98,10 +105,9 @@ public class Parser {
     }
   }
 
-  /* */
-
   public UsingDefs parse() {
     UsingDefs t = usingDirectives();
+
     return t;
   }
 
@@ -113,8 +119,19 @@ public class Parser {
     while (ud != null) {
       usingTrees.add(ud);
       codeOffset = offset(in.td.lastOffset);
-      if (in.td.token == Tokens.NEWLINE || in.td.token == Tokens.NEWLINES) in.nextToken();
-      ud = usingDirective();
+      TokenData tokenData = in.td;
+      if (tokenData.isNewLine()) {
+        in.nextToken();
+      }
+      if (tokenData.token != Tokens.EOF && !tokenData.isAfterLineEnd()) {
+        error(
+            String.format(
+                "Expected new line after the using directive, in the line; but found %s",
+                tokenData.toTokenInfoString()));
+        ud = null;
+      } else {
+        ud = usingDirective();
+      }
     }
     return new UsingDefs(
         usingTrees, codeOffset, offset(in.td.offset), source.getPositionFromOffset(offset));
@@ -130,14 +147,14 @@ public class Parser {
       else if (in.td.token == Tokens.REQUIRE) syntax = UsingDirectiveSyntax.Require;
 
       in.nextToken();
+      possibleTemplateStart();
       return new UsingDef(settings(), syntax, source.getPositionFromOffset(offset));
     }
-
     return null;
   }
 
   private List<SettingDef> parseSettings() {
-    if (isStatSep()) {
+    if (isStatementSeparator()) {
       if (in.lookahead().token == Tokens.IDENTIFIER) {
         in.nextToken();
         List<SettingDef> settings = new ArrayList<>();
@@ -157,14 +174,20 @@ public class Parser {
     }
   }
 
+  // > using
+  // >   oneKey ...
+  // >   secondKey ...
+  // >   thirdKey {
+  // >     nestedKey1
+  // >     nestedKey2
+  // >   }
   SettingDefs settings() {
-    possibleTemplateStart();
     ArrayList<SettingDef> settings = new ArrayList<>();
     int offset = offset(in.td.offset);
     if (in.td.token == Tokens.IDENTIFIER) {
       settings.add(setting());
     } else {
-      settings.addAll(inBracesOrIndented(() -> this.parseSettings()));
+      settings.addAll(inBracesOrIndented(this::parseSettings));
     }
     return new SettingDefs(settings, source.getPositionFromOffset(offset));
   }
@@ -191,12 +214,17 @@ public class Parser {
     return null;
   }
 
+  /**
+   * We enter this place after parsing a key. Now we need to decide whether we want to parse
+   * settings block or value. We know that settings block needs to be put inside braces or in
+   * indentation block. For having a settings block we should have either the COLON or LBRACE token.
+   * In other cases we want to accept value.
+   */
   SettingDefOrUsingValue valueOrSetting() {
-    if (literalTokens.contains(in.td.token)
-        || (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("-"))
-        || (in.td.token != Tokens.IDENTIFIER
-            && in.td.token != Tokens.LBRACE
-            && in.td.token != Tokens.COLON)) {
+    possibleTemplateStart();
+    if (in.td.token == Tokens.LBRACE || in.td.token == Tokens.INDENT) {
+      return settings();
+    } else {
       UsingValue v = value();
       String scope = scope();
       if (scope != null) {
@@ -207,8 +235,6 @@ public class Parser {
         }
       }
       return v;
-    } else {
-      return settings();
     }
   }
 
@@ -222,7 +248,9 @@ public class Parser {
       if (rest instanceof UsingPrimitive) {
         ArrayList<UsingPrimitive> res = new ArrayList<>();
         res.add(p);
-        res.add((UsingPrimitive) rest);
+        if (!(rest instanceof EmptyLiteral)) {
+          res.add((UsingPrimitive) rest);
+        }
         return new UsingValues(res, source.getPositionFromOffset(offset));
       } else {
         ((UsingValues) rest).getValues().add(0, p);
@@ -261,6 +289,7 @@ public class Parser {
   UsingPrimitive primitive() {
     int offset = offset(in.td.offset);
     UsingPrimitive res = null;
+    String solution = "Wrapping identifier in quotes usually solves the problem.";
     if (in.td.token == Tokens.STRINGLIT) {
       res = new StringLiteral(in.td.strVal, source.getPositionFromOffset(offset));
       in.nextToken();
@@ -270,13 +299,13 @@ public class Parser {
         res = new NumericLiteral("-" + in.td.strVal, source.getPositionFromOffset(offset));
         in.nextToken();
       } else {
-        String solution = "Wrapping identifier in quotes usually solves the problem.";
-
-        error(
-            String.format(
-                "Expected primitive value: string, numeric or boolean but found identifier: '%s'. %s",
-                in.td.token.str, solution));
+        error(String.format("-%s is not a valid numeric literal. %s", in.td.name, solution));
       }
+    } else if (!in.td.isAfterLineEnd() && in.td.token == Tokens.IDENTIFIER) {
+      error(
+          String.format(
+              "Expected primitive value: string, numeric or boolean but found %s. %s",
+              in.td.toTokenInfoString(), solution));
     } else if (numericTokens.contains(in.td.token)) {
       res = new NumericLiteral(in.td.strVal, source.getPositionFromOffset(offset));
       in.nextToken();
@@ -287,7 +316,7 @@ public class Parser {
       res = new BooleanLiteral(false, source.getPositionFromOffset(offset));
       in.nextToken();
     } else {
-      res = new BooleanLiteral(true, source.getPositionFromOffset(offset));
+      res = new EmptyLiteral(source.getPositionFromOffset(offset));
     }
     return res;
   }

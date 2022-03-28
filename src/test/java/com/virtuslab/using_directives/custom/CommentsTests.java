@@ -15,10 +15,26 @@ import org.junit.jupiter.api.Test;
 
 public class CommentsTests {
 
-  String plainComment = "// using plainComment \"b\"";
-  String specialComment = "//> using specialComment \"b\"";
-  String specialComment2 = "//> using specialComment2 \"b\"";
-  String keywordDirective = "using keywordDirective \"b\"";
+  String plainComment =
+      "// using plainComment0123 \"pcValue\", \"pcValue1\", \"pcValue2\", \"pcValue3\"";
+  String plainComment2 = "// using plainComment4 \"pcValue4\"";
+  String specialComment = "//> using specialComment \"scValue\", \"scValue3\", \"scValue4\"";
+  String specialComment2 = "//> using specialComment2 \"scValue2\"";
+  String multiLine1 =
+      "//> using multiLineKey\n"
+          + "//>   \"firstLine\", \n"
+          + "//>   \"secondLine\", \n"
+          + "//>   \"thirdLine\"";
+  String multiLine2 =
+      "//> using multiLineKey2:\n"
+          + "//>   setting1 \"firstLine\", \n"
+          + "//>   setting2 \"secondLine\", \n"
+          + "//>   setting3 \"thirdLine\"";
+  String keywordDirective = "using keywordDirective \"kdValue\"";
+  String keywordDirective2 = "using keywordDirective2 kdValue2";
+  String numericScalaVersionDirective = "//> using scalaFullNumeric 2.4.15 ";
+  String binaryScalaVersionNumericComment = "//> using scalaBinary 2.1";
+  String noValueDirective = "//> using noValueKey";
 
   private UsingDirectives testCode(
       UsingDirectiveKind expectedKind, int expectedCount, String... examples) {
@@ -76,17 +92,35 @@ public class CommentsTests {
 
   @Test
   public void testSpecialComments() {
-    testCode(UsingDirectiveKind.SpecialComment, 1, plainComment, specialComment);
+    testCode(UsingDirectiveKind.SpecialComment, 1, plainComment, specialComment, keywordDirective);
     testCode(UsingDirectiveKind.SpecialComment, 1, specialComment, plainComment);
+    testCode(UsingDirectiveKind.SpecialComment, 2, specialComment, specialComment2);
+    testCode(UsingDirectiveKind.SpecialComment, 1, multiLine1);
+    testCode(UsingDirectiveKind.SpecialComment, 3, multiLine2);
+    testCode(UsingDirectiveKind.SpecialComment, 4, multiLine1, multiLine2);
     testCode(UsingDirectiveKind.SpecialComment, 1, keywordDirective, specialComment, plainComment);
+    testCode(UsingDirectiveKind.SpecialComment, 1, binaryScalaVersionNumericComment);
+    testCode(
+        UsingDirectiveKind.SpecialComment,
+        1,
+        numericScalaVersionDirective,
+        binaryScalaVersionNumericComment);
 
     testCode(UsingDirectiveKind.SpecialComment, 0, plainComment);
     testCode(UsingDirectiveKind.SpecialComment, 0, keywordDirective);
+    testCode(UsingDirectiveKind.SpecialComment, 1, noValueDirective);
+  }
+
+  @Test
+  public void testKeywordDirectives() {
+    testCode(UsingDirectiveKind.Code, 1, keywordDirective, keywordDirective2);
+    testCode(UsingDirectiveKind.Code, 0, keywordDirective2);
   }
 
   @Test
   public void testPlainComments() {
-    // testCode(UsingDirectiveKind.PlainComment, 1, plainComment, specialComment);
+    testCode(UsingDirectiveKind.PlainComment, 1, plainComment, specialComment);
+    testCode(UsingDirectiveKind.PlainComment, 2, plainComment, plainComment2);
     testCode(UsingDirectiveKind.PlainComment, 1, specialComment, plainComment);
 
     testCode(UsingDirectiveKind.PlainComment, 0, specialComment);
@@ -102,10 +136,10 @@ public class CommentsTests {
 
   @Test
   public void testMalformedKeyword() {
-    String malformedDirective = "> using malformedKeywordDirective \"b\"";
-    String malformedDirective2 = "! using malformedKeywordDirective2 \"b\"";
-    String malformedDirective3 = ">>> using malformedKeywordDirective3 \"b\"";
-    String malformedDirective4 = ": using malformedKeywordDirective3 \"b\"";
+    String malformedDirective = "> using malformedKeywordDirective \"malformedValue1\"";
+    String malformedDirective2 = "! using malformedKeywordDirective2 \"malformedValue2\"";
+    String malformedDirective3 = ">>> using malformedKeywordDirective3 \"malformedValue3\"";
+    String malformedDirective4 = ": using malformedKeywordDirective4 \"malformedValue4\"";
 
     testCode(UsingDirectiveKind.Code, 0, malformedDirective, keywordDirective);
     testCode(UsingDirectiveKind.Code, 0, malformedDirective);
