@@ -1,19 +1,11 @@
 package com.virtuslab.using_directives.reporter;
 
+import static com.virtuslab.using_directives.TestUtils.reporterAfterParsing;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.virtuslab.using_directives.Context;
-import com.virtuslab.using_directives.UsingDirectivesProcessor;
 import org.junit.jupiter.api.Test;
 
 class ReporterTest {
-
-  private PersistentReporter runTest(String code) {
-    PersistentReporter reporter = new PersistentReporter();
-    new UsingDirectivesProcessor(new Context(reporter)).extract(code.toCharArray(), false, false);
-
-    return reporter;
-  }
 
   private void checkDiag(
       PersistentReporter.Diagnostic diag,
@@ -30,7 +22,7 @@ class ReporterTest {
 
   @Test
   public void reportNotQuotedString() {
-    PersistentReporter reporter = runTest("\n\n  using options Xfatal-warnings");
+    PersistentReporter reporter = reporterAfterParsing("\n\n  using options Xfatal-warnings");
     assertTrue(reporter.hasErrors());
     /* There are two errors reported:
      - one that reports Xfatal-warnings is not a valid value

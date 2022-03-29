@@ -1,5 +1,6 @@
 package com.virtuslab.using_directives.custom.model;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,6 +13,10 @@ public class Path {
 
   public Path(List<String> path) {
     this.path = path;
+  }
+
+  public Path(String... path) {
+    this(Arrays.asList(path));
   }
 
   @Override
