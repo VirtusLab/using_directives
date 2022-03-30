@@ -1,4 +1,3 @@
-import org.gradle.api.publish.PublishingExtension
 import java.io.ByteArrayOutputStream
 
 plugins {
@@ -6,7 +5,7 @@ plugins {
     `maven-publish`
     signing
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
-    id("com.diffplug.spotless") version "5.17.1"
+    id("com.diffplug.spotless") version "6.4.0"
 }
 
 apply {
@@ -21,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation("com.google.code.gson:gson:2.8.7")
+    testImplementation("com.google.code.gson:gson:2.9.0")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("commons-io:commons-io:2.11.0")
@@ -83,6 +82,7 @@ tasks {
 
     val sourcesJar by creating(Jar::class) {
         archiveClassifier.set("sources")
+        duplicatesStrategy = DuplicatesStrategy.WARN
         from(sourceSets.main.get().allSource)
     }
 
