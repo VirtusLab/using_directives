@@ -723,6 +723,7 @@ public class Scanner {
       else {
         error("illegal character");
         reader.nextChar();
+        td.token = Tokens.ERROR;
       }
     } else {
       if (ch == 0x21D2) {
@@ -742,6 +743,7 @@ public class Scanner {
       } else {
         // FIXME: Dotty deviation: f"" interpolator is not supported (#1814)
         error(String.format("illegal character '\\u%04x'", (int) reader.ch));
+        td.token = Tokens.ERROR;
         reader.nextChar();
       }
     }

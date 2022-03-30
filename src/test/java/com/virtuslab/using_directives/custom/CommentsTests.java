@@ -1,9 +1,9 @@
 package com.virtuslab.using_directives.custom;
 
+import static com.virtuslab.using_directives.TestUtils.testCode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.virtuslab.using_directives.UsingDirectivesProcessor;
 import com.virtuslab.using_directives.custom.model.UsingDirectiveKind;
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
 import com.virtuslab.using_directives.custom.model.Value;
@@ -35,27 +35,6 @@ public class CommentsTests {
   String numericScalaVersionDirective = "//> using scalaFullNumeric 2.4.15 ";
   String binaryScalaVersionNumericComment = "//> using scalaBinary 2.1";
   String noValueDirective = "//> using noValueKey";
-
-  private UsingDirectives testCode(
-      UsingDirectiveKind expectedKind, int expectedCount, String... examples) {
-    String code = Arrays.stream(examples).collect(Collectors.joining("\n")) + "\n// code...";
-    UsingDirectivesProcessor processor = new UsingDirectivesProcessor();
-
-    UsingDirectives directives =
-        processor
-            .extract(
-                code.toCharArray(),
-                expectedKind == UsingDirectiveKind.SpecialComment,
-                expectedKind == UsingDirectiveKind.PlainComment)
-            .stream()
-            .filter(d -> d.getKind() == expectedKind)
-            .findFirst()
-            .get();
-
-    assertEquals(expectedCount, directives.getFlattenedMap().size());
-    assertEquals(expectedKind, directives.getKind());
-    return directives;
-  }
 
   private void testSinglePosition(UsingDirectives ud, int line, int column) {
     List<Value<?>> byLine =

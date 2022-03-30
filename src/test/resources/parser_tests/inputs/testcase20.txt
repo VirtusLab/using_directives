@@ -1,8 +1,0 @@
-//> using scala 2.13.15
-//> using scala 2.13
-
-
-class Foo
-
-
-

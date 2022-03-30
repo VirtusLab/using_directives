@@ -140,6 +140,11 @@ afterEvaluate {
                             name.set("Kacper Korban")
                             email.set("kkorban@virtuslab.com")
                         }
+                        developer {
+                            id.set("romanowski")
+                            name.set("Krzysztof Romanowski")
+                            email.set("kromanowski@virtuslab.com")
+                        }
                     }
 
                     scm {

@@ -12,8 +12,6 @@ public class SettingDef extends UsingTree {
     this.value = value;
   }
 
-  public SettingDef() {}
-
   public String getKey() {
     return key;
   }
