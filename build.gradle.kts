@@ -26,12 +26,6 @@ dependencies {
     testImplementation("commons-io:commons-io:2.11.0")
 }
 
-sourceSets {
-    main {
-        java.srcDir("src/main/java")
-    }
-}
-
 tasks.compileJava {
     sourceCompatibility = "1.8"
     targetCompatibility = "1.8"
@@ -74,13 +68,13 @@ fun getAppVersion(): String {
 
 
 tasks {
-   val javadocJar by creating(Jar::class) {
+   val javadocJar by registering(Jar::class) {
         dependsOn.add(javadoc)
         archiveClassifier.set("javadoc")
         from(javadoc)
     }
 
-    val sourcesJar by creating(Jar::class) {
+    val sourcesJar by registering(Jar::class) {
         archiveClassifier.set("sources")
         duplicatesStrategy = DuplicatesStrategy.WARN
         from(sourceSets.main.get().allSource)
@@ -92,7 +86,7 @@ tasks {
         archives(jar)
     }
 
-    create("printVersion") {
+    register("printVersion") {
         println(getAppVersion())
     }
 
