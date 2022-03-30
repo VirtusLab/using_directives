@@ -28,6 +28,8 @@ jobs:
         uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
       - name: Build with Gradle
         run: ./gradlew build
+      - name:  Show version
+        run: ./gradlew :printVersion
       - name: Publish snapshot
         if: ${{ github.event_name == 'push' && matrix.OS == 'ubuntu-latest' }}
         run: ./gradlew publishReleasePublicationToSonatypeRepository --max-workers 1 closeAndReleaseSonatypeStagingRepository
