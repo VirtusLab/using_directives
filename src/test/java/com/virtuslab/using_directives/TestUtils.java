@@ -5,14 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.virtuslab.using_directives.custom.model.UsingDirectiveKind;
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
 import com.virtuslab.using_directives.reporter.PersistentReporter;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class TestUtils {
 
   public static UsingDirectives testCode(
       UsingDirectiveKind expectedKind, int expectedCount, String... examples) {
-    String code = Arrays.stream(examples).collect(Collectors.joining("\n")) + "\n// code...";
+    String code = joinLines(examples) + "\n// code...";
     UsingDirectivesProcessor processor = new UsingDirectivesProcessor();
 
     UsingDirectives directives =
@@ -31,22 +29,22 @@ public class TestUtils {
     return directives;
   }
 
-  public static UsingDirectives testSpecialComments(String... directives) {
-    return testCode(UsingDirectiveKind.SpecialComment, directives.length, directives);
+  public static UsingDirectives testCode(int expectedCount, String... directives) {
+    return testCode(UsingDirectiveKind.Code, expectedCount, directives);
   }
 
   public static UsingDirectives testCode(String... directives) {
-    return testCode(UsingDirectiveKind.Code, directives.length, directives);
+    return testCode(directives.length, directives);
   }
 
-  public static UsingDirectives testDirectives(String... directives) {
-    return testCode(UsingDirectiveKind.Code, directives.length, directives);
-  }
-
-  public static PersistentReporter reporterAfterParsing(String code) {
+  public static PersistentReporter reporterAfterParsing(String... code) {
     PersistentReporter reporter = new PersistentReporter();
-    new UsingDirectivesProcessor(new Context(reporter)).extract(code.toCharArray(), false, false);
-
+    new UsingDirectivesProcessor(new Context(reporter))
+        .extract(joinLines(code).toCharArray(), false, false);
     return reporter;
+  }
+
+  public static String joinLines(String... lines) {
+    return String.join("\n", lines);
   }
 }

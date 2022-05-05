@@ -101,14 +101,6 @@ public class Scanner {
     return c == '_';
   }
 
-  private String removeNumberSeparators(String s) {
-    if (s.indexOf('_') == -1) {
-      return s;
-    } else {
-      return s.replace("_", "");
-    }
-  }
-
   private void checkNoTrailingSeparator() {
     if (!litBuf.isEmpty() && isNumberSeparator(litBuf.getLast())) {
       errorButContinue("Trailing separator is not allowed", td.offset + litBuf.size() - 1);
@@ -124,12 +116,6 @@ public class Scanner {
 
   Region currentRegion = new Indented(IndentWidth.Zero(), new HashSet<>(), Tokens.EMPTY, null);
 
-  private boolean inMultiLineInterpolation() {
-    if (currentRegion instanceof InString) {
-      return ((InString) currentRegion).multiLine;
-    } else return false;
-  }
-
   private boolean inMultiLineInterpolatedExpression() {
     if (currentRegion instanceof InBraces) {
       InBraces ib = (InBraces) currentRegion;
@@ -137,17 +123,6 @@ public class Scanner {
         return ((InString) ib.outer()).multiLine;
       } else return false;
     } else return false;
-  }
-
-  private int skipToken() {
-    int off = td.offset;
-    nextToken();
-    return off;
-  }
-
-  private <T> T skipToken(T result) {
-    nextToken();
-    return result;
   }
 
   private void dropBraces() {
@@ -197,9 +172,7 @@ public class Scanner {
     adjustSepRegions(lastToken);
     if (next.token == Tokens.EMPTY) {
       td.lastOffset = reader.lastCharOffset;
-      if (currentRegion instanceof InString && lastToken != Tokens.STRINGPART) {
-        fetchStringPart(((InString) currentRegion).multiLine);
-      } else fetchToken();
+      fetchToken();
       if (td.token == Tokens.ERROR) adjustSepRegions(Tokens.STRINGLIT);
     } else {
       this.td.copyFrom(next);
@@ -224,50 +197,8 @@ public class Scanner {
     td.token = token;
   }
 
-  public boolean isLeadingInfixOperator(IndentWidth nextWidth, boolean isConditional) {
-    Function<TokenData, Boolean> assumeStartsExpr =
-        lexeme ->
-            (canStartExprTokens().contains(lexeme.token) || lexeme.token == Tokens.COLONEOL)
-                && !lexeme.isOperator();
-
-    Supplier<Boolean> expr1 =
-        () -> {
-          Scanner lookeaheadScanner = new LookaheadScanner();
-          lookeaheadScanner.allowLeadingInfixOperators = false;
-          lookeaheadScanner.nextToken();
-          return assumeStartsExpr.apply(lookeaheadScanner.td)
-              || lookeaheadScanner.td.token == Tokens.NEWLINE
-                  && assumeStartsExpr.apply(lookeaheadScanner.next)
-                  && indentWidth(td.offset).lessOrEqual(indentWidth(lookeaheadScanner.next.offset));
-        };
-
-    Supplier<Boolean> expr2 =
-        () -> {
-          if (currentRegion instanceof Indented) {
-            Indented i = (Indented) currentRegion;
-            boolean cond;
-            if (i.outer == null) {
-              cond = true;
-            } else if (i.outer() instanceof Indented) {
-              Indented i2 = (Indented) i.outer();
-              cond = i2.width.less(nextWidth) && !i2.others.contains(nextWidth);
-            } else {
-              cond = i.outer().indentWidth().less(nextWidth);
-            }
-            return i.width.lessOrEqual(nextWidth) || cond;
-          } else return true;
-        };
-
-    return allowLeadingInfixOperators
-        && td.isOperator()
-        && isWhitespace(reader.ch)
-        && !pastBlankLine()
-        && expr1.get()
-        && expr2.get();
-  }
-
   public boolean isContinuing(Tokens lastToken) {
-    return (openParensTokens.contains(td.token) || lastToken == Tokens.RETURN) && !pastBlankLine();
+    return (openParensTokens.contains(td.token)) && !pastBlankLine();
   }
 
   private IndentWidth indentWidthRecur(
@@ -315,7 +246,6 @@ public class Scanner {
     if (newlineIsSeparating
         && canEndStatTokens.contains(lastToken)
         && canStartStatTokens().contains(td.token)
-        && !isLeadingInfixOperator(nextWidth, true)
         && !(lastWidth.less(nextWidth) && isContinuing(lastToken))
         && (lastName == null || !isValidUsingDirectiveStart(lastToken, context.getSettings()))) {
       if (pastBlankLine()) {
@@ -324,28 +254,20 @@ public class Scanner {
         insert(Tokens.NEWLINE, td.lineOffset);
       }
     } else if (indentIsSignificant) {
-      if (nextWidth.less(lastWidth)
-          || nextWidth.equals(lastWidth)
-              && (indentPrefix == Tokens.MATCH || indentPrefix == Tokens.CATCH)
-              && td.token != Tokens.CASE) {
+      if (nextWidth.less(lastWidth)) {
         if (currentRegion.isOutermost()) {
           if (nextWidth.less(lastWidth)) {
             currentRegion = topLevelRegion(nextWidth);
           }
-        } else if (!isLeadingInfixOperator(nextWidth, true) && !statCtdTokens.contains(lastToken)) {
+        } else {
           if (currentRegion instanceof Indented) {
             currentRegion = currentRegion.enclosing();
             insert(Tokens.OUTDENT, td.offset);
           } else if (currentRegion instanceof InBraces && !closingRegionTokens.contains(td.token)) {
-            context
-                .getReporter()
-                .error(String.format("Expected closing region token but found %s", td.token));
+            error(String.format("Expected closing region token but found %s", td.token.str));
           }
         }
-      } else if (lastWidth.less(nextWidth)
-          || lastWidth.equals(nextWidth)
-              && (indentPrefix == Tokens.MATCH || indentPrefix == Tokens.CATCH)
-              && td.token != Tokens.CASE) {
+      } else if (lastWidth.less(nextWidth)) {
         if (canStartIndentTokens.contains(lastToken)) { // TODO sad_pepe hack
           currentRegion = new Indented(nextWidth, new HashSet<>(), lastToken, currentRegion);
           insert(Tokens.INDENT, td.offset);
@@ -362,8 +284,7 @@ public class Scanner {
         if (td.token == Tokens.OUTDENT && next.token != Tokens.COLON) {
           errorButContinue(
               "The start of this line does not match any of the previous "
-                  + "indentation widths. Indentation width of current line : $nextWidth. "
-                  + "This falls between previous widths: $curWidth and $lastWidth",
+                  + "indentation widths. Indentation width of current line falls between previous widths.",
               td.offset);
         } else {
           Set<IndentWidth> newSet = new HashSet<>(i.others);
@@ -390,29 +311,6 @@ public class Scanner {
       if (atEOL) {
         td.token = Tokens.COLONEOL;
       }
-    }
-  }
-
-  public void observeIndented() {
-    if (td.isNewLine()) {
-      IndentWidth nextWidth = indentWidth(next.offset);
-      IndentWidth lastWidth = currentRegion.indentWidth();
-      if (lastWidth.less(nextWidth)) {
-        currentRegion = new Indented(nextWidth, new HashSet<>(), Tokens.COLONEOL, currentRegion);
-        td.offset = next.offset;
-        td.token = Tokens.INDENT;
-      }
-    }
-  }
-
-  public void observeOutdented() {
-    if (currentRegion instanceof Indented
-        && currentRegion.isOutermost()
-        && closingRegionTokens.contains(td.token)
-        && !(td.token == Tokens.CASE && ((Indented) currentRegion).prefix == Tokens.MATCH)
-        && next.token == Tokens.EMPTY) {
-      currentRegion = currentRegion.enclosing();
-      insert(Tokens.OUTDENT, td.offset);
     }
   }
 
@@ -458,15 +356,9 @@ public class Scanner {
           reset();
         }
         break;
-      case CASE:
-        lookAhead();
-        if (td.token == Tokens.CLASS) fuse.accept(Tokens.CASECLASS);
-        else if (td.token == Tokens.OBJECT) fuse.accept(Tokens.CASEOBJECT);
-        else reset();
-        break;
       case SEMI:
         lookAhead();
-        if (td.token != Tokens.ELSE) reset();
+        reset();
         break;
       case COMMA:
         if (currentRegion instanceof Indented && isEnclosedInParens(currentRegion.outer())) {
@@ -484,9 +376,7 @@ public class Scanner {
         }
         break;
       case END:
-        if (!isEndMarker()) {
-          td.token = Tokens.IDENTIFIER;
-        }
+        td.token = Tokens.IDENTIFIER;
         break;
       case COLON:
         //                observeColonEOL();
@@ -500,24 +390,6 @@ public class Scanner {
       default:
         break;
     }
-  }
-
-  public boolean isEndMarker() {
-    if (td.isAfterLineEnd()) {
-      Scanner lookahead =
-          new LookaheadScanner() {
-            @Override
-            public boolean isEndMarker() {
-              return false;
-            }
-          };
-      lookahead.nextToken();
-      if (endMarkerTokens.contains(lookahead.td.token)) {
-        lookahead.nextToken();
-        return lookahead.td.token == Tokens.EOF;
-      }
-    }
-    return false;
   }
 
   private boolean pastBlankLineRecur(int idx, boolean isBlank, int end) {
@@ -585,6 +457,8 @@ public class Scanner {
         case 'X':
           td.base = 16;
           reader.nextChar();
+          putChar('0');
+          putChar('x');
           break;
         default:
           td.base = 10;
@@ -601,42 +475,20 @@ public class Scanner {
     } else if (ch == '`') {
       getBackquotedIdent();
     } else if (ch == '\"') {
-      Consumer<Boolean> stringPart =
-          multiline -> {
-            getStringPart(multiline);
-            currentRegion = new InString(multiline, currentRegion);
-          };
       Runnable fetchDoubleQuote =
           () -> {
-            if (td.token == Tokens.INTERPOLATIONID) {
-              reader.nextRawChar();
-              if (reader.ch == '\"') {
-                if (reader.lookaheadChar() == '\"') {
-                  reader.nextRawChar();
-                  reader.nextRawChar();
-                  stringPart.accept(true);
-                } else {
-                  reader.nextChar();
-                  td.token = Tokens.STRINGLIT;
-                  td.strVal = "";
-                }
-              } else {
-                stringPart.accept(false);
-              }
-            } else {
+            reader.nextChar();
+            if (reader.ch == '\"') {
               reader.nextChar();
               if (reader.ch == '\"') {
-                reader.nextChar();
-                if (reader.ch == '\"') {
-                  reader.nextRawChar();
-                  getRawStringLit();
-                } else {
-                  td.token = Tokens.STRINGLIT;
-                  td.strVal = "";
-                }
+                reader.nextRawChar();
+                getRawStringLit();
               } else {
-                getStringLit();
+                td.token = Tokens.STRINGLIT;
+                td.strVal = "";
               }
+            } else {
+              getStringLit();
             }
           };
       fetchDoubleQuote.run();
@@ -726,13 +578,7 @@ public class Scanner {
         td.token = Tokens.ERROR;
       }
     } else {
-      if (ch == 0x21D2) {
-        reader.nextChar();
-        td.token = Tokens.ARROW;
-      } else if (ch == 0x2190) {
-        reader.nextChar();
-        td.token = Tokens.LARROW;
-      } else if (Character.isUnicodeIdentifierStart(ch)) {
+      if (Character.isUnicodeIdentifierStart(ch)) {
         putChar(ch);
         reader.nextChar();
         getIdentRest();
@@ -801,25 +647,6 @@ public class Scanner {
       reset();
     }
     return next;
-  }
-
-  public void skipParens(boolean multiple) {
-    Tokens opening = td.token;
-    nextToken();
-    while (td.token != Tokens.EOF && td.token.ordinal() != opening.ordinal() + 1) {
-      if (td.token == opening && multiple) skipParens(true);
-      else nextToken();
-    }
-    nextToken();
-  }
-
-  public boolean inModifierPosition() {
-    Scanner lookahead = new LookaheadScanner();
-    lookahead.nextToken();
-    while (lookahead.td.isNewLine() || lookahead.isSoftModifier()) {
-      lookahead.nextToken();
-    }
-    return modifierFollowers.contains(lookahead.td.token);
   }
 
   public void getBackquotedIdent() {
@@ -944,22 +771,6 @@ public class Scanner {
     }
   }
 
-  public boolean isSoftModifier() {
-    return td.token == Tokens.IDENTIFIER && softModifierNames.contains(td.name);
-  }
-
-  public boolean isSoftModifierInModifierPosition() {
-    return isSoftModifier() && inModifierPosition();
-  }
-
-  public boolean isSoftModifierInParamModifierPosition() {
-    return isSoftModifier() && lookahead().token != Tokens.COLON;
-  }
-
-  public boolean isErased() {
-    return false;
-  }
-
   public Set<Tokens> canStartStatTokens() {
     return canStartStatTokens3;
   }
@@ -995,74 +806,6 @@ public class Scanner {
       reader.nextRawChar();
       getRawStringLit();
     }
-  }
-
-  public void getStringPart(boolean multiLine) {
-    if (reader.ch == '"') {
-      if (multiLine) {
-        reader.nextRawChar();
-        if (isTripleQuote()) {
-          setStrVal();
-          td.token = Tokens.STRINGLIT;
-        } else getStringPart(multiLine);
-      } else {
-        reader.nextChar();
-        setStrVal();
-        td.token = Tokens.STRINGLIT;
-      }
-    } else if (reader.ch == '\\' && !multiLine) {
-      putChar(reader.ch);
-      reader.nextRawChar();
-      if (reader.ch == '"' || reader.ch == '\\') {
-        putChar(reader.ch);
-        reader.nextRawChar();
-      }
-      getStringPart(multiLine);
-    } else if (reader.ch == '$') {
-      reader.nextRawChar();
-      if (reader.ch == '$' || reader.ch == '"') {
-        putChar(reader.ch);
-        reader.nextRawChar();
-        getStringPart(multiLine);
-      } else if (reader.ch == '{') {
-        setStrVal();
-        td.token = Tokens.STRINGPART;
-      } else if (Character.isUnicodeIdentifierStart(reader.ch) || reader.ch == '_') {
-        setStrVal();
-        td.token = Tokens.STRINGPART;
-        next.lastOffset = reader.charOffset - 1;
-        next.offset = reader.charOffset - 1;
-        putChar(reader.ch);
-        reader.nextRawChar();
-        while (reader.ch != SU && Character.isUnicodeIdentifierPart(reader.ch)) {
-          putChar(reader.ch);
-          reader.nextRawChar();
-        }
-        finishNamed(Tokens.IDENTIFIER, next);
-      } else {
-        error("invalid string interpolation: `$$`, `$\"`, `$`ident or `$`BlockExpr expected");
-      }
-    } else {
-      boolean isUnclosedLiteral =
-          !reader.isUnicodeEscape()
-              && (reader.ch == SU || (!multiLine && (reader.ch == CR || reader.ch == LF)));
-      if (isUnclosedLiteral) {
-        if (multiLine) {
-          incompleteInputError("unclosed multi-line string literal");
-        } else {
-          error("unclosed string literal");
-        }
-      } else {
-        putChar(reader.ch);
-        reader.nextRawChar();
-        getStringPart(multiLine);
-      }
-    }
-  }
-
-  public void fetchStringPart(boolean multiLine) {
-    td.offset = reader.charOffset - 1;
-    getStringPart(multiLine);
   }
 
   public boolean isTripleQuote() {
@@ -1129,7 +872,7 @@ public class Scanner {
           }
         }
         String alt = oct == LF ? "\\n" : String.format("\\u%04x", oct);
-        error(String.format("octal escape literals are unsupported: use %s instead", start));
+        error(String.format("octal escape literals are unsupported: use %s instead", alt));
         putChar((char) oct);
       } else if (reader.ch == 'u' || reader.ch == 'U') {
         putUnicode.run();
@@ -1152,6 +895,7 @@ public class Scanner {
             break;
           case '\"':
             putChar('\"');
+            break;
           case '\'':
             putChar('\'');
             break;
@@ -1237,7 +981,7 @@ public class Scanner {
     td.token = Tokens.INTLIT;
     if (td.base == 10 && reader.ch == '.') {
       char lch = reader.lookaheadChar();
-      if ('0' <= lch && lch <= '9') {
+      if (Character.isDigit(lch)) {
         putChar('.');
         reader.nextChar();
         getFraction();
@@ -1254,6 +998,7 @@ public class Scanner {
           break;
         case 'l':
         case 'L':
+          putChar(reader.ch);
           reader.nextChar();
           td.token = Tokens.LONGLIT;
           break;

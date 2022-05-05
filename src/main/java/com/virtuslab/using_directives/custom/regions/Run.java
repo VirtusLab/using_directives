@@ -21,7 +21,7 @@ public class Run extends IndentWidth {
 
   @Override
   public String toPrefix() {
-    return String.format("%s %s %s", n, kind(ch), n == 1 ? "" : "s");
+    return String.format("%s %s%s", n, kind(ch), n == 1 ? "" : "s");
   }
 
   @Override
