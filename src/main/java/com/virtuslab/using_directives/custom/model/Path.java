@@ -36,4 +36,8 @@ public class Path {
   public String toString() {
     return String.join(".", path);
   }
+
+  public static Path fromString(String joinedPath) {
+    return new Path(joinedPath.split("\\."));
+  }
 }

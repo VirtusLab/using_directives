@@ -6,6 +6,7 @@ plugins {
     signing
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
     id("com.diffplug.spotless") version "6.4.0"
+    jacoco
 }
 
 apply {
@@ -181,5 +182,17 @@ spotless {
         importOrder()
         googleJavaFormat()
         removeUnusedImports()
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.7"
+    reportsDirectory.set(layout.buildDirectory.dir("coverage_reports"))
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        csv.required.set(true)
     }
 }

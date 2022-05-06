@@ -1,24 +1,12 @@
 package com.virtuslab.using_directives.reporter;
 
+import static com.virtuslab.using_directives.DirectiveAssertions.assertDiagnostic;
 import static com.virtuslab.using_directives.TestUtils.reporterAfterParsing;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
 class ReporterTest {
-
-  private void checkDiag(
-      PersistentReporter.Diagnostic diag,
-      int expectedLine,
-      int expectedColumn,
-      String... expectedWords) {
-    for (String word : expectedWords)
-      assertTrue(
-          diag.getMessage().contains(word),
-          "Message should mention '" + word + "' but got : " + diag.getMessage());
-    assertEquals(expectedLine, diag.getPosition().get().getLine());
-    assertEquals(expectedColumn, diag.getPosition().get().getColumn());
-  }
 
   @Test
   public void reportNotQuotedString() {
@@ -31,7 +19,7 @@ class ReporterTest {
     */
     assertEquals(2, reporter.getDiagnostics().size());
 
-    checkDiag(
+    assertDiagnostic(
         reporter.getDiagnostics().get(0),
         2,
         16,

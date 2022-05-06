@@ -25,29 +25,6 @@ public class TokenData {
     return token == Tokens.NEWLINE || token == Tokens.NEWLINES;
   }
 
-  public boolean isIdent() {
-    return token == Tokens.IDENTIFIER || token == Tokens.BACKQUOTED_IDENT;
-  }
-
-  public boolean isIdent(String name) {
-    return token == Tokens.IDENTIFIER && this.name.equals(name);
-  }
-
-  public boolean isNestedStart() {
-    return token == Tokens.LBRACE || token == Tokens.INDENT;
-  }
-
-  public boolean isNestedEnd() {
-    return token == Tokens.RBRACE || token == Tokens.OUTDENT;
-  }
-
-  public boolean isColon() {
-    if (token == Tokens.COLONEOL) {
-      token = Tokens.COLON;
-    }
-    return token == Tokens.COLON;
-  }
-
   public boolean isAfterLineEnd() {
     return lineOffset >= 0;
   }
@@ -55,10 +32,6 @@ public class TokenData {
   // NotImplemented
   public boolean isOperator() {
     return false;
-  }
-
-  public boolean isArrow() {
-    return token == Tokens.ARROW || token == Tokens.CTXARROW;
   }
 
   public String toTokenInfoString() {
