@@ -786,6 +786,9 @@ public class Scanner {
       reader.nextChar();
       td.token = Tokens.STRINGLIT;
     } else {
+      // try to recover from started string
+      setStrVal();
+      td.token = Tokens.STRINGLIT;
       error("unclosed string literal");
     }
   }
