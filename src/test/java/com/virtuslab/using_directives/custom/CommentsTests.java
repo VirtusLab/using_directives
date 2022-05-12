@@ -1,14 +1,12 @@
 package com.virtuslab.using_directives.custom;
 
 import static com.virtuslab.using_directives.TestUtils.testCode;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.virtuslab.using_directives.DirectiveAssertions;
 import com.virtuslab.using_directives.custom.model.UsingDirectiveKind;
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
-import com.virtuslab.using_directives.custom.model.Value;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
@@ -35,24 +33,6 @@ public class CommentsTests {
   String numericScalaVersionDirective = "//> using scalaFullNumeric 2.4.15 ";
   String binaryScalaVersionNumericComment = "//> using scalaBinary 2.1";
   String noValueDirective = "//> using noValueKey";
-
-  private void testSinglePosition(UsingDirectives ud, int line, int column) {
-    List<Value<?>> byLine =
-        ud.getFlattenedMap().values().stream()
-            .flatMap(v -> v.stream())
-            .filter(v -> v.getRelatedASTNode().getPosition().getLine() == line)
-            .collect(Collectors.toList());
-    assertEquals(byLine.size(), 1, "More then one value in line " + line);
-    assertEquals(
-        column,
-        byLine.get(0).getRelatedASTNode().getPosition().getColumn(),
-        "Wrong index for line " + line);
-  }
-
-  private void testPositions(UsingDirectiveKind kind, String code, int[]... expectedPositions) {
-    UsingDirectives ud = testCode(kind, expectedPositions.length, code);
-    Arrays.stream(expectedPositions).forEach(pos -> testSinglePosition(ud, pos[0], pos[1]));
-  }
 
   private void testLines(UsingDirectives usingDirectives, int... expected) {
     Set<Integer> lines =
@@ -158,6 +138,7 @@ public class CommentsTests {
   @Test
   public void testIndexes() {
     String code1 = "// using javaProp \"foo1\"\n  // using javaProp2 \"foo2=bar2\"";
-    testPositions(UsingDirectiveKind.PlainComment, code1, new int[] {0, 18}, new int[] {1, 21});
+    DirectiveAssertions.assertPositions(
+        UsingDirectiveKind.PlainComment, code1, new int[] {0, 18}, new int[] {1, 21});
   }
 }

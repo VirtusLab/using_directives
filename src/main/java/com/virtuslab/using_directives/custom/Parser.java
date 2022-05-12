@@ -195,7 +195,7 @@ public class Parser {
   SettingDef setting() {
     int offset = offset(in.td.offset);
     String key = key();
-    SettingDefOrUsingValue value = valueOrSetting();
+    SettingDefOrUsingValue value = valueOrSetting(offset + key.length());
     return new SettingDef(key, value, source.getPositionFromOffset(offset));
   }
 
@@ -220,12 +220,12 @@ public class Parser {
    * indentation block. For having a settings block we should have either the COLON or LBRACE token.
    * In other cases we want to accept value.
    */
-  SettingDefOrUsingValue valueOrSetting() {
+  SettingDefOrUsingValue valueOrSetting(int keyEnd) {
     possibleTemplateStart();
     if (in.td.token == Tokens.LBRACE || in.td.token == Tokens.INDENT) {
       return settings();
     } else {
-      UsingValue v = value();
+      UsingValue v = value(keyEnd);
       String scope = scope();
       if (scope != null) {
         if (v instanceof UsingPrimitive) {
@@ -238,13 +238,14 @@ public class Parser {
     }
   }
 
-  UsingValue value() {
+  UsingValue value(int keyEnd) {
     int offset = offset(in.td.offset);
-    UsingPrimitive p = primitive();
+    UsingPrimitive p = primitive(keyEnd);
 
     if (in.td.token == Tokens.COMMA) {
+      int commaIndex = in.td.offset;
       in.nextToken();
-      UsingValue rest = value();
+      UsingValue rest = value(commaIndex);
       if (rest instanceof UsingPrimitive) {
         ArrayList<UsingPrimitive> res = new ArrayList<>();
         res.add(p);
@@ -286,7 +287,7 @@ public class Parser {
           Tokens.FLOATLIT,
           Tokens.DOUBLELIT);
 
-  UsingPrimitive primitive() {
+  UsingPrimitive primitive(int keyEnd) {
     int offset = offset(in.td.offset);
     UsingPrimitive res = null;
     String solution = "Wrapping identifier in quotes usually solves the problem.";
@@ -316,7 +317,7 @@ public class Parser {
       res = new BooleanLiteral(false, source.getPositionFromOffset(offset));
       in.nextToken();
     } else {
-      res = new EmptyLiteral(source.getPositionFromOffset(offset));
+      res = new EmptyLiteral(source.getPositionFromOffset(keyEnd));
     }
     return res;
   }
