@@ -202,7 +202,11 @@ public class Scanner {
   }
 
   private IndentWidth indentWidthRecur(
-      int idx, char ch, int n, Function<IndentWidth, IndentWidth> k) {
+      int idx,
+      char ch,
+      int n,
+      Function<IndentWidth, IndentWidth> k
+  ) {
     if (idx < 0) return k.apply(new Run(ch, n));
     else {
       char nextChar = reader.buf[idx];
@@ -412,10 +416,14 @@ public class Scanner {
     td.lineOffset = td.lastOffset < reader.lineStartOffset ? reader.lineStartOffset : -1;
     td.name = null;
     char ch = reader.ch;
-    if (ch == ' ' || ch == '\t' || ch == CR || ch == LF || ch == FF) {
+    while (ch == ' ' || ch == '\t' || ch == CR || ch == LF || ch == FF) {
       reader.nextChar();
-      fetchToken();
-    } else if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || ch == '$' || ch == '_') {
+      td.offset = reader.charOffset - 1;
+      td.lineOffset = td.lastOffset < reader.lineStartOffset ? reader.lineStartOffset : -1;
+      td.name = null;
+      ch = reader.ch;
+    }
+    if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || ch == '$' || ch == '_') {
       putChar(ch);
       reader.nextChar();
       getIdentRest();
