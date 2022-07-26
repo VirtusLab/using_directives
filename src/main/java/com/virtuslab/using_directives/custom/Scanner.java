@@ -415,17 +415,14 @@ public class Scanner {
   }
 
   private void fetchToken() {
-    td.offset = reader.charOffset - 1;
-    td.lineOffset = td.lastOffset < reader.lineStartOffset ? reader.lineStartOffset : -1;
-    td.name = null;
-    char ch = reader.ch;
-    while (ch == ' ' || ch == '\t' || ch == CR || ch == LF || ch == FF) {
-      reader.nextChar();
+    Character ch = null;
+    do {
+      if (ch != null) reader.nextChar();
       td.offset = reader.charOffset - 1;
       td.lineOffset = td.lastOffset < reader.lineStartOffset ? reader.lineStartOffset : -1;
       td.name = null;
       ch = reader.ch;
-    }
+    } while (ch == ' ' || ch == '\t' || ch == CR || ch == LF || ch == FF);
     if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || ch == '$' || ch == '_') {
       putChar(ch);
       reader.nextChar();
