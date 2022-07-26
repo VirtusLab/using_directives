@@ -202,27 +202,30 @@ public class Scanner {
   }
 
   private IndentWidth indentWidthRecur(
-      int idx,
-      char ch,
-      int n,
-      Function<IndentWidth, IndentWidth> k
-  ) {
-    if (idx < 0) return k.apply(new Run(ch, n));
-    else {
+      int idx, char ch, int n, Function<IndentWidth, IndentWidth> k) {
+    while (idx >= 0) {
       char nextChar = reader.buf[idx];
       if (nextChar == LF) return k.apply(new Run(ch, n));
       else if (nextChar == ' ' || nextChar == '\t') {
-        if (nextChar == ch) return indentWidthRecur(idx - 1, ch, n + 1, k);
-        else {
-          Function<IndentWidth, IndentWidth> k1;
-          if (n == 0) k1 = k;
-          else k1 = i -> new Conc(i, new Run(ch, n));
-          return indentWidthRecur(idx - 1, nextChar, 1, k1);
+        if (nextChar == ch) {
+          idx = idx - 1;
+          n = n + 1;
+        } else {
+          char c = ch;
+          int nn = n;
+          if (n != 0) k = i -> new Conc(i, new Run(c, nn));
+          idx = idx - 1;
+          ch = nextChar;
+          n = 1;
         }
       } else {
-        return indentWidthRecur(idx - 1, ' ', 0, i -> i);
+        idx = idx - 1;
+        ch = ' ';
+        n = 0;
+        k = i -> i;
       }
     }
+    return k.apply(new Run(ch, n));
   }
 
   public IndentWidth indentWidth(int offset) {
