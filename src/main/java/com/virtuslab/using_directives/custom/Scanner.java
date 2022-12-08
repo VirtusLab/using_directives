@@ -415,6 +415,13 @@ public class Scanner {
   }
 
   private void fetchToken() {
+    boolean cont = true;
+    while (cont) {
+      cont = doFetchToken();
+    }
+  }
+
+  private boolean doFetchToken() {
     Character ch = null;
     do {
       if (ch != null) reader.nextChar();
@@ -453,7 +460,7 @@ public class Scanner {
       reader.nextChar();
       getOperatorRest();
     } else if (ch == '/') {
-      if (skipComment()) fetchToken();
+      if (skipComment()) return true;
       else {
         putChar('/');
         getOperatorRest();
@@ -601,6 +608,7 @@ public class Scanner {
         reader.nextChar();
       }
     }
+    return false;
   }
 
   // Unsupported: Keeping comments
