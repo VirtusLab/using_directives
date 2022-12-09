@@ -415,10 +415,8 @@ public class Scanner {
   }
 
   private void fetchToken() {
-    boolean cont = true;
-    while (cont) {
-      cont = doFetchToken();
-    }
+    while (doFetchToken()) {}
+    ;
   }
 
   private boolean doFetchToken() {
