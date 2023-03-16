@@ -76,29 +76,6 @@ public class Parser {
     }
   }
 
-  /**
-   * oneBlock: - changes COLON to COLONEOL nested nested
-   *
-   * <p>secondBlock { - stops at LBRACE nested nested }
-   *
-   * <p>thirdBlock { - skips the NEWLINE and stops at LBRACE nested nested }
-   */
-  public void possibleTemplateStart() {
-    in.observeColonEOL();
-    if (in.td.token == Tokens.COLONEOL) {
-      if (in.lookahead().token == Tokens.END) {
-        in.td.token = Tokens.NEWLINE;
-      } else {
-        in.nextToken();
-        if (in.td.token != Tokens.INDENT && in.td.token != Tokens.LBRACE) {
-          error(String.format("Expected indent or braces but found %s", in.td.token.str));
-        }
-      }
-    } else {
-      newLineOptWhenFollowedBy(Tokens.LBRACE);
-    }
-  }
-
   public void newLineOptWhenFollowedBy(Tokens token) {
     if (in.td.token == Tokens.NEWLINE && in.next.token == token) {
       in.nextToken();
@@ -147,7 +124,6 @@ public class Parser {
       else if (in.td.token == Tokens.REQUIRE) syntax = UsingDirectiveSyntax.Require;
 
       in.nextToken();
-      possibleTemplateStart();
       return new UsingDef(settings(), syntax, source.getPositionFromOffset(offset));
     }
     return null;
@@ -214,28 +190,17 @@ public class Parser {
     return null;
   }
 
-  /**
-   * We enter this place after parsing a key. Now we need to decide whether we want to parse
-   * settings block or value. We know that settings block needs to be put inside braces or in
-   * indentation block. For having a settings block we should have either the COLON or LBRACE token.
-   * In other cases we want to accept value.
-   */
   SettingDefOrUsingValue valueOrSetting(int keyEnd) {
-    possibleTemplateStart();
-    if (in.td.token == Tokens.LBRACE || in.td.token == Tokens.INDENT) {
-      return settings();
-    } else {
-      UsingValue v = value(keyEnd);
-      String scope = scope();
-      if (scope != null) {
-        if (v instanceof UsingPrimitive) {
-          ((UsingPrimitive) v).setScope(scope);
-        } else {
-          ((UsingValues) v).getValues().forEach(p -> p.setScope(scope));
-        }
+    UsingValue v = value(keyEnd);
+    String scope = scope();
+    if (scope != null) {
+      if (v instanceof UsingPrimitive) {
+        ((UsingPrimitive) v).setScope(scope);
+      } else {
+        ((UsingValues) v).getValues().forEach(p -> p.setScope(scope));
       }
-      return v;
     }
+    return v;
   }
 
   UsingValue value(int keyEnd) {

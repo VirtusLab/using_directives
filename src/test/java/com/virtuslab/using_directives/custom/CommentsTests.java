@@ -55,8 +55,8 @@ public class CommentsTests {
     testCode(UsingDirectiveKind.SpecialComment, 1, specialComment, plainComment);
     testCode(UsingDirectiveKind.SpecialComment, 2, specialComment, specialComment2);
     testCode(UsingDirectiveKind.SpecialComment, 1, multiLine1);
-    testCode(UsingDirectiveKind.SpecialComment, 3, multiLine2);
-    testCode(UsingDirectiveKind.SpecialComment, 4, multiLine1, multiLine2);
+    testCode(UsingDirectiveKind.SpecialComment, 1, multiLine2);
+    testCode(UsingDirectiveKind.SpecialComment, 2, multiLine1, multiLine2);
     testCode(UsingDirectiveKind.SpecialComment, 1, keywordDirective, specialComment, plainComment);
     testCode(UsingDirectiveKind.SpecialComment, 1, binaryScalaVersionNumericComment);
     testCode(

@@ -11,7 +11,8 @@ public class ParserUnitTest {
 
   @Test
   public void testNestedAndValuesOnOneLevel() {
-    String input = joinLines("using", "   keyA \"valueA\"", "   keyB: ", "      keyC \"valueC\"");
+    String input =
+        joinLines("using", "   keyA \"valueA\"", "using   keyB.keyC  ", "      \"valueC\"");
     UsingDirectives parsedDirective = testCode(2, input);
     assertSamePaths(parsedDirective, "keyA", "keyB.keyC");
   }
@@ -33,7 +34,8 @@ public class ParserUnitTest {
   @Test
   public void testFailMissingBrace() {
     PersistentReporter reporter = reporterAfterParsing("using keyA {", "   keyB 18", "x");
-    assertDiagnostic(reporter, 2, 0, "Expected closing region token but found identifier");
+    assertDiagnostic(
+        reporter, 0, 11, "Expected new line after the using directive, in the line; but found '{'");
   }
 
   @Test
@@ -45,7 +47,8 @@ public class ParserUnitTest {
   @Test
   public void testFailInvalidTokenOnTemplateStart() {
     PersistentReporter reporter = reporterAfterParsing("using keyA:", "using keyB 42");
-    assertDiagnostic(reporter, 1, 0, "Expected indent or braces but found", "using");
+    assertDiagnostic(
+        reporter, 0, 10, "Expected new line after the using directive, in the line; but found :");
   }
 
   @Test
@@ -59,8 +62,8 @@ public class ParserUnitTest {
   @Test
   public void testStatementSeparatorsNoIdentifier() {
     String input = joinLines("using {", "   keyA \"valueA\";", "}");
-    UsingDirectives parsedDirective = testCode(1, input);
-    assertValueAtPath(parsedDirective, "keyA", "valueA");
+    PersistentReporter reporter = reporterAfterParsing(input);
+    assertDiagnostic(reporter, 1, 16, "Expected token '}' but found ';'");
   }
 
   @Test
@@ -72,8 +75,9 @@ public class ParserUnitTest {
   @Test
   public void testDropBracesInIndentRegion() {
     String input = joinLines("using keyA:", "   keyB { ", "      keyC: ", "         keyD 2 }");
-    UsingDirectives parsedDirective = testCode(1, input);
-    assertValueAtPath(parsedDirective, "keyA.keyB.keyC.keyD", "2");
+    PersistentReporter reporter = reporterAfterParsing(input);
+    assertDiagnostic(
+        reporter, 0, 10, "Expected new line after the using directive, in the line; but found :");
   }
 
   @Test
@@ -87,13 +91,14 @@ public class ParserUnitTest {
   public void testFailInvalidIndentation() {
     PersistentReporter reporter = reporterAfterParsing("using keyA:", "   keyB", "  keyC");
     assertDiagnostic(
-        reporter, 2, 2, "this line does not match any of the previous indentation widths");
+        reporter, 0, 10, "Expected new line after the using directive, in the line; but found :");
   }
 
   @Test
   public void testFailIncompatibileMixedIndentation() {
     PersistentReporter reporter = reporterAfterParsing("using keyA:", "\t\t keyB", " \t\tkeyC");
-    assertDiagnostic(reporter, 2, 3, "Incompatible combinations of tabs and spaces");
+    assertDiagnostic(
+        reporter, 0, 10, "Expected new line after the using directive, in the line; but found :");
   }
 
   @Test
@@ -157,8 +162,8 @@ public class ParserUnitTest {
   @Test
   public void testSkipMultilineComment() {
     String input = joinLines("using keyA:", "   keyB 42", "\\* ", "using keyC 2137", "*\\");
-    UsingDirectives parsedDirective = testCode(1, input);
-    assertValueAtPath(parsedDirective, "keyA.keyB", "42");
-    assertNoValueAtPath(parsedDirective, "keyC");
+    PersistentReporter reporter = reporterAfterParsing(input);
+    assertDiagnostic(
+        reporter, 0, 10, "Expected new line after the using directive, in the line; but found :");
   }
 }

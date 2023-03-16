@@ -385,9 +385,6 @@ public class Scanner {
       case END:
         td.token = Tokens.IDENTIFIER;
         break;
-      case COLON:
-        //                observeColonEOL();
-        break;
       case RBRACE:
       case RPAREN:
       case RBRACKET:
