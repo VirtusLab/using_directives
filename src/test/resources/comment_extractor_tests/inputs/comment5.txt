@@ -1,4 +1,4 @@
-//> @using lib "org.scalameta::munit::0.7.29"
+//> using lib "org.scalameta::munit::0.7.29"
 
 class OtherTests extends munit.FunSuite {
   test("bar") {

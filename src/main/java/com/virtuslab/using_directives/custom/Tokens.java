@@ -42,7 +42,6 @@ public enum Tokens {
   NEWLINE("end of statement", "new line"),
   NEWLINES("end of statement", "new lines"),
   USCORE("_"),
-  ATUSING("@using"),
   COLON_USING("@using"),
   ATREQUIRE("@require"),
   CTXARROW("?=>"),

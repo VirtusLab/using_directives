@@ -1,4 +1,4 @@
-/*> @using
+/*> using
     option "-Xfatal-warnings"
     option "-Xprint:typer"
 */
