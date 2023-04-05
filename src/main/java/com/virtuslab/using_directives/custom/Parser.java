@@ -119,8 +119,7 @@ public class Parser {
       int offset = offset(in.td.offset);
 
       UsingDirectiveSyntax syntax = UsingDirectiveSyntax.Using;
-      if (in.td.token == Tokens.ATUSING) syntax = UsingDirectiveSyntax.AtUsing;
-      else if (in.td.token == Tokens.ATREQUIRE) syntax = UsingDirectiveSyntax.AtRequire;
+      if (in.td.token == Tokens.ATREQUIRE) syntax = UsingDirectiveSyntax.AtRequire;
       else if (in.td.token == Tokens.REQUIRE) syntax = UsingDirectiveSyntax.Require;
 
       in.nextToken();

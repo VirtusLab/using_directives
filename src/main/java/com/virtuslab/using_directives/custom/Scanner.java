@@ -355,9 +355,7 @@ public class Scanner {
     switch (td.token) {
       case AT:
         lookAhead();
-        if (td.token == Tokens.USING) {
-          fuse.accept(Tokens.ATUSING);
-        } else if (td.token == Tokens.REQUIRE) {
+        if (td.token == Tokens.REQUIRE) {
           fuse.accept(Tokens.ATREQUIRE);
         } else {
           reset();

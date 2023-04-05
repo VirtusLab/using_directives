@@ -34,7 +34,6 @@ public class TokenUtils {
   public static boolean isValidUsingDirectiveStart(Tokens token, Settings settings) {
     return (settings.isAllowStartWithoutAt()
             && (token == Tokens.USING || (settings.isAllowRequire() && token == Tokens.REQUIRE)))
-        || token == Tokens.ATUSING
         || (settings.isAllowRequire() && token == Tokens.ATREQUIRE);
   }
 
@@ -140,7 +139,6 @@ public class TokenUtils {
     set.add(Tokens.USING);
     set.add(Tokens.REQUIRE);
     set.add(Tokens.ATREQUIRE);
-    set.add(Tokens.ATUSING);
     set.add(Tokens.COLONEOL);
     set.add(Tokens.EQUALS);
     set.add(Tokens.CTXARROW);

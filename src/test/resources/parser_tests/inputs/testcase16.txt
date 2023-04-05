@@ -1,4 +1,4 @@
-@using
+using
     target.scala:
         >= "2.13" in "2.13/"
         <= "3.1.0" in "3.1.0/"

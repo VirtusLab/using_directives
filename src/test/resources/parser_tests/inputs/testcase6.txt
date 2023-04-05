@@ -1,8 +1,8 @@
-@using
+using
     lib.cs "org.scalameta :: munit : 0.4.3"
-@using
+using
     lib.cs "com.atlassian.commonmark:commonmark:0.13.1"
-@using
+using
     compiler.setting "-Xfatal-warnings", "-d ~/classes"
     compiler.setting:
         a "asd"

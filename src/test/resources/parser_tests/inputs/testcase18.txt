@@ -1,8 +1,8 @@
-@using
+using
     lib:
         allowSth
         cs "org.scalameta :: munit : 0.4.3"
-@using
+using
     lib
     {
         allowSth

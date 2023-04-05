@@ -2,7 +2,6 @@ package com.virtuslab.using_directives.custom.model;
 
 public enum UsingDirectiveSyntax {
   Using("using"), // e.g: using foo 1
-  AtUsing("@using"), // e.g. @using foo
   Require("require"), // require foo
   AtRequire("@require"); // @require foo
 
