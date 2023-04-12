@@ -742,7 +742,7 @@ public class Scanner {
           putChar(reader.ch);
           reader.nextChar();
           getOperatorRest();
-        } else finishNamed(Tokens.IDENTIFIER, td);
+        } else getIdentRest();
         break;
     }
   }
@@ -774,7 +774,7 @@ public class Scanner {
         default:
           if (isSpecial(reader.ch)) {
             getOperatorRest();
-          } else finishNamed(Tokens.IDENTIFIER, td);
+          } else getIdentRest();
           break;
       }
     }

@@ -29,6 +29,15 @@ public class DirectiveAssertions {
     assertEquals(expectedValueString, values.get(0).toString());
   }
 
+  public static void assertValueListAtPath(
+      UsingDirectives directives, String path, List<String> expectedValueString) {
+    List<Value<?>> values = directives.getFlattenedMap().get(Path.fromString(path));
+    assertNotNull(values);
+    assertEquals(expectedValueString.size(), values.size());
+    assertIterableEquals(
+        expectedValueString, values.stream().map(Value::toString).collect(Collectors.toList()));
+  }
+
   public static void assertNoValueAtPath(UsingDirectives directives, String path) {
     boolean containsKey = directives.getFlattenedMap().containsKey(Path.fromString(path));
     assertFalse(containsKey);

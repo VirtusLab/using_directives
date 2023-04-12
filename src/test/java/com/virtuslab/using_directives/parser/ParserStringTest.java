@@ -2,10 +2,12 @@ package com.virtuslab.using_directives.parser;
 
 import static com.virtuslab.using_directives.DirectiveAssertions.assertDiagnostic;
 import static com.virtuslab.using_directives.DirectiveAssertions.assertValueAtPath;
+import static com.virtuslab.using_directives.DirectiveAssertions.assertValueListAtPath;
 import static com.virtuslab.using_directives.TestUtils.*;
 
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
 import com.virtuslab.using_directives.reporter.PersistentReporter;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class ParserStringTest {
@@ -15,6 +17,20 @@ public class ParserStringTest {
     String input = "using keyA \"ab\\\"\\'\\\\\"";
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueAtPath(parsedDirective, "keyA", "ab\"'\\");
+  }
+
+  @Test
+  public void testStringNoQuotes() {
+    String input = "using keyA ab";
+    UsingDirectives parsedDirective = testCode(1, input);
+    assertValueAtPath(parsedDirective, "keyA", "ab");
+  }
+
+  @Test
+  public void testStringNoQuotesMultiple() {
+    String input = "using keyA ab, --ba, -opt, \"asd \"";
+    UsingDirectives parsedDirective = testCode(1, input);
+    assertValueListAtPath(parsedDirective, "keyA", List.of("ab", "--ba", "-opt", "asd "));
   }
 
   @Test

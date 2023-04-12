@@ -266,11 +266,14 @@ public class Parser {
       } else {
         error(String.format("-%s is not a valid numeric literal. %s", in.td.name, solution));
       }
-    } else if (!in.td.isAfterLineEnd() && in.td.token == Tokens.IDENTIFIER) {
-      error(
-          String.format(
-              "Expected primitive value: string, numeric or boolean but found %s. %s",
-              in.td.toTokenInfoString(), solution));
+    } else if (in.td.token == Tokens.IDENTIFIER) {
+      if (in.td.name.startsWith("-") && in.td.name.chars().allMatch(Character::isDigit)) {
+        res = new NumericLiteral(in.td.name, source.getPositionFromOffset(offset));
+        in.nextToken();
+      } else {
+        res = new StringLiteral(in.td.name, source.getPositionFromOffset(offset));
+        in.nextToken();
+      }
     } else if (numericTokens.contains(in.td.token)) {
       res = new NumericLiteral(in.td.strVal, source.getPositionFromOffset(offset));
       in.nextToken();
