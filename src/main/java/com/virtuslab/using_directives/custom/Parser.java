@@ -43,10 +43,6 @@ public class Parser {
     return source.translateOffset(off);
   }
 
-  public boolean isStatementSeparator() {
-    return in.td.isNewLine() || in.td.token == Tokens.SEMI;
-  }
-
   public void accept(Tokens token) {
     if (in.td.token == token) {
       in.nextToken();
@@ -129,17 +125,7 @@ public class Parser {
   }
 
   private List<SettingDef> parseSettings() {
-    if (isStatementSeparator()) {
-      if (in.lookahead().token == Tokens.IDENTIFIER) {
-        in.nextToken();
-        List<SettingDef> settings = new ArrayList<>();
-        settings.add(setting());
-        settings.addAll(parseSettings());
-        return settings;
-      } else {
-        return new ArrayList<>();
-      }
-    } else if (in.td.token == Tokens.IDENTIFIER) {
+    if (in.td.token == Tokens.IDENTIFIER) {
       List<SettingDef> settings = new ArrayList<>();
       settings.add(setting());
       settings.addAll(parseSettings());
@@ -150,12 +136,12 @@ public class Parser {
   }
 
   // > using
-  // >   oneKey ...
-  // >   secondKey ...
-  // >   thirdKey {
-  // >     nestedKey1
-  // >     nestedKey2
-  // >   }
+  // > oneKey ...
+  // > secondKey ...
+  // > thirdKey {
+  // > nestedKey1
+  // > nestedKey2
+  // > }
   SettingDefs settings() {
     ArrayList<SettingDef> settings = new ArrayList<>();
     int offset = offset(in.td.offset);
@@ -204,9 +190,12 @@ public class Parser {
 
   UsingValue value(int keyEnd) {
     int offset = offset(in.td.offset);
+    boolean isAfterLineEnd = in.td.isAfterLineEnd();
     UsingPrimitive p = primitive(keyEnd);
 
-    if (in.td.token == Tokens.COMMA) {
+    if (isAfterLineEnd) {
+      return new EmptyLiteral(source.getPositionFromOffset(keyEnd));
+    } else if (in.td.token == Tokens.COMMA) {
       int commaIndex = in.td.offset;
       in.nextToken();
       UsingValue rest = value(commaIndex);
@@ -267,10 +256,20 @@ public class Parser {
         error(String.format("-%s is not a valid numeric literal. %s", in.td.name, solution));
       }
     } else if (in.td.token == Tokens.IDENTIFIER) {
-      if (in.td.name.startsWith("-") && in.td.name.chars().allMatch(Character::isDigit)) {
-        res = new NumericLiteral(in.td.name, source.getPositionFromOffset(offset));
-        in.nextToken();
-      } else {
+      try {
+        if (in.td.name.startsWith("-0x")) {
+          Integer.parseInt(in.td.name.toString().replace("-0x", "-"), 16);
+          res = new NumericLiteral(in.td.name, source.getPositionFromOffset(offset));
+          in.nextToken();
+        } else if (in.td.name.startsWith("-")) {
+          Double.parseDouble(in.td.name.toString());
+          res = new NumericLiteral(in.td.name, source.getPositionFromOffset(offset));
+          in.nextToken();
+        } else {
+          res = new StringLiteral(in.td.name, source.getPositionFromOffset(offset));
+          in.nextToken();
+        }
+      } catch (NumberFormatException e) {
         res = new StringLiteral(in.td.name, source.getPositionFromOffset(offset));
         in.nextToken();
       }

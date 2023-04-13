@@ -99,7 +99,7 @@ public class CustomCharArrayReader {
   }
 
   public boolean isAtEnd() {
-    return charOffset >= buf.length;
+    return lastCharOffset >= buf.length;
   }
 
   public CustomCharArrayReader getLookaheadCharArrayReader() {

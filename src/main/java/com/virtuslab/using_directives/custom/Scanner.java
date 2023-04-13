@@ -586,20 +586,9 @@ public class Scanner {
         td.token = Tokens.ERROR;
       }
     } else {
-      if (Character.isUnicodeIdentifierStart(ch)) {
-        putChar(ch);
-        reader.nextChar();
-        getIdentRest();
-      } else if (isSpecial(ch)) {
-        putChar(ch);
-        reader.nextChar();
-        getOperatorRest();
-      } else {
-        // FIXME: Dotty deviation: f"" interpolator is not supported (#1814)
-        error(String.format("illegal character '\\u%04x'", (int) reader.ch));
-        td.token = Tokens.ERROR;
-        reader.nextChar();
-      }
+      putChar(ch);
+      reader.nextChar();
+      getOperatorRest();
     }
     return false;
   }
@@ -675,33 +664,12 @@ public class Scanner {
   }
 
   public void getIdentRest() {
-    if ((reader.ch >= 'A' && reader.ch <= 'Z')
-        || (reader.ch >= 'a' && reader.ch <= 'z')
-        || (reader.ch >= '0' && reader.ch <= '9')
-        || (reader.ch == '$')) {
+    if (!Character.isWhitespace(reader.ch) && reader.ch != ',' && !reader.isAtEnd()) {
       putChar(reader.ch);
       reader.nextChar();
       getIdentRest();
     } else {
-      switch (reader.ch) {
-        case '_':
-          putChar(reader.ch);
-          reader.nextChar();
-          getIdentOrOperatorRest();
-          break;
-        case SU:
-          finishNamed(Tokens.IDENTIFIER, td);
-          break;
-        default:
-          if (Character.isUnicodeIdentifierPart(reader.ch)) {
-            putChar(reader.ch);
-            reader.nextChar();
-            getIdentRest();
-          } else {
-            finishNamed(Tokens.IDENTIFIER, td);
-          }
-          break;
-      }
+      finishNamed(Tokens.IDENTIFIER, td);
     }
   }
 

@@ -1,3 +1,2 @@
-    using
-       option "-Xfatal-warnings"
-       option "-Xprint:typer"
+using  option "-Xfatal-warnings"
+    using  option -Xprint:typer

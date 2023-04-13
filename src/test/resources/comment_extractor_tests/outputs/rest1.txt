@@ -1,3 +1,4 @@
 
+//>
 //Some comment
 class A

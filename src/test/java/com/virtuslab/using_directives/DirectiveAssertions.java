@@ -3,6 +3,7 @@ package com.virtuslab.using_directives;
 import static com.virtuslab.using_directives.TestUtils.testCode;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.virtuslab.using_directives.custom.model.NumericValue;
 import com.virtuslab.using_directives.custom.model.Path;
 import com.virtuslab.using_directives.custom.model.UsingDirectiveKind;
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
@@ -27,6 +28,16 @@ public class DirectiveAssertions {
     assertNotNull(values);
     assertEquals(1, values.size());
     assertEquals(expectedValueString, values.get(0).toString());
+  }
+
+  public static void assertNumericValueAtPath(
+      UsingDirectives directives, String path, String expectedValueString) {
+    List<Value<?>> values = directives.getFlattenedMap().get(Path.fromString(path));
+    assertNotNull(values);
+    assertEquals(1, values.size());
+    Value<?> first = values.get(0);
+    if (first instanceof NumericValue) assertEquals(expectedValueString, values.get(0).toString());
+    else fail("It's not a numeric value");
   }
 
   public static void assertValueListAtPath(

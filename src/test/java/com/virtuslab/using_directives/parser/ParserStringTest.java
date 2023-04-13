@@ -34,6 +34,13 @@ public class ParserStringTest {
   }
 
   @Test
+  public void testStringNoQuotesDot() {
+    String input = "using keyA ab.ba, \"asd \"";
+    UsingDirectives parsedDirective = testCode(1, input);
+    assertValueListAtPath(parsedDirective, "keyA", List.of("ab.ba", "asd "));
+  }
+
+  @Test
   public void testMultilineString() {
     String input = joinLines("using keyA \"\"\"line1", "line2", "line3\"\"\"");
     UsingDirectives parsedDirective = testCode(1, input);
@@ -42,8 +49,9 @@ public class ParserStringTest {
 
   @Test
   public void testNotAllowStringInterpolator() {
-    PersistentReporter reporter = reporterAfterParsing("using keyA s\"foo\"");
-    assertDiagnostic(reporter, 0, 11, "found string interpolator");
+    String input = "using keyA s\"foo\"";
+    UsingDirectives parsedDirective = testCode(1, input);
+    assertValueAtPath(parsedDirective, "keyA", "s\"foo\"");
   }
 
   @Test
