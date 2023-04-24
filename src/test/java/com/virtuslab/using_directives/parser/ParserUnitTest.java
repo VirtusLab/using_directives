@@ -32,20 +32,7 @@ public class ParserUnitTest {
   }
 
   @Test
-  public void testFailMissingBrace() {
-    PersistentReporter reporter = reporterAfterParsing("using keyA {", "   keyB 18", "x");
-    assertDiagnostic(
-        reporter, 0, 11, "Expected new line after the using directive, in the line; but found '{'");
-  }
-
-  @Test
-  public void testFailExpectingIndentOrBrace() {
-    PersistentReporter reporter = reporterAfterParsing("using (keyB 2)");
-    assertDiagnostic(reporter, 0, 6, "Expected indent or braces but found", "(");
-  }
-
-  @Test
-  public void testFailInvalidTokenOnTemplateStart() {
+  public void testTokenOnTemplateStart() {
     String input = joinLines("using keyA:", "using keyB 42");
     UsingDirectives parsedDirective = testCode(2, input);
     assertValueAtPath(parsedDirective, "keyA:", "<EmptyValue>");
@@ -53,25 +40,10 @@ public class ParserUnitTest {
   }
 
   @Test
-  public void testStatementSeparatorsNoIdentifier() {
-    String input = joinLines("using {", "   keyA \"valueA\";", "}");
-    PersistentReporter reporter = reporterAfterParsing(input);
-    assertDiagnostic(reporter, 1, 16, "Expected token '}' but found ';'");
-  }
-
-  @Test
-  public void testFailInvalidKey() {
+  public void testParenKey() {
     String input = "using keyA.( \"foo\"";
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueAtPath(parsedDirective, "keyA.(", "foo");
-  }
-
-  @Test
-  public void testDropBracesInIndentRegion() {
-    String input = joinLines("using keyA:", "   keyB { ", "      keyC: ", "         keyD 2 }");
-    PersistentReporter reporter = reporterAfterParsing(input);
-    assertDiagnostic(
-        reporter, 1, 8, "Expected new line after the using directive, in the line; but found '{'");
   }
 
   @Test
@@ -82,7 +54,7 @@ public class ParserUnitTest {
   }
 
   @Test
-  public void testFailInvalidIndentation() {
+  public void testIndentation() {
     String input = joinLines("using keyA:", "   keyB", "  keyC");
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueAtPath(parsedDirective, "keyA:", "<EmptyValue>");

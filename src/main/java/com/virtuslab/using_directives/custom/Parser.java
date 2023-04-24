@@ -7,7 +7,6 @@ import com.virtuslab.using_directives.custom.model.UsingDirectiveSyntax;
 import com.virtuslab.using_directives.custom.utils.Source;
 import com.virtuslab.using_directives.custom.utils.ast.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -176,16 +175,7 @@ public class Parser {
   }
 
   SettingDefOrUsingValue valueOrSetting(int keyEnd) {
-    UsingValue v = value(keyEnd);
-    String scope = scope();
-    if (scope != null) {
-      if (v instanceof UsingPrimitive) {
-        ((UsingPrimitive) v).setScope(scope);
-      } else {
-        ((UsingValues) v).getValues().forEach(p -> p.setScope(scope));
-      }
-    }
-    return v;
+    return value(keyEnd);
   }
 
   UsingValue value(int keyEnd) {
@@ -215,66 +205,14 @@ public class Parser {
     }
   }
 
-  String scope() {
-    if (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("in")) {
-      in.nextToken();
-      if (in.td.token == Tokens.STRINGLIT) {
-        String scope = in.td.strVal;
-        in.nextToken();
-        return scope;
-      } else {
-        error(String.format("Expected token STRINGLIT but found %s", in.td.token.str));
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  private final List<Tokens> numericTokens =
-      Arrays.asList(
-          Tokens.INTLIT,
-          Tokens.DECILIT,
-          Tokens.EXPOLIT,
-          Tokens.LONGLIT,
-          Tokens.FLOATLIT,
-          Tokens.DOUBLELIT);
-
   UsingPrimitive primitive(int keyEnd) {
     int offset = offset(in.td.offset);
     UsingPrimitive res = null;
-    String solution = "Wrapping identifier in quotes usually solves the problem.";
     if (in.td.token == Tokens.STRINGLIT) {
       res = new StringLiteral(in.td.strVal, source.getPositionFromOffset(offset));
       in.nextToken();
-    } else if (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("-")) {
-      in.nextToken();
-      if (numericTokens.contains(in.td.token)) {
-        res = new NumericLiteral("-" + in.td.strVal, source.getPositionFromOffset(offset));
-        in.nextToken();
-      } else {
-        error(String.format("-%s is not a valid numeric literal. %s", in.td.name, solution));
-      }
     } else if (in.td.token == Tokens.IDENTIFIER) {
-      try {
-        if (in.td.name.startsWith("-0x")) {
-          Integer.parseInt(in.td.name.toString().replace("-0x", "-"), 16);
-          res = new NumericLiteral(in.td.name, source.getPositionFromOffset(offset));
-          in.nextToken();
-        } else if (in.td.name.startsWith("-")) {
-          Double.parseDouble(in.td.name.toString());
-          res = new NumericLiteral(in.td.name, source.getPositionFromOffset(offset));
-          in.nextToken();
-        } else {
-          res = new StringLiteral(in.td.name, source.getPositionFromOffset(offset));
-          in.nextToken();
-        }
-      } catch (NumberFormatException e) {
-        res = new StringLiteral(in.td.name, source.getPositionFromOffset(offset));
-        in.nextToken();
-      }
-    } else if (numericTokens.contains(in.td.token)) {
-      res = new NumericLiteral(in.td.strVal, source.getPositionFromOffset(offset));
+      res = new StringLiteral(in.td.name, source.getPositionFromOffset(offset));
       in.nextToken();
     } else if (in.td.token == Tokens.TRUE) {
       res = new BooleanLiteral(true, source.getPositionFromOffset(offset));

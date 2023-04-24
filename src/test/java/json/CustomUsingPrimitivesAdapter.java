@@ -19,8 +19,6 @@ public class CustomUsingPrimitivesAdapter
     if (scopeJson != null) scope = scopeJson.getAsString();
     if (type.equals("boolean")) {
       return new BooleanLiteral(jsonObj.get("value").getAsBoolean(), pos, scope);
-    } else if (type.equals("numeric")) {
-      return new NumericLiteral(jsonObj.get("value").getAsString(), pos, scope);
     } else if (type.equals("string")) {
       return new StringLiteral(jsonObj.get("value").getAsString(), pos, scope);
     } else if (type.equals("empty")) {
@@ -41,9 +39,6 @@ public class CustomUsingPrimitivesAdapter
     if (src instanceof BooleanLiteral) {
       jsonObj.addProperty("type", "boolean");
       jsonObj.addProperty("value", ((BooleanLiteral) src).getValue());
-    } else if (src instanceof NumericLiteral) {
-      jsonObj.addProperty("type", "numeric");
-      jsonObj.addProperty("value", ((NumericLiteral) src).getValue());
     } else if (src instanceof StringLiteral) {
       jsonObj.addProperty("type", "string");
       jsonObj.addProperty("value", ((StringLiteral) src).getValue());

@@ -48,7 +48,7 @@ public class ParserStringTest {
   }
 
   @Test
-  public void testNotAllowStringInterpolator() {
+  public void testAllowStringInterpolator() {
     String input = "using keyA s\"foo\"";
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueAtPath(parsedDirective, "keyA", "s\"foo\"");

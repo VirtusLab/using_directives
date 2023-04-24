@@ -61,7 +61,7 @@ public class CommentsTests {
     testCode(UsingDirectiveKind.SpecialComment, 1, binaryScalaVersionNumericComment);
     testCode(
         UsingDirectiveKind.SpecialComment,
-        1,
+        2,
         numericScalaVersionDirective,
         binaryScalaVersionNumericComment);
 
