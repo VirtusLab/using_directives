@@ -11,7 +11,6 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -322,22 +321,7 @@ public class Scanner {
   }
 
   public void postProcessToken() {
-    Consumer<Tokens> fuse =
-        token -> {
-          td.token = token;
-          td.offset = prev.offset;
-          td.lastOffset = prev.lastOffset;
-          td.lineOffset = prev.lineOffset;
-        };
     switch (td.token) {
-      case AT:
-        lookAhead();
-        if (td.token == Tokens.REQUIRE) {
-          fuse.accept(Tokens.ATREQUIRE);
-        } else {
-          reset();
-        }
-        break;
       case SEMI:
         lookAhead();
         reset();

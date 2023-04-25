@@ -25,43 +25,8 @@
           }
         ]
       }
-    },
-    {
-      "settingDefs": {
-        "settings": [
-          {
-            "key": "lib.cs",
-            "value": {
-              "type": "string",
-              "value": "com.atlassian.commonmark:commonmark:0.13.1"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "settingDefs": {
-        "settings": [
-          {
-            "key": "compiler.setting",
-            "value": {
-              "type": "list",
-              "value": [
-                {
-                  "type": "string",
-                  "value": "-Xfatal-warnings"
-                },
-                {
-                  "type": "string",
-                  "value": "-d ~/classes"
-                }
-              ]
-            }
-          }
-        ]
-      }
     }
   ],
-  "codeOffset": 215,
-  "codeStart": 216
+  "codeOffset": 86,
+  "codeStart": 87
 }

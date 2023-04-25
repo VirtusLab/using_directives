@@ -1,6 +1,6 @@
-require
+using
     lib.cs "org.scalameta :: munit : 0.4.3"
-require
+using
     lib.cs "com.atlassian.commonmark:commonmark:0.13.1"
-require
+using
     compiler.setting "-Xfatal-warnings", "-d ~/classes"

@@ -1,9 +1,7 @@
 package com.virtuslab.using_directives.custom.model;
 
 public enum UsingDirectiveSyntax {
-  Using("using"), // e.g: using foo 1
-  Require("require"), // require foo
-  AtRequire("@require"); // @require foo
+  Using("using"); // e.g: using foo 1
 
   private String keyword;
 

@@ -112,13 +112,9 @@ public class Parser {
   UsingDef usingDirective() {
     if (isValidUsingDirectiveStart(in.td.token, context.getSettings())) {
       int offset = offset(in.td.offset);
-
-      UsingDirectiveSyntax syntax = UsingDirectiveSyntax.Using;
-      if (in.td.token == Tokens.ATREQUIRE) syntax = UsingDirectiveSyntax.AtRequire;
-      else if (in.td.token == Tokens.REQUIRE) syntax = UsingDirectiveSyntax.Require;
-
       in.nextToken();
-      return new UsingDef(settings(), syntax, source.getPositionFromOffset(offset));
+      return new UsingDef(
+          settings(), UsingDirectiveSyntax.Using, source.getPositionFromOffset(offset));
     }
     return null;
   }
