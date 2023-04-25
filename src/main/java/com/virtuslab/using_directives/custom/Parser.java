@@ -3,7 +3,6 @@ package com.virtuslab.using_directives.custom;
 import static com.virtuslab.using_directives.custom.utils.TokenUtils.*;
 
 import com.virtuslab.using_directives.Context;
-import com.virtuslab.using_directives.custom.model.UsingDirectiveSyntax;
 import com.virtuslab.using_directives.custom.utils.Source;
 import com.virtuslab.using_directives.custom.utils.ast.*;
 import java.util.ArrayList;
@@ -110,11 +109,10 @@ public class Parser {
   }
 
   UsingDef usingDirective() {
-    if (isValidUsingDirectiveStart(in.td.token, context.getSettings())) {
+    if (isValidUsingDirectiveStart(in.td.token)) {
       int offset = offset(in.td.offset);
       in.nextToken();
-      return new UsingDef(
-          settings(), UsingDirectiveSyntax.Using, source.getPositionFromOffset(offset));
+      return new UsingDef(settings(), source.getPositionFromOffset(offset));
     }
     return null;
   }

@@ -81,7 +81,7 @@ public class ParserUnitTest {
     assertValueAtPath(parsedDirective, "keyA", "42");
   }
 
-  // @Test FIXME #40
+  @Test
   public void testUnicodeIdentifier() {
     String input = "using keyĄ 42";
     UsingDirectives parsedDirective = testCode(1, input);
@@ -104,7 +104,7 @@ public class ParserUnitTest {
     assertValueAtPath(parsedDirective, "lib.allowSth", "<EmptyValue>");
   }
 
-  // @Test FIXME #40
+  @Test
   public void testMathSymbolIdentifier() {
     String input = "using >/∑ 42";
     System.out.println(input);

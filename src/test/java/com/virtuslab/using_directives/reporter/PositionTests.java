@@ -25,9 +25,6 @@ public class PositionTests {
 
     String allWithoutValue = "//> using flag\n//> using flag2";
     DirectiveAssertions.assertPositions(
-        UsingDirectiveKind.SpecialComment,
-        secondWithoutValue,
-        new int[] {0, 15},
-        new int[] {1, 15});
+        UsingDirectiveKind.SpecialComment, allWithoutValue, new int[] {0, 14}, new int[] {1, 15});
   }
 }

@@ -2,7 +2,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.virtuslab.using_directives.Context;
 import com.virtuslab.using_directives.UsingDirectivesProcessor;
-import com.virtuslab.using_directives.config.Settings;
 import com.virtuslab.using_directives.custom.model.UsingDirectiveKind;
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,9 +19,7 @@ public class CommentExtractorIntegrationTest extends TestUtils {
   private UsingDirectives extractDirectives(char[] content) {
     UsingDirectivesProcessor processor = new UsingDirectivesProcessor();
 
-    Settings setts = new Settings();
-    setts.setAllowStartWithoutAt(true);
-    Context ctx = new Context(setts);
+    Context ctx = new Context();
     processor.setContext(ctx);
     UsingDirectives res = processor.extract(content, true, false).get(1);
     assertFalse(processor.getContext().getReporter().hasErrors());

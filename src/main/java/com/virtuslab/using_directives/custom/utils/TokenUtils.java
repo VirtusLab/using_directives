@@ -1,6 +1,5 @@
 package com.virtuslab.using_directives.custom.utils;
 
-import com.virtuslab.using_directives.config.Settings;
 import com.virtuslab.using_directives.custom.Tokens;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,8 +30,8 @@ public class TokenUtils {
         && token.ordinal() <= Tokens.BACKQUOTED_IDENT.ordinal();
   }
 
-  public static boolean isValidUsingDirectiveStart(Tokens token, Settings settings) {
-    return (settings.isAllowStartWithoutAt() && token == Tokens.USING);
+  public static boolean isValidUsingDirectiveStart(Tokens token) {
+    return token == Tokens.USING;
   }
 
   public static Set<Tokens> alphaKeywords = new HashSet<>(tokenRange(Tokens.USING, Tokens.END));

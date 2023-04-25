@@ -159,11 +159,6 @@ public class Visitor {
     return copied;
   }
 
-  private Map<String, ValueOrSetting<?>> nest(Map<String, ValueOrSetting<?>> raw) {
-    return raw.entrySet().stream()
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-  }
-
   private Map<Path, List<Value<?>>> getFlatView(UsingTree root) {
     Map<String, List<Value<?>>> intermediate = visitSettingsFlat(root);
     return intermediate.entrySet().stream()

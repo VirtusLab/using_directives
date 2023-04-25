@@ -1,7 +1,6 @@
 package json;
 
 import com.google.gson.*;
-import com.virtuslab.using_directives.custom.model.UsingDirectiveSyntax;
 import com.virtuslab.using_directives.custom.utils.Position;
 import com.virtuslab.using_directives.custom.utils.ast.UsingPrimitive;
 import com.virtuslab.using_directives.custom.utils.ast.UsingValue;
@@ -18,7 +17,6 @@ public class CustomUsingValueAdapter
     JsonObject jsonObj = json.getAsJsonObject();
     String type = jsonObj.get("type").getAsString();
     Position pos = context.deserialize(jsonObj.getAsJsonObject("position"), Position.class);
-    UsingDirectiveSyntax syntax = UsingDirectiveSyntax.Using;
 
     if (type.equals("list")) {
       UsingPrimitive[] values =

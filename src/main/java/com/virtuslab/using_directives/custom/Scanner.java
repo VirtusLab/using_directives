@@ -230,7 +230,7 @@ public class Scanner {
         && canEndStatTokens.contains(lastToken)
         && canStartStatTokens().contains(td.token)
         && !(lastWidth.less(nextWidth) && isContinuing(lastToken))
-        && (lastName == null || !isValidUsingDirectiveStart(lastToken, context.getSettings()))) {
+        && (lastName == null || !isValidUsingDirectiveStart(lastToken))) {
       if (pastBlankLine()) {
         insert(Tokens.NEWLINES, td.lineOffset);
       } else {

@@ -4,7 +4,6 @@ import static com.virtuslab.using_directives.DirectiveAssertions.assertDiagnosti
 import static com.virtuslab.using_directives.TestUtils.reporterAfterParsing;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.virtuslab.using_directives.DirectiveAssertions.*;
 import org.junit.jupiter.api.Test;
 
 class ReporterTest {
