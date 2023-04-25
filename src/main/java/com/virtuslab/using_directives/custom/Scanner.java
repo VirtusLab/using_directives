@@ -427,13 +427,8 @@ public class Scanner {
             reader.nextChar();
             if (reader.ch == '\"') {
               reader.nextChar();
-              if (reader.ch == '\"') {
-                reader.nextRawChar();
-                getRawStringLit();
-              } else {
-                td.token = Tokens.STRINGLIT;
-                td.strVal = "";
-              }
+              td.token = Tokens.STRINGLIT;
+              td.strVal = "";
             } else {
               getStringLit();
             }
@@ -675,45 +670,6 @@ public class Scanner {
       setStrVal();
       td.token = Tokens.STRINGLIT;
       error("unclosed string literal");
-    }
-  }
-
-  public void getRawStringLit() {
-    if (reader.ch == '"') {
-      reader.nextRawChar();
-      if (isTripleQuote()) {
-        setStrVal();
-        td.token = Tokens.STRINGLIT;
-      } else {
-        getRawStringLit();
-      }
-    } else if (reader.ch == SU) {
-      incompleteInputError("unclosed multi-line string literal");
-    } else {
-      putChar(reader.ch);
-      reader.nextRawChar();
-      getRawStringLit();
-    }
-  }
-
-  public boolean isTripleQuote() {
-    if (reader.ch == '"') {
-      reader.nextRawChar();
-      if (reader.ch == '"') {
-        reader.nextChar();
-        while (reader.ch == '"') {
-          putChar('"');
-          reader.nextChar();
-        }
-        return true;
-      } else {
-        putChar('"');
-        putChar('"');
-        return false;
-      }
-    } else {
-      putChar('"');
-      return false;
     }
   }
 

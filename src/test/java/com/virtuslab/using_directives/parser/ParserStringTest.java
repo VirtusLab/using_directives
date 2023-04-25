@@ -41,10 +41,10 @@ public class ParserStringTest {
   }
 
   @Test
-  public void testMultilineString() {
+  public void testFailMultilineString() {
     String input = joinLines("//> using keyA \"\"\"line1", "//> line2", "//> line3\"\"\"");
-    UsingDirectives parsedDirective = testCode(1, input);
-    assertValueAtPath(parsedDirective, "keyA", "line1\nline2\nline3");
+    PersistentReporter reporter = reporterAfterParsing(input);
+    assertDiagnostic(reporter, 0, 17, "unclosed string literal");
   }
 
   @Test
