@@ -10,19 +10,16 @@ public class UsingDirectivesImpl implements UsingDirectives {
   private final Map<Path, List<Value<?>>> flattenedMap;
   private final UsingTree ast;
   private final int codeOffset;
-  private final UsingDirectiveKind kind;
 
   public UsingDirectivesImpl(
       Map<String, ValueOrSetting<?>> nestedMap,
       Map<Path, List<Value<?>>> flattenedMap,
       UsingTree ast,
-      int codeOffset,
-      UsingDirectiveKind kind) {
+      int codeOffset) {
     this.nestedMap = nestedMap;
     this.flattenedMap = flattenedMap;
     this.ast = ast;
     this.codeOffset = codeOffset;
-    this.kind = kind;
   }
 
   @Override
@@ -46,15 +43,8 @@ public class UsingDirectivesImpl implements UsingDirectives {
   }
 
   @Override
-  public UsingDirectiveKind getKind() {
-    return kind;
-  }
-
-  @Override
   public String toString() {
-    return "UsingDirectivesImpl("
-        + kind
-        + "){"
+    return "UsingDirectivesImpl{"
         + flattenedMap.entrySet().stream()
             .map(
                 e ->

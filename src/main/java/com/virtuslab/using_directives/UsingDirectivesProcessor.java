@@ -3,7 +3,6 @@ package com.virtuslab.using_directives;
 import com.virtuslab.using_directives.custom.Parser;
 import com.virtuslab.using_directives.custom.SimpleCommentExtractor;
 import com.virtuslab.using_directives.custom.Visitor;
-import com.virtuslab.using_directives.custom.model.UsingDirectiveKind;
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
 import com.virtuslab.using_directives.custom.utils.Source;
 import com.virtuslab.using_directives.custom.utils.ast.UsingDefs;
@@ -27,23 +26,17 @@ public class UsingDirectivesProcessor {
   private UsingDirectives extractFromComment(char[] content, boolean commentIndicator) {
     SimpleCommentExtractor extractor = new SimpleCommentExtractor(content, commentIndicator);
     UsingDefs ast = new Parser(new Source(extractor.extractComments()), reporter).parse();
-    return new Visitor(ast, reporter)
-        .visit(
-            commentIndicator ? UsingDirectiveKind.SpecialComment : UsingDirectiveKind.PlainComment);
+    return new Visitor(ast, reporter).visit();
   }
 
-  public List<UsingDirectives> extract(
-      char[] content, boolean specialComments, boolean plainComments) {
+  public List<UsingDirectives> extract(char[] content) {
     List<UsingDirectives> result = new ArrayList<>();
     UsingDefs ast = new Parser(new Source(content), reporter).parse();
-    result.add(new Visitor(ast, reporter).visit(UsingDirectiveKind.Code));
-    if (specialComments || plainComments) {
       // this could be done better...
-      char[] commentContent = Arrays.copyOfRange(content, 0, ast.getCodeStart());
+    char[] commentContent = Arrays.copyOfRange(content, 0, ast.getCodeStart());
 
-      if (specialComments) result.add(extractFromComment(commentContent, true));
-      if (plainComments) result.add(extractFromComment(commentContent, false));
-    }
+    result.add(extractFromComment(commentContent, true));
+  
     return result;
   }
 

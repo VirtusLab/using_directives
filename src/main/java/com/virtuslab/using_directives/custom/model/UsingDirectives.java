@@ -13,5 +13,4 @@ public interface UsingDirectives {
 
   int getCodeOffset();
 
-  UsingDirectiveKind getKind();
 }

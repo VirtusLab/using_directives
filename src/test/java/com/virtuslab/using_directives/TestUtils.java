@@ -2,35 +2,22 @@ package com.virtuslab.using_directives;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.virtuslab.using_directives.custom.model.UsingDirectiveKind;
+import java.util.List;
+
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
 import com.virtuslab.using_directives.reporter.PersistentReporter;
 
 public class TestUtils {
 
-  public static UsingDirectives testCode(
-      UsingDirectiveKind expectedKind, int expectedCount, String... examples) {
+  public static UsingDirectives testCode(int expectedCount, String... examples) {
     String code = joinLines(examples) + "\n// code...";
     UsingDirectivesProcessor processor = new UsingDirectivesProcessor();
 
-    UsingDirectives directives =
-        processor
-            .extract(
-                code.toCharArray(),
-                expectedKind == UsingDirectiveKind.SpecialComment,
-                expectedKind == UsingDirectiveKind.PlainComment)
-            .stream()
-            .filter(d -> d.getKind() == expectedKind)
-            .findFirst()
-            .get();
+    List<UsingDirectives> directives =  processor.extract(code.toCharArray());
 
-    assertEquals(expectedCount, directives.getFlattenedMap().size());
-    assertEquals(expectedKind, directives.getKind());
-    return directives;
-  }
-
-  public static UsingDirectives testCode(int expectedCount, String... directives) {
-    return testCode(UsingDirectiveKind.Code, expectedCount, directives);
+    assertEquals(1, directives.size(), "We should only get a single directive object");
+    assertEquals(expectedCount, directives.get(0).getFlattenedMap().size());
+    return directives.get(0);
   }
 
   public static UsingDirectives testCode(String... directives) {
@@ -39,7 +26,7 @@ public class TestUtils {
 
   public static PersistentReporter reporterAfterParsing(String... code) {
     PersistentReporter reporter = new PersistentReporter();
-    new UsingDirectivesProcessor(reporter).extract(joinLines(code).toCharArray(), false, false);
+    new UsingDirectivesProcessor(reporter).extract(joinLines(code).toCharArray());
     return reporter;
   }
 
