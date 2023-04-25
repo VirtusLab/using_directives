@@ -4,9 +4,9 @@ import static com.virtuslab.using_directives.custom.regions.Region.topLevelRegio
 import static com.virtuslab.using_directives.custom.utils.Chars.*;
 import static com.virtuslab.using_directives.custom.utils.TokenUtils.*;
 
-import com.virtuslab.using_directives.Context;
 import com.virtuslab.using_directives.custom.regions.*;
 import com.virtuslab.using_directives.custom.utils.Source;
+import com.virtuslab.using_directives.reporter.Reporter;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -17,14 +17,14 @@ import java.util.stream.Collectors;
 
 public class Scanner {
 
-  private final Context context;
+  private final Reporter reporter;
   private Source source;
   private boolean debug = false;
   public boolean allowLeadingInfixOperators = true;
 
-  public Scanner(Source source, int startFrom, Context context) {
+  public Scanner(Source source, int startFrom, Reporter reporter) {
     this.source = source;
-    this.context = context;
+    this.reporter = reporter;
     reader = new CustomCharArrayReader(source.getContent(), this::errorButContinue);
     reader.startFrom = startFrom;
     reader.nextChar();
@@ -32,18 +32,18 @@ public class Scanner {
     currentRegion = topLevelRegion(indentWidth(td.offset));
   }
 
-  public Scanner(Source source, int startFrom, Context context, boolean debug) {
-    this(source, startFrom, context);
+  public Scanner(Source source, int startFrom, Reporter reporter, boolean debug) {
+    this(source, startFrom, reporter);
     this.debug = debug;
   }
 
-  public Context getContext() {
-    return context;
+  public Reporter getReporter() {
+    return reporter;
   }
 
   class LookaheadScanner extends Scanner {
     public LookaheadScanner() {
-      super(Scanner.this.source, Scanner.this.reader.startFrom, context);
+      super(Scanner.this.source, Scanner.this.reader.startFrom, reporter);
     }
   }
 
@@ -52,7 +52,7 @@ public class Scanner {
   private final CustomCharArrayReader reader;
 
   private void error(String msg, int offset) {
-    context.getReporter().error(source.getPositionFromOffset(offset), msg);
+    reporter.error(source.getPositionFromOffset(offset), msg);
   }
 
   private void error(String msg) {
@@ -60,11 +60,11 @@ public class Scanner {
   }
 
   private void errorButContinue(String msg, int offset) {
-    context.getReporter().error(source.getPositionFromOffset(offset), msg);
+    reporter.error(source.getPositionFromOffset(offset), msg);
   }
 
   private void incompleteInputError(String msg) {
-    context.getReporter().error(String.format("Incomplete input: %s", msg));
+    reporter.error(String.format("Incomplete input: %s", msg));
   }
 
   private final Deque<Character> litBuf = new LinkedList<>();

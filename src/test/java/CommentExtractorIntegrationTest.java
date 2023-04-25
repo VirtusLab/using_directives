@@ -1,9 +1,10 @@
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.virtuslab.using_directives.Context;
 import com.virtuslab.using_directives.UsingDirectivesProcessor;
 import com.virtuslab.using_directives.custom.model.UsingDirectiveKind;
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
+import com.virtuslab.using_directives.reporter.ConsoleReporter;
+import com.virtuslab.using_directives.reporter.Reporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -19,10 +20,10 @@ public class CommentExtractorIntegrationTest extends TestUtils {
   private UsingDirectives extractDirectives(char[] content) {
     UsingDirectivesProcessor processor = new UsingDirectivesProcessor();
 
-    Context ctx = new Context();
-    processor.setContext(ctx);
+    Reporter reporter = new ConsoleReporter();
+    processor.setReporter(reporter);
     UsingDirectives res = processor.extract(content, true, false).get(1);
-    assertFalse(processor.getContext().getReporter().hasErrors());
+    assertFalse(processor.getReporter().hasErrors());
     assertEquals(UsingDirectiveKind.SpecialComment, res.getKind());
     return res;
   }

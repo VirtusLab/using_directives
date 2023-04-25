@@ -1,18 +1,18 @@
 package com.virtuslab.using_directives.custom;
 
-import com.virtuslab.using_directives.Context;
 import com.virtuslab.using_directives.custom.model.*;
 import com.virtuslab.using_directives.custom.utils.KeyValue;
 import com.virtuslab.using_directives.custom.utils.ast.*;
+import com.virtuslab.using_directives.reporter.Reporter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Visitor {
   private final UsingTree root;
-  private final Context context;
+  private final Reporter reporter;
 
-  public Visitor(UsingTree root, Context context) {
-    this.context = context;
+  public Visitor(UsingTree root, Reporter reporter) {
+    this.reporter = reporter;
     this.root = root;
   }
 
@@ -20,8 +20,8 @@ public class Visitor {
     return root;
   }
 
-  public Context getContext() {
-    return context;
+  public Reporter getReporter() {
+    return reporter;
   }
 
   public UsingDirectives visit(UsingDirectiveKind kind) {
@@ -55,7 +55,7 @@ public class Visitor {
       keyValueList.forEach(kv -> map.merge(kv.getKey(), kv.getValue(), this::merge));
       return map;
     } else {
-      context.getReporter().error(root.getPosition(), "Provided AST cannot be processed.");
+      reporter.error(root.getPosition(), "Provided AST cannot be processed.");
       return null;
     }
   }

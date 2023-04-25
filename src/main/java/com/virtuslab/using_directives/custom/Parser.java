@@ -2,9 +2,9 @@ package com.virtuslab.using_directives.custom;
 
 import static com.virtuslab.using_directives.custom.utils.TokenUtils.*;
 
-import com.virtuslab.using_directives.Context;
 import com.virtuslab.using_directives.custom.utils.Source;
 import com.virtuslab.using_directives.custom.utils.ast.*;
+import com.virtuslab.using_directives.reporter.Reporter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -13,16 +13,16 @@ public class Parser {
 
   private Source source;
 
-  private final Context context;
+  private final Reporter reporter;
 
-  public Parser(Source source, Context context) {
-    this.context = context;
+  public Parser(Source source, Reporter reporter) {
+    this.reporter = reporter;
     this.source = source;
-    this.in = new Scanner(source, 0, context);
+    this.in = new Scanner(source, 0, reporter);
   }
 
-  public Context getContext() {
-    return context;
+  public Reporter getReporter() {
+    return reporter;
   }
 
   Scanner in;
@@ -30,7 +30,7 @@ public class Parser {
   /* Combinators */
 
   private void error(String msg, int offset) {
-    context.getReporter().error(source.getPositionFromOffset(offset), msg);
+    reporter.error(source.getPositionFromOffset(offset), msg);
   }
 
   private void error(String msg) {
