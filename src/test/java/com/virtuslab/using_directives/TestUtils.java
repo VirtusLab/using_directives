@@ -39,8 +39,7 @@ public class TestUtils {
 
   public static PersistentReporter reporterAfterParsing(String... code) {
     PersistentReporter reporter = new PersistentReporter();
-    new UsingDirectivesProcessor(new Context(reporter))
-        .extract(joinLines(code).toCharArray(), false, false);
+    new UsingDirectivesProcessor(reporter).extract(joinLines(code).toCharArray(), false, false);
     return reporter;
   }
 

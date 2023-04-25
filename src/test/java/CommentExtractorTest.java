@@ -1,12 +1,6 @@
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 import com.virtuslab.using_directives.custom.SimpleCommentExtractor;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -17,12 +11,6 @@ public class CommentExtractorTest extends TestUtils {
   private char[] processFile(String path) {
     char[] content = getContent(path).toCharArray();
     return new SimpleCommentExtractor(content, true).extractComments();
-  }
-
-  private List<Integer> getExpectedLines(String path) {
-    String json = getContent(path);
-    JsonArray arr = JsonParser.parseString(json).getAsJsonObject().get("lines").getAsJsonArray();
-    return new Gson().fromJson(arr, new TypeToken<ArrayList<Integer>>() {}.getType());
   }
 
   private void compare(String input, String output) {

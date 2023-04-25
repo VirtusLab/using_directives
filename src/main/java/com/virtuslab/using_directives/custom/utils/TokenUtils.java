@@ -1,6 +1,5 @@
 package com.virtuslab.using_directives.custom.utils;
 
-import com.virtuslab.using_directives.config.Settings;
 import com.virtuslab.using_directives.custom.Tokens;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,10 +30,8 @@ public class TokenUtils {
         && token.ordinal() <= Tokens.BACKQUOTED_IDENT.ordinal();
   }
 
-  public static boolean isValidUsingDirectiveStart(Tokens token, Settings settings) {
-    return (settings.isAllowStartWithoutAt()
-            && (token == Tokens.USING || (settings.isAllowRequire() && token == Tokens.REQUIRE)))
-        || (settings.isAllowRequire() && token == Tokens.ATREQUIRE);
+  public static boolean isValidUsingDirectiveStart(Tokens token) {
+    return token == Tokens.USING;
   }
 
   public static Set<Tokens> alphaKeywords = new HashSet<>(tokenRange(Tokens.USING, Tokens.END));
@@ -135,10 +132,7 @@ public class TokenUtils {
 
   private static Set<Tokens> canStartIndentTokens() {
     Set<Tokens> set = new HashSet<>();
-    //        set.addAll(identifierTokens);
     set.add(Tokens.USING);
-    set.add(Tokens.REQUIRE);
-    set.add(Tokens.ATREQUIRE);
     set.add(Tokens.COLONEOL);
     set.add(Tokens.EQUALS);
     set.add(Tokens.CTXARROW);
@@ -148,7 +142,6 @@ public class TokenUtils {
   private static Set<Tokens> canStartStatTokens3() {
     Set<Tokens> set = new HashSet<>(canStartExprTokens3());
     set.add(Tokens.USING);
-    set.add(Tokens.REQUIRE);
     set.add(Tokens.AT);
     set.add(Tokens.END);
     return set;

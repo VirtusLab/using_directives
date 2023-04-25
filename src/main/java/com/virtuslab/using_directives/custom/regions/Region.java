@@ -48,10 +48,4 @@ public abstract class Region {
   }
 
   protected abstract String delimiter();
-
-  private String visualize() {
-    return indentWidth().toPrefix()
-        + delimiter()
-        + (outer() != null ? "\n" + outer().visualize() : "");
-  }
 }
