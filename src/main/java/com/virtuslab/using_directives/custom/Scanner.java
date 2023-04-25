@@ -52,8 +52,6 @@ public class Scanner {
 
   private final CustomCharArrayReader reader;
 
-  private int errOffset = -1;
-
   private void error(String msg, int offset) {
     context.getReporter().error(source.getPositionFromOffset(offset), msg);
   }
@@ -97,16 +95,6 @@ public class Scanner {
     litBuf.clear();
   }
 
-  private boolean isNumberSeparator(char c) {
-    return c == '_';
-  }
-
-  private void checkNoTrailingSeparator() {
-    if (!litBuf.isEmpty() && isNumberSeparator(litBuf.getLast())) {
-      errorButContinue("Trailing separator is not allowed", td.offset + litBuf.size() - 1);
-    }
-  }
-
   private TokenData newTokenData() {
     return new TokenData();
   }
@@ -115,15 +103,6 @@ public class Scanner {
   public TokenData prev = newTokenData();
 
   Region currentRegion = new Indented(IndentWidth.Zero(), new HashSet<>(), Tokens.EMPTY, null);
-
-  private boolean inMultiLineInterpolatedExpression() {
-    if (currentRegion instanceof InBraces) {
-      InBraces ib = (InBraces) currentRegion;
-      if (ib.outer() instanceof InString) {
-        return ((InString) ib.outer()).multiLine;
-      } else return false;
-    } else return false;
-  }
 
   private void dropBraces() {
     if (currentRegion instanceof InBraces) {
@@ -236,14 +215,12 @@ public class Scanner {
     boolean indentIsSignificant = false;
     boolean newlineIsSeparating = false;
     IndentWidth lastWidth = IndentWidth.Zero();
-    Tokens indentPrefix = Tokens.EMPTY;
     IndentWidth nextWidth = indentWidth(td.offset);
     if (currentRegion instanceof Indented) {
       Indented i = (Indented) currentRegion;
       indentIsSignificant = true;
       lastWidth = i.width;
       newlineIsSeparating = lastWidth.lessOrEqual(nextWidth) || i.isOutermost();
-      indentPrefix = i.prefix;
     } else {
       indentIsSignificant = true;
       currentRegion.proposeKnownWidth(nextWidth, lastToken);
@@ -458,28 +435,6 @@ public class Scanner {
         putChar('/');
         getOperatorRest();
       }
-    } else if (ch == '0') {
-      reader.nextChar();
-      switch (reader.ch) {
-        case 'x':
-        case 'X':
-          td.base = 16;
-          reader.nextChar();
-          putChar('0');
-          putChar('x');
-          break;
-        default:
-          td.base = 10;
-          putChar('0');
-          break;
-      }
-      if (td.base != 10 && !isNumberSeparator(reader.ch) && digitToInt(reader.ch, td.base) < 0) {
-        error("invalid literal number");
-      }
-      getNumber();
-    } else if (ch >= '1' && ch <= '9') {
-      td.base = 10;
-      getNumber();
     } else if (ch == '`') {
       getBackquotedIdent();
     } else if (ch == '\"') {
@@ -544,40 +499,9 @@ public class Scanner {
             }
         }
       }
-    } else if (ch == '.') {
-      reader.nextChar();
-      if (reader.ch >= '0' && reader.ch <= '9') {
-        putChar('.');
-        getFraction();
-        setStrVal();
-      } else {
-        td.token = Tokens.DOT;
-      }
-    } else if (ch == ';') {
-      reader.nextChar();
-      td.token = Tokens.SEMI;
     } else if (ch == ',') {
       reader.nextChar();
       td.token = Tokens.COMMA;
-    } else if (ch == '(') {
-      reader.nextChar();
-      td.token = Tokens.LPAREN;
-    } else if (ch == '{') {
-      reader.nextChar();
-      td.token = Tokens.LBRACE;
-    } else if (ch == ')') {
-      reader.nextChar();
-      td.token = Tokens.RPAREN;
-    } else if (ch == '}') {
-      if (inMultiLineInterpolatedExpression()) reader.nextRawChar();
-      else reader.nextChar();
-      td.token = Tokens.RBRACE;
-    } else if (ch == '[') {
-      reader.nextChar();
-      td.token = Tokens.LBRACKET;
-    } else if (ch == ']') {
-      reader.nextChar();
-      td.token = Tokens.RBRACKET;
     } else if (ch == SU) {
       if (reader.isAtEnd()) td.token = Tokens.EOF;
       else {
@@ -586,20 +510,9 @@ public class Scanner {
         td.token = Tokens.ERROR;
       }
     } else {
-      if (Character.isUnicodeIdentifierStart(ch)) {
-        putChar(ch);
-        reader.nextChar();
-        getIdentRest();
-      } else if (isSpecial(ch)) {
-        putChar(ch);
-        reader.nextChar();
-        getOperatorRest();
-      } else {
-        // FIXME: Dotty deviation: f"" interpolator is not supported (#1814)
-        error(String.format("illegal character '\\u%04x'", (int) reader.ch));
-        td.token = Tokens.ERROR;
-        reader.nextChar();
-      }
+      putChar(ch);
+      reader.nextChar();
+      getOperatorRest();
     }
     return false;
   }
@@ -675,33 +588,12 @@ public class Scanner {
   }
 
   public void getIdentRest() {
-    if ((reader.ch >= 'A' && reader.ch <= 'Z')
-        || (reader.ch >= 'a' && reader.ch <= 'z')
-        || (reader.ch >= '0' && reader.ch <= '9')
-        || (reader.ch == '$')) {
+    if (!Character.isWhitespace(reader.ch) && reader.ch != ',' && !reader.isAtEnd()) {
       putChar(reader.ch);
       reader.nextChar();
       getIdentRest();
     } else {
-      switch (reader.ch) {
-        case '_':
-          putChar(reader.ch);
-          reader.nextChar();
-          getIdentOrOperatorRest();
-          break;
-        case SU:
-          finishNamed(Tokens.IDENTIFIER, td);
-          break;
-        default:
-          if (Character.isUnicodeIdentifierPart(reader.ch)) {
-            putChar(reader.ch);
-            reader.nextChar();
-            getIdentRest();
-          } else {
-            finishNamed(Tokens.IDENTIFIER, td);
-          }
-          break;
-      }
+      finishNamed(Tokens.IDENTIFIER, td);
     }
   }
 
@@ -742,7 +634,7 @@ public class Scanner {
           putChar(reader.ch);
           reader.nextChar();
           getOperatorRest();
-        } else finishNamed(Tokens.IDENTIFIER, td);
+        } else getIdentRest();
         break;
     }
   }
@@ -774,7 +666,7 @@ public class Scanner {
         default:
           if (isSpecial(reader.ch)) {
             getOperatorRest();
-          } else finishNamed(Tokens.IDENTIFIER, td);
+          } else getIdentRest();
           break;
       }
     }
@@ -936,90 +828,6 @@ public class Scanner {
         && (reader.ch != SU && reader.ch != CR && reader.ch != LF || reader.isUnicodeEscape())) {
       getLitChar();
     }
-  }
-
-  public void getFraction() {
-    td.token = Tokens.DECILIT;
-    while ('0' <= reader.ch && reader.ch <= '9' || isNumberSeparator(reader.ch)) {
-      putChar(reader.ch);
-      reader.nextChar();
-    }
-    checkNoTrailingSeparator();
-    if (reader.ch == 'e' || reader.ch == 'E') {
-      CustomCharArrayReader lookahead = reader.getLookaheadCharArrayReader();
-      lookahead.nextChar();
-      if (lookahead.ch == '+' || lookahead.ch == '-') {
-        lookahead.nextChar();
-      }
-      if ('0' <= lookahead.ch && lookahead.ch <= '9' || isNumberSeparator(reader.ch)) {
-        putChar(reader.ch);
-        reader.nextChar();
-        if (reader.ch == '+' || reader.ch == '-') {
-          putChar(reader.ch);
-          reader.nextChar();
-        }
-        while ('0' <= reader.ch && reader.ch <= '9' || isNumberSeparator(reader.ch)) {
-          putChar(reader.ch);
-          reader.nextChar();
-        }
-        checkNoTrailingSeparator();
-      }
-      td.token = Tokens.EXPOLIT;
-    }
-    if (reader.ch == 'd' || reader.ch == 'D') {
-      putChar(reader.ch);
-      reader.nextChar();
-      td.token = Tokens.DOUBLELIT;
-    } else if (reader.ch == 'f' || reader.ch == 'F') {
-      putChar(reader.ch);
-      reader.nextChar();
-      td.token = Tokens.FLOATLIT;
-    }
-    checkNoLetter();
-  }
-
-  public void checkNoLetter() {
-    if (isIdentifierPart(reader.ch) && reader.ch >= ' ') {
-      error("Invalid literal number");
-    }
-  }
-
-  public void getNumber() {
-    while (isNumberSeparator(reader.ch) || digitToInt(reader.ch, td.base) >= 0) {
-      putChar(reader.ch);
-      reader.nextChar();
-    }
-    checkNoTrailingSeparator();
-    td.token = Tokens.INTLIT;
-    if (td.base == 10 && reader.ch == '.') {
-      char lch = reader.lookaheadChar();
-      if (Character.isDigit(lch)) {
-        putChar('.');
-        reader.nextChar();
-        getFraction();
-      }
-    } else {
-      switch (reader.ch) {
-        case 'e':
-        case 'E':
-        case 'f':
-        case 'F':
-        case 'd':
-        case 'D':
-          if (td.base == 10) getFraction();
-          break;
-        case 'l':
-        case 'L':
-          putChar(reader.ch);
-          reader.nextChar();
-          td.token = Tokens.LONGLIT;
-          break;
-        default:
-          break;
-      }
-    }
-    checkNoTrailingSeparator();
-    setStrVal();
   }
 
   public void finishCharLit() {

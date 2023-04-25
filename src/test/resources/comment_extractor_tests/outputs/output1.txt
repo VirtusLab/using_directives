@@ -1,3 +1,1 @@
-   using {
-     lib.cs "org.scalameta :: munit : 0.4.3"
-   }
+   using lib.cs "org.scalameta :: munit : 0.4.3"

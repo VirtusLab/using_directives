@@ -76,7 +76,7 @@
                     "type": "list",
                     "value": [
                       {
-                        "type": "numeric",
+                        "type": "string",
                         "value": "-2"
                       },
                       {

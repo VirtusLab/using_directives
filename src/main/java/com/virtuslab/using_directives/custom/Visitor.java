@@ -135,10 +135,6 @@ public class Visitor {
         lst.add(
             new BooleanValue(
                 ((BooleanLiteral) value).getValue(), value, ((UsingPrimitive) value).getScope()));
-      } else if (value instanceof NumericLiteral) {
-        lst.add(
-            new NumericValue(
-                ((NumericLiteral) value).getValue(), value, ((NumericLiteral) value).getScope()));
       } else if (value instanceof StringLiteral) {
         lst.add(
             new StringValue(

@@ -7,7 +7,6 @@ import com.virtuslab.using_directives.custom.model.UsingDirectiveSyntax;
 import com.virtuslab.using_directives.custom.utils.Source;
 import com.virtuslab.using_directives.custom.utils.ast.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -41,10 +40,6 @@ public class Parser {
 
   private int offset(int off) {
     return source.translateOffset(off);
-  }
-
-  public boolean isStatementSeparator() {
-    return in.td.isNewLine() || in.td.token == Tokens.SEMI;
   }
 
   public void accept(Tokens token) {
@@ -129,17 +124,7 @@ public class Parser {
   }
 
   private List<SettingDef> parseSettings() {
-    if (isStatementSeparator()) {
-      if (in.lookahead().token == Tokens.IDENTIFIER) {
-        in.nextToken();
-        List<SettingDef> settings = new ArrayList<>();
-        settings.add(setting());
-        settings.addAll(parseSettings());
-        return settings;
-      } else {
-        return new ArrayList<>();
-      }
-    } else if (in.td.token == Tokens.IDENTIFIER) {
+    if (in.td.token == Tokens.IDENTIFIER) {
       List<SettingDef> settings = new ArrayList<>();
       settings.add(setting());
       settings.addAll(parseSettings());
@@ -150,12 +135,12 @@ public class Parser {
   }
 
   // > using
-  // >   oneKey ...
-  // >   secondKey ...
-  // >   thirdKey {
-  // >     nestedKey1
-  // >     nestedKey2
-  // >   }
+  // > oneKey ...
+  // > secondKey ...
+  // > thirdKey {
+  // > nestedKey1
+  // > nestedKey2
+  // > }
   SettingDefs settings() {
     ArrayList<SettingDef> settings = new ArrayList<>();
     int offset = offset(in.td.offset);
@@ -190,23 +175,17 @@ public class Parser {
   }
 
   SettingDefOrUsingValue valueOrSetting(int keyEnd) {
-    UsingValue v = value(keyEnd);
-    String scope = scope();
-    if (scope != null) {
-      if (v instanceof UsingPrimitive) {
-        ((UsingPrimitive) v).setScope(scope);
-      } else {
-        ((UsingValues) v).getValues().forEach(p -> p.setScope(scope));
-      }
-    }
-    return v;
+    return value(keyEnd);
   }
 
   UsingValue value(int keyEnd) {
     int offset = offset(in.td.offset);
+    boolean isAfterLineEnd = in.td.isAfterLineEnd();
     UsingPrimitive p = primitive(keyEnd);
 
-    if (in.td.token == Tokens.COMMA) {
+    if (isAfterLineEnd) {
+      return new EmptyLiteral(source.getPositionFromOffset(keyEnd));
+    } else if (in.td.token == Tokens.COMMA) {
       int commaIndex = in.td.offset;
       in.nextToken();
       UsingValue rest = value(commaIndex);
@@ -226,53 +205,14 @@ public class Parser {
     }
   }
 
-  String scope() {
-    if (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("in")) {
-      in.nextToken();
-      if (in.td.token == Tokens.STRINGLIT) {
-        String scope = in.td.strVal;
-        in.nextToken();
-        return scope;
-      } else {
-        error(String.format("Expected token STRINGLIT but found %s", in.td.token.str));
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  private final List<Tokens> numericTokens =
-      Arrays.asList(
-          Tokens.INTLIT,
-          Tokens.DECILIT,
-          Tokens.EXPOLIT,
-          Tokens.LONGLIT,
-          Tokens.FLOATLIT,
-          Tokens.DOUBLELIT);
-
   UsingPrimitive primitive(int keyEnd) {
     int offset = offset(in.td.offset);
     UsingPrimitive res = null;
-    String solution = "Wrapping identifier in quotes usually solves the problem.";
     if (in.td.token == Tokens.STRINGLIT) {
       res = new StringLiteral(in.td.strVal, source.getPositionFromOffset(offset));
       in.nextToken();
-    } else if (in.td.token == Tokens.IDENTIFIER && in.td.name.equals("-")) {
-      in.nextToken();
-      if (numericTokens.contains(in.td.token)) {
-        res = new NumericLiteral("-" + in.td.strVal, source.getPositionFromOffset(offset));
-        in.nextToken();
-      } else {
-        error(String.format("-%s is not a valid numeric literal. %s", in.td.name, solution));
-      }
-    } else if (!in.td.isAfterLineEnd() && in.td.token == Tokens.IDENTIFIER) {
-      error(
-          String.format(
-              "Expected primitive value: string, numeric or boolean but found %s. %s",
-              in.td.toTokenInfoString(), solution));
-    } else if (numericTokens.contains(in.td.token)) {
-      res = new NumericLiteral(in.td.strVal, source.getPositionFromOffset(offset));
+    } else if (in.td.token == Tokens.IDENTIFIER) {
+      res = new StringLiteral(in.td.name, source.getPositionFromOffset(offset));
       in.nextToken();
     } else if (in.td.token == Tokens.TRUE) {
       res = new BooleanLiteral(true, source.getPositionFromOffset(offset));

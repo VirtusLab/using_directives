@@ -1,11 +1,9 @@
 package com.virtuslab.using_directives.parser;
 
-import static com.virtuslab.using_directives.DirectiveAssertions.assertDiagnostic;
 import static com.virtuslab.using_directives.DirectiveAssertions.assertValueAtPath;
 import static com.virtuslab.using_directives.TestUtils.*;
 
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
-import com.virtuslab.using_directives.reporter.PersistentReporter;
 import org.junit.jupiter.api.Test;
 
 public class ParserNumericTest {
@@ -81,9 +79,10 @@ public class ParserNumericTest {
   }
 
   @Test
-  public void testFailTrailingSeparator() {
-    PersistentReporter reporter = reporterAfterParsing("using key 200_");
-    assertDiagnostic(reporter, 0, 13, "Trailing separator is not allowed");
+  public void testTrailingSeparator() {
+    String input = "using key 200_";
+    UsingDirectives parsedDirective = testCode(1, input);
+    assertValueAtPath(parsedDirective, "key", "200_");
   }
 
   @Test
@@ -94,8 +93,9 @@ public class ParserNumericTest {
   }
 
   @Test
-  public void testFailInvalidHexNumeric() {
-    PersistentReporter reporter = reporterAfterParsing("using key 0xZA");
-    assertDiagnostic(reporter, 0, 10, "invalid literal number");
+  public void testInvalidHexNumeric() {
+    String input = "using key 0xZA";
+    UsingDirectives parsedDirective = testCode(1, input);
+    assertValueAtPath(parsedDirective, "key", "0xZA");
   }
 }

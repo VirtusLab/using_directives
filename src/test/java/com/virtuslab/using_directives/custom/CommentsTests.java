@@ -56,12 +56,12 @@ public class CommentsTests {
     testCode(UsingDirectiveKind.SpecialComment, 2, specialComment, specialComment2);
     testCode(UsingDirectiveKind.SpecialComment, 1, multiLine1);
     testCode(UsingDirectiveKind.SpecialComment, 1, multiLine2);
-    testCode(UsingDirectiveKind.SpecialComment, 2, multiLine1, multiLine2);
+    testCode(UsingDirectiveKind.SpecialComment, 1, multiLine1, multiLine2);
     testCode(UsingDirectiveKind.SpecialComment, 1, keywordDirective, specialComment, plainComment);
     testCode(UsingDirectiveKind.SpecialComment, 1, binaryScalaVersionNumericComment);
     testCode(
         UsingDirectiveKind.SpecialComment,
-        1,
+        2,
         numericScalaVersionDirective,
         binaryScalaVersionNumericComment);
 
@@ -72,8 +72,8 @@ public class CommentsTests {
 
   @Test
   public void testKeywordDirectives() {
-    testCode(UsingDirectiveKind.Code, 1, keywordDirective, keywordDirective2);
-    testCode(UsingDirectiveKind.Code, 0, keywordDirective2);
+    testCode(UsingDirectiveKind.Code, 2, keywordDirective, keywordDirective2);
+    testCode(UsingDirectiveKind.Code, 1, keywordDirective2);
   }
 
   @Test

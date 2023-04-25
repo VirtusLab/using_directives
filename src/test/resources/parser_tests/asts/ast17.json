@@ -9,11 +9,11 @@
               "type": "list",
               "value": [
                 {
-                  "type": "numeric",
+                  "type": "string",
                   "value": "78"
                 },
                 {
-                  "type": "numeric",
+                  "type": "string",
                   "value": "12"
                 }
               ]

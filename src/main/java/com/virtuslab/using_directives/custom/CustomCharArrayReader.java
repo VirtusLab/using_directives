@@ -15,7 +15,6 @@ public class CustomCharArrayReader {
   public int charOffset = startFrom;
   public int lastCharOffset = startFrom;
   public int lineStartOffset = startFrom;
-  private int lastUnicodeOffset = -1;
 
   public boolean isUnicodeEscape() {
     return charOffset == lastCharOffset;
@@ -78,7 +77,6 @@ public class CustomCharArrayReader {
         charOffset += 1;
       }
       int code = udigit.get() << 12 | udigit.get() << 8 | udigit.get() << 4 | udigit.get();
-      lastUnicodeOffset = charOffset;
       ch = (char) code;
     }
   }
@@ -99,7 +97,7 @@ public class CustomCharArrayReader {
   }
 
   public boolean isAtEnd() {
-    return charOffset >= buf.length;
+    return lastCharOffset >= buf.length;
   }
 
   public CustomCharArrayReader getLookaheadCharArrayReader() {
