@@ -32,11 +32,11 @@ public class UsingDirectivesProcessor {
   public List<UsingDirectives> extract(char[] content) {
     List<UsingDirectives> result = new ArrayList<>();
     UsingDefs ast = new Parser(new Source(content), reporter).parse();
-      // this could be done better...
+    // this could be done better...
     char[] commentContent = Arrays.copyOfRange(content, 0, ast.getCodeStart());
 
     result.add(extractFromComment(commentContent, true));
-  
+
     return result;
   }
 

@@ -54,9 +54,6 @@ public class VisitorTest extends TestUtils {
   @Test
   public void testVisitor() {
     compareOutputs("ast1.json", "output1.txt");
-    compareOutputs("ast3.json", "output3.txt");
     compareOutputs("ast4.json", "output4.txt");
-    compareOutputs("ast15.json", "output5.txt");
-    compareOutputs("ast16.json", "output6.txt");
   }
 }

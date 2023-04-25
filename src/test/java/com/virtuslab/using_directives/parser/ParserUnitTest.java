@@ -12,7 +12,8 @@ public class ParserUnitTest {
   @Test
   public void testNestedAndValuesOnOneLevel() {
     String input =
-        joinLines("//> using", "//>   keyA \"valueA\"", "//> using   keyB.keyC  ", "//>      \"valueC\"");
+        joinLines(
+            "//> using", "//>   keyA \"valueA\"", "//> using   keyB.keyC  ", "//>      \"valueC\"");
     UsingDirectives parsedDirective = testCode(2, input);
     assertSamePaths(parsedDirective, "keyA", "keyB.keyC");
   }

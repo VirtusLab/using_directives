@@ -2,10 +2,9 @@ package com.virtuslab.using_directives;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.List;
-
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
 import com.virtuslab.using_directives.reporter.PersistentReporter;
+import java.util.List;
 
 public class TestUtils {
 
@@ -13,7 +12,7 @@ public class TestUtils {
     String code = joinLines(examples) + "\n// code...";
     UsingDirectivesProcessor processor = new UsingDirectivesProcessor();
 
-    List<UsingDirectives> directives =  processor.extract(code.toCharArray());
+    List<UsingDirectives> directives = processor.extract(code.toCharArray());
 
     assertEquals(1, directives.size(), "We should only get a single directive object");
     assertEquals(expectedCount, directives.get(0).getFlattenedMap().size());

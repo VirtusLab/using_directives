@@ -50,46 +50,42 @@ public class CommentsTests {
 
   @Test
   public void testSpecialComments() {
-    testCode( 1, plainComment, specialComment, keywordDirective);
-    testCode( 1, specialComment, plainComment);
-    testCode( 2, specialComment, specialComment2);
-    testCode( 1, multiLine1);
-    testCode( 1, multiLine2);
-    testCode( 1, multiLine1, multiLine2);
-    testCode( 1, keywordDirective, specialComment, plainComment);
-    testCode( 1, binaryScalaVersionNumericComment);
-    testCode(
-        
-        2,
-        numericScalaVersionDirective,
-        binaryScalaVersionNumericComment);
+    testCode(1, plainComment, specialComment, keywordDirective);
+    testCode(1, specialComment, plainComment);
+    testCode(2, specialComment, specialComment2);
+    testCode(1, multiLine1);
+    testCode(1, multiLine2);
+    testCode(1, multiLine1, multiLine2);
+    testCode(1, keywordDirective, specialComment, plainComment);
+    testCode(1, binaryScalaVersionNumericComment);
+    testCode(2, numericScalaVersionDirective, binaryScalaVersionNumericComment);
 
-    testCode( 0, plainComment);
-    testCode( 0, keywordDirective);
-    testCode( 1, noValueDirective);
+    testCode(0, plainComment);
+    testCode(0, keywordDirective);
+    testCode(1, noValueDirective);
   }
 
   @Test
   public void testKeywordDirectives() {
-    testCode( 0, keywordDirective, keywordDirective2);
-    testCode( 0, keywordDirective2);
+    testCode(0, keywordDirective, keywordDirective2);
+    testCode(0, keywordDirective2);
   }
 
   @Test
   public void testPlainComments() {
-    testCode( 1, plainComment, specialComment);
-    testCode( 0, plainComment, plainComment2);
-    testCode( 1, specialComment, plainComment);
+    testCode(1, plainComment, specialComment);
+    testCode(0, plainComment, plainComment2);
+    testCode(1, specialComment, plainComment);
 
-    testCode( 1, specialComment);
-    testCode( 0, keywordDirective);
+    testCode(1, specialComment);
+    testCode(0, keywordDirective);
 
-    testCode( 1, keywordDirective, specialComment, plainComment);
+    testCode(1, keywordDirective, specialComment, plainComment);
   }
 
   @Test
   public void testKeywordAfterComment() {
-    testCode( 1, plainComment, specialComment, keywordDirective);
+    testCode(1, plainComment, specialComment, keywordDirective);
   }
 
   @Test
@@ -99,15 +95,15 @@ public class CommentsTests {
     String malformedDirective3 = ">>> using malformedKeywordDirective3 \"malformedValue3\"";
     String malformedDirective4 = ": using malformedKeywordDirective4 \"malformedValue4\"";
 
-    testCode( 0, malformedDirective, specialComment);
-    testCode( 0, malformedDirective);
-    testCode( 0, malformedDirective2);
-    testCode( 0, malformedDirective3);
-    testCode( 0, malformedDirective4);
+    testCode(0, malformedDirective, specialComment);
+    testCode(0, malformedDirective);
+    testCode(0, malformedDirective2);
+    testCode(0, malformedDirective3);
+    testCode(0, malformedDirective4);
 
-    testCode( 1, specialComment, malformedDirective);
-    testCode( 1, specialComment, malformedDirective2);
-    testCode( 1, specialComment, malformedDirective3);
+    testCode(1, specialComment, malformedDirective);
+    testCode(1, specialComment, malformedDirective2);
+    testCode(1, specialComment, malformedDirective3);
   }
 
   @Test
@@ -126,10 +122,9 @@ public class CommentsTests {
             "");
     testLines(d1, 3, 7);
 
-    UsingDirectives d2 = testCode( 1, "", specialComment2);
+    UsingDirectives d2 = testCode(1, "", specialComment2);
     testLines(d2, 1);
-    UsingDirectives d3 =
-        testCode( 2, specialComment2, specialComment);
+    UsingDirectives d3 = testCode(2, specialComment2, specialComment);
     testLines(d3, 0, 1);
   }
 
