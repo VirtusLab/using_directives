@@ -12,28 +12,29 @@ public class ParserUnitTest {
   @Test
   public void testNestedAndValuesOnOneLevel() {
     String input =
-        joinLines("using", "   keyA \"valueA\"", "using   keyB.keyC  ", "      \"valueC\"");
+        joinLines(
+            "//> using", "//>   keyA \"valueA\"", "//> using   keyB.keyC  ", "//>      \"valueC\"");
     UsingDirectives parsedDirective = testCode(2, input);
     assertSamePaths(parsedDirective, "keyA", "keyB.keyC");
   }
 
   @Test
   public void testEmptyListElem() {
-    String input = "using keyA 0, , 2";
+    String input = "//> using keyA 0, , 2";
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueListSize(parsedDirective, "keyA", 3);
   }
 
   @Test
   public void testBooleanLiteral() {
-    String input = "using keyA false";
+    String input = "//> using keyA false";
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueAtPath(parsedDirective, "keyA", "false");
   }
 
   @Test
   public void testTokenOnTemplateStart() {
-    String input = joinLines("using keyA:", "using keyB 42");
+    String input = joinLines("//> using keyA:", "//> using keyB 42");
     UsingDirectives parsedDirective = testCode(2, input);
     assertValueAtPath(parsedDirective, "keyA:", "<EmptyValue>");
     assertValueAtPath(parsedDirective, "keyB", "42");
@@ -41,49 +42,49 @@ public class ParserUnitTest {
 
   @Test
   public void testParenKey() {
-    String input = "using keyA.( \"foo\"";
+    String input = "//> using keyA.( \"foo\"";
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueAtPath(parsedDirective, "keyA.(", "foo");
   }
 
   @Test
   public void testInfixOperator() {
-    String input = "using keyA -2 ";
+    String input = "//> using keyA -2 ";
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueAtPath(parsedDirective, "keyA", "-2");
   }
 
   @Test
   public void testIndentation() {
-    String input = joinLines("using keyA:", "   keyB", "  keyC");
+    String input = joinLines("//> using keyA:", "   keyB", "  keyC");
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueAtPath(parsedDirective, "keyA:", "<EmptyValue>");
   }
 
   @Test
   public void testMixedIndenttion() {
-    String input = joinLines("using keyA:\t\t keyB", " \t\tkeyC");
+    String input = joinLines("//> using keyA:\t\t keyB", " \t\tkeyC");
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueAtPath(parsedDirective, "keyA:", "keyB");
   }
 
   @Test
   public void testUnderscoreIdentifier() {
-    String input = "using keyA_foo_ 42";
+    String input = "//> using keyA_foo_ 42";
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueAtPath(parsedDirective, "keyA_foo_", "42");
   }
 
   @Test
   public void testBackquotedIdentifier() {
-    String input = "using `keyA` 42";
+    String input = "//> using `keyA` 42";
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueAtPath(parsedDirective, "keyA", "42");
   }
 
   @Test
   public void testUnicodeIdentifier() {
-    String input = "using keyĄ 42";
+    String input = "//> using keyĄ 42";
     UsingDirectives parsedDirective = testCode(1, input);
     PersistentReporter reporter = reporterAfterParsing(input);
     reporter.getDiagnostics().forEach(c -> System.out.println(c.getMessage()));
@@ -92,21 +93,21 @@ public class ParserUnitTest {
 
   @Test
   public void testSlashIdentifier() {
-    String input = "using >/> 42";
+    String input = "//> using >/> 42";
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueAtPath(parsedDirective, ">/>", "42");
   }
 
   @Test
   public void emptySingleDotKey() {
-    String input = "using lib.allowSth\n";
+    String input = "//> using lib.allowSth\n";
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueAtPath(parsedDirective, "lib.allowSth", "<EmptyValue>");
   }
 
   @Test
   public void testMathSymbolIdentifier() {
-    String input = "using >/∑ 42";
+    String input = "//> using >/∑ 42";
     System.out.println(input);
     UsingDirectives parsedDirective = testCode(1, input);
     PersistentReporter reporter = reporterAfterParsing(input);

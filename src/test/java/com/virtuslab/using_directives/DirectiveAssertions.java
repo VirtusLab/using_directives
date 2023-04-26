@@ -4,7 +4,6 @@ import static com.virtuslab.using_directives.TestUtils.testCode;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.virtuslab.using_directives.custom.model.Path;
-import com.virtuslab.using_directives.custom.model.UsingDirectiveKind;
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
 import com.virtuslab.using_directives.custom.model.Value;
 import com.virtuslab.using_directives.reporter.PersistentReporter;
@@ -101,9 +100,8 @@ public class DirectiveAssertions {
         "Wrong index for line " + line);
   }
 
-  public static void assertPositions(
-      UsingDirectiveKind kind, String code, int[]... expectedPositions) {
-    UsingDirectives ud = testCode(kind, expectedPositions.length, code);
+  public static void assertPositions(String code, int[]... expectedPositions) {
+    UsingDirectives ud = testCode(expectedPositions.length, code);
     Arrays.stream(expectedPositions).forEach(pos -> assertPosition(ud, pos[0], pos[1]));
   }
 }

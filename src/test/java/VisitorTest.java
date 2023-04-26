@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.virtuslab.using_directives.custom.Visitor;
 import com.virtuslab.using_directives.custom.model.Path;
-import com.virtuslab.using_directives.custom.model.UsingDirectiveKind;
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
 import com.virtuslab.using_directives.custom.model.Value;
 import com.virtuslab.using_directives.custom.utils.ast.UsingDefs;
@@ -34,7 +33,7 @@ public class VisitorTest extends TestUtils {
 
   private UsingDirectives visitAst(UsingTree ast) {
     Visitor visitor = new Visitor(ast, new ConsoleReporter());
-    return visitor.visit(UsingDirectiveKind.Code);
+    return visitor.visit();
   }
 
   private void compareOutputs(String pathToAst, String pathToOutput) {
@@ -55,9 +54,6 @@ public class VisitorTest extends TestUtils {
   @Test
   public void testVisitor() {
     compareOutputs("ast1.json", "output1.txt");
-    compareOutputs("ast3.json", "output3.txt");
     compareOutputs("ast4.json", "output4.txt");
-    compareOutputs("ast15.json", "output5.txt");
-    compareOutputs("ast16.json", "output6.txt");
   }
 }

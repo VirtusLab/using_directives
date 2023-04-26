@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 public class UnicodeChars {
   @Test
   public void testDifferentQuotes() {
-    String input = "using nativeMode “release-full”";
+    String input = "//> using nativeMode “release-full”";
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueAtPath(parsedDirective, "nativeMode", "“release-full”");
   }

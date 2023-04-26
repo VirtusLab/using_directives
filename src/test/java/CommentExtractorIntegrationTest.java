@@ -1,7 +1,6 @@
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.virtuslab.using_directives.UsingDirectivesProcessor;
-import com.virtuslab.using_directives.custom.model.UsingDirectiveKind;
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
 import com.virtuslab.using_directives.reporter.ConsoleReporter;
 import com.virtuslab.using_directives.reporter.Reporter;
@@ -22,9 +21,8 @@ public class CommentExtractorIntegrationTest extends TestUtils {
 
     Reporter reporter = new ConsoleReporter();
     processor.setReporter(reporter);
-    UsingDirectives res = processor.extract(content, true, false).get(1);
+    UsingDirectives res = processor.extract(content).get(0);
     assertFalse(processor.getReporter().hasErrors());
-    assertEquals(UsingDirectiveKind.SpecialComment, res.getKind());
     return res;
   }
 

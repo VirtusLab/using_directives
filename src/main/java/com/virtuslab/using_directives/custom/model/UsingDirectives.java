@@ -12,6 +12,4 @@ public interface UsingDirectives {
   UsingTree getAst();
 
   int getCodeOffset();
-
-  UsingDirectiveKind getKind();
 }
