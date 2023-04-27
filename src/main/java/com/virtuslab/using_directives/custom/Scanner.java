@@ -1,17 +1,13 @@
 package com.virtuslab.using_directives.custom;
 
-import static com.virtuslab.using_directives.custom.regions.Region.topLevelRegion;
 import static com.virtuslab.using_directives.custom.utils.Chars.*;
 import static com.virtuslab.using_directives.custom.utils.TokenUtils.*;
 
-import com.virtuslab.using_directives.custom.regions.*;
 import com.virtuslab.using_directives.custom.utils.Source;
 import com.virtuslab.using_directives.reporter.Reporter;
 import java.util.Deque;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -29,7 +25,6 @@ public class Scanner {
     reader.startFrom = startFrom;
     reader.nextChar();
     nextToken();
-    currentRegion = topLevelRegion(indentWidth(td.offset));
   }
 
   public Scanner(Source source, int startFrom, Reporter reporter, boolean debug) {
@@ -61,10 +56,6 @@ public class Scanner {
 
   private void errorButContinue(String msg, int offset) {
     reporter.error(source.getPositionFromOffset(offset), msg);
-  }
-
-  private void incompleteInputError(String msg) {
-    reporter.error(String.format("Incomplete input: %s", msg));
   }
 
   private final Deque<Character> litBuf = new LinkedList<>();
@@ -101,64 +92,15 @@ public class Scanner {
   public TokenData next = newTokenData();
   public TokenData prev = newTokenData();
 
-  Region currentRegion = new Indented(IndentWidth.Zero(), new HashSet<>(), Tokens.EMPTY, null);
-
-  private void dropBraces() {
-    if (currentRegion instanceof InBraces) {
-      currentRegion = ((InBraces) currentRegion).enclosing();
-    } else {
-      if (!currentRegion.isOutermost()) {
-        currentRegion = currentRegion.enclosing();
-        dropBraces();
-      }
-    }
-  }
-
-  private void adjustSepRegions(Tokens lastToken) {
-    switch (lastToken) {
-      case LPAREN:
-      case LBRACKET:
-        currentRegion = new InParens(lastToken, currentRegion);
-        break;
-      case LBRACE:
-        currentRegion = new InBraces(currentRegion);
-        break;
-      case RBRACE:
-        dropBraces();
-        break;
-      case RPAREN:
-      case RBRACKET:
-        if (currentRegion instanceof InParens) {
-          InParens ip = (InParens) currentRegion;
-          if (ip.prefix.ordinal() + 1 == lastToken.ordinal()) {
-            currentRegion = ip.outer();
-          }
-        }
-        break;
-      case STRINGLIT:
-        if (currentRegion instanceof InString) {
-          InString is = (InString) currentRegion;
-          currentRegion = is.outer();
-        }
-        break;
-    }
-  }
-
   public void nextToken() {
-    Tokens lastToken = td.token;
-    String lastName = td.name;
-    adjustSepRegions(lastToken);
     if (next.token == Tokens.EMPTY) {
       td.lastOffset = reader.lastCharOffset;
       fetchToken();
-      if (td.token == Tokens.ERROR) adjustSepRegions(Tokens.STRINGLIT);
     } else {
       this.td.copyFrom(next);
       next.token = Tokens.EMPTY;
     }
 
-    if (td.isAfterLineEnd()) handleNewLine(lastToken, lastName);
-    postProcessToken();
     printState();
   }
 
@@ -168,133 +110,8 @@ public class Scanner {
     }
   }
 
-  private void insert(Tokens token, int offset) {
-    assert (next.token == Tokens.EMPTY);
-    next.copyFrom(td);
-    td.offset = offset;
-    td.token = token;
-  }
-
   public boolean isContinuing(Tokens lastToken) {
     return (openParensTokens.contains(td.token)) && !pastBlankLine();
-  }
-
-  private IndentWidth indentWidthRecur(
-      int idx, char ch, int n, Function<IndentWidth, IndentWidth> k) {
-    while (idx >= 0) {
-      char nextChar = reader.buf[idx];
-      if (nextChar == LF) return k.apply(new Run(ch, n));
-      else if (nextChar == ' ' || nextChar == '\t') {
-        if (nextChar == ch) {
-          idx = idx - 1;
-          n = n + 1;
-        } else {
-          char c = ch;
-          int nn = n;
-          if (n != 0) k = i -> new Conc(i, new Run(c, nn));
-          idx = idx - 1;
-          ch = nextChar;
-          n = 1;
-        }
-      } else {
-        idx = idx - 1;
-        ch = ' ';
-        n = 0;
-        k = i -> i;
-      }
-    }
-    return k.apply(new Run(ch, n));
-  }
-
-  public IndentWidth indentWidth(int offset) {
-    return indentWidthRecur(offset - 1, ' ', 0, i -> i);
-  }
-
-  public void handleNewLine(Tokens lastToken, String lastName) {
-    boolean indentIsSignificant = false;
-    boolean newlineIsSeparating = false;
-    IndentWidth lastWidth = IndentWidth.Zero();
-    IndentWidth nextWidth = indentWidth(td.offset);
-    if (currentRegion instanceof Indented) {
-      Indented i = (Indented) currentRegion;
-      indentIsSignificant = true;
-      lastWidth = i.width;
-      newlineIsSeparating = lastWidth.lessOrEqual(nextWidth) || i.isOutermost();
-    } else {
-      indentIsSignificant = true;
-      currentRegion.proposeKnownWidth(nextWidth, lastToken);
-      lastWidth = currentRegion.knownWidth;
-      newlineIsSeparating = currentRegion instanceof InBraces;
-    }
-    if (newlineIsSeparating
-        && canEndStatTokens.contains(lastToken)
-        && canStartStatTokens().contains(td.token)
-        && !(lastWidth.less(nextWidth) && isContinuing(lastToken))
-        && (lastName == null || !isValidUsingDirectiveStart(lastToken))) {
-      if (pastBlankLine()) {
-        insert(Tokens.NEWLINES, td.lineOffset);
-      } else {
-        insert(Tokens.NEWLINE, td.lineOffset);
-      }
-    } else if (indentIsSignificant) {
-      if (nextWidth.less(lastWidth)) {
-        if (currentRegion.isOutermost()) {
-          if (nextWidth.less(lastWidth)) {
-            currentRegion = topLevelRegion(nextWidth);
-          }
-        } else {
-          if (currentRegion instanceof Indented) {
-            currentRegion = currentRegion.enclosing();
-            insert(Tokens.OUTDENT, td.offset);
-          } else if (currentRegion instanceof InBraces && !closingRegionTokens.contains(td.token)) {
-            error(String.format("Expected closing region token but found %s", td.token.str));
-          }
-        }
-      } else if (lastWidth.less(nextWidth)) {
-        if (canStartIndentTokens.contains(lastToken)) { // TODO sad_pepe hack
-          currentRegion = new Indented(nextWidth, new HashSet<>(), lastToken, currentRegion);
-          insert(Tokens.INDENT, td.offset);
-        } else if (lastToken == Tokens.SELFARROW) {
-          currentRegion.knownWidth = nextWidth;
-        }
-      } else if (!lastWidth.equals(nextWidth)) {
-        errorButContinue(spaceTabMismatchMsg(lastWidth, nextWidth), td.offset);
-      }
-    }
-    if (currentRegion instanceof Indented) {
-      Indented i = (Indented) currentRegion;
-      if (i.width.less(nextWidth) && !i.others.contains(nextWidth) && nextWidth != lastWidth) {
-        if (td.token == Tokens.OUTDENT && next.token != Tokens.COLON) {
-          errorButContinue(
-              "The start of this line does not match any of the previous "
-                  + "indentation widths. Indentation width of current line falls between previous widths.",
-              td.offset);
-        } else {
-          Set<IndentWidth> newSet = new HashSet<>(i.others);
-          newSet.add(nextWidth);
-          currentRegion = new Indented(i.width, newSet, i.prefix, i.outer);
-        }
-      }
-    }
-  }
-
-  public String spaceTabMismatchMsg(IndentWidth lastWidth, IndentWidth nextWidth) {
-    return String.format(
-        "Incompatible combinations of tabs and spaces in indentation prefixes.\n"
-            + "Previous indent : %s\n"
-            + "Latest indent   : %s",
-        lastWidth, nextWidth);
-  }
-
-  public void observeColonEOL() {
-    if (td.token == Tokens.COLON) {
-      lookAhead();
-      boolean atEOL = td.isAfterLineEnd() || td.token == Tokens.EOF;
-      reset();
-      if (atEOL) {
-        td.token = Tokens.COLONEOL;
-      }
-    }
   }
 
   public void lookAhead() {
@@ -306,53 +123,6 @@ public class Scanner {
   public void reset() {
     next.copyFrom(td);
     td.copyFrom(prev);
-  }
-
-  public void closeIndented() {
-    if (currentRegion instanceof Indented && !currentRegion.isOutermost()) {
-      insert(Tokens.OUTDENT, td.offset);
-      currentRegion = currentRegion.outer();
-    }
-  }
-
-  private boolean isEnclosedInParens(Region r) {
-    if (r instanceof Indented) return isEnclosedInParens(r.outer());
-    else return r instanceof InParens;
-  }
-
-  public void postProcessToken() {
-    switch (td.token) {
-      case SEMI:
-        lookAhead();
-        reset();
-        break;
-      case COMMA:
-        if (currentRegion instanceof Indented && isEnclosedInParens(currentRegion.outer())) {
-          insert(Tokens.OUTDENT, td.offset);
-          currentRegion = currentRegion.outer();
-        } else {
-          lookAhead();
-          if (td.isAfterLineEnd()
-              && (td.token == Tokens.RPAREN
-                  || td.token == Tokens.RBRACKET
-                  || td.token == Tokens.RBRACE
-                  || td.token == Tokens.OUTDENT)) {
-          } else if (td.token == Tokens.EOF) {
-          } else reset();
-        }
-        break;
-      case END:
-        td.token = Tokens.IDENTIFIER;
-        break;
-      case RBRACE:
-      case RPAREN:
-      case RBRACKET:
-      case EOF:
-        closeIndented();
-        break;
-      default:
-        break;
-    }
   }
 
   private boolean pastBlankLineRecur(int idx, boolean isBlank, int end) {
@@ -703,7 +473,6 @@ public class Scanner {
     if (reader.ch == '\\') {
       reader.nextChar();
       if ('0' <= reader.ch && reader.ch <= '7') {
-        int start = reader.charOffset - 2;
         char leadch = reader.ch;
         int oct = digitToInt(reader.ch, 8);
         reader.nextChar();
