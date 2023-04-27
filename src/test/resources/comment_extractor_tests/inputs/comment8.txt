@@ -1,9 +1,0 @@
-/*> using option "-Xfatal-warnings"
-    option "-Xprint:typer"
-*/
-
-object Foo extends App {
-    try {
-        2 + 2
-    }
-}

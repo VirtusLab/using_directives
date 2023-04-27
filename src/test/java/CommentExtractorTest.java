@@ -20,7 +20,7 @@ public class CommentExtractorTest extends TestUtils {
   }
 
   @ParameterizedTest(name = "Run comment extractor testcase no. {0}")
-  @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7, 8})
+  @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
   public void testCommentExtractor(int no) {
     compare("comment" + no + ".txt", "output" + no + ".txt");
   }

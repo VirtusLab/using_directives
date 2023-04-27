@@ -18,7 +18,6 @@ public class SimpleCommentExtractor {
   char c;
   int i;
   boolean insideSingleLineComment = false;
-  boolean insideMultiLineComment = false;
   boolean insideDirective = false;
 
   public boolean isEndOfLine() {
@@ -53,15 +52,7 @@ public class SimpleCommentExtractor {
     res = new char[source.length];
     for (i = 0; i < res.length; i++) {
       c = source[i];
-      if (insideMultiLineComment) {
-        if (c == '*' && next() == '/') {
-          skip();
-          skipNext();
-          insideMultiLineComment = false;
-          insideDirective = false;
-        } else if (insideDirective) use();
-        else skip();
-      } else if (insideSingleLineComment) {
+      if (insideSingleLineComment) {
         if (isEndOfLine()) {
           insideDirective = false;
           insideSingleLineComment = false;
@@ -72,10 +63,9 @@ public class SimpleCommentExtractor {
       else {
         if (c == '/') {
           if (next() == '/') insideSingleLineComment = true;
-          if (next() == '*') insideMultiLineComment = true;
 
           skip();
-          if (insideSingleLineComment || insideMultiLineComment) {
+          if (insideSingleLineComment) {
             skipNext();
             boolean hasIndicator = next() == USING_DIRECTIVE_INDICATOR;
             insideDirective = hasIndicator == useIndicator;
