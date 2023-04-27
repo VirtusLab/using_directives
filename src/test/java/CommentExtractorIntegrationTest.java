@@ -41,7 +41,6 @@ public class CommentExtractorIntegrationTest extends TestUtils {
             inputPath, expectedRest, foundRest));
   }
 
-  // TODO make 8 work
   @ParameterizedTest(name = "Run comment extractor testcase no. {0}")
   @ValueSource(ints = {1, 2, 3, 4, 5, 6, 7})
   public void tests(int no) {
