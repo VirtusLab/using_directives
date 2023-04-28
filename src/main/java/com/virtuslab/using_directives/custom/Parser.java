@@ -179,9 +179,12 @@ public class Parser {
 
     if (isAfterLineEnd) {
       return new EmptyLiteral(source.getPositionFromOffset(keyEnd));
-    } else if (in.td.token == Tokens.COMMA) {
+    } else if (in.td.token != Tokens.EOF && !(in.td.isAfterLineEnd())) {
       int commaIndex = in.td.offset;
-      in.nextToken();
+
+      if (in.td.token == Tokens.COMMA) {
+        in.nextToken();
+      }
       UsingValue rest = value(commaIndex);
       if (rest instanceof UsingPrimitive) {
         ArrayList<UsingPrimitive> res = new ArrayList<>();

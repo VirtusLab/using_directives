@@ -41,6 +41,13 @@ public class ParserStringTest {
   }
 
   @Test
+  public void testStringNoQuotesDotNoComma() {
+    String input = "//> using keyA ab.ba \"asd \"";
+    UsingDirectives parsedDirective = testCode(1, input);
+    assertValueListAtPath(parsedDirective, "keyA", List.of("ab.ba", "asd "));
+  }
+
+  @Test
   public void testFailMultilineString() {
     String input = joinLines("//> using keyA \"\"\"line1", "//> line2", "//> line3\"\"\"");
     PersistentReporter reporter = reporterAfterParsing(input);
