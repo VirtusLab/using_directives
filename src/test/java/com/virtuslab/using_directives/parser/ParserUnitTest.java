@@ -5,6 +5,7 @@ import static com.virtuslab.using_directives.TestUtils.*;
 
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
 import com.virtuslab.using_directives.reporter.PersistentReporter;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class ParserUnitTest {
@@ -23,6 +24,22 @@ public class ParserUnitTest {
     String input = "//> using keyA 0, , 2";
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueListSize(parsedDirective, "keyA", 3);
+  }
+
+  @Test
+  public void testListNoComma() {
+    String input = "//> using keyA 0 2 3";
+    UsingDirectives parsedDirective = testCode(1, input);
+    assertValueListSize(parsedDirective, "keyA", 3);
+    assertValueListAtPath(parsedDirective, "keyA", List.of("0", "2", "3"));
+  }
+
+  @Test
+  public void testListComma() {
+    String input = "//> using keyA 0, 2, 3";
+    UsingDirectives parsedDirective = testCode(1, input);
+    assertValueListSize(parsedDirective, "keyA", 3);
+    assertValueListAtPath(parsedDirective, "keyA", List.of("0", "2", "3"));
   }
 
   @Test
