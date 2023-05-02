@@ -28,6 +28,13 @@ jobs:
         uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
       - name: Build with Gradle
         run: ./gradlew build
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: JUnit Tests
+          path: "**/test-results/**/*.xml"
+          reporter: java-junit
       - name:  Show version
         run: ./gradlew :printVersion
       - name: Publish snapshot
