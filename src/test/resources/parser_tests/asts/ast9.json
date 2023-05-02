@@ -1,29 +1,17 @@
 {
   "usingDefs": [
     {
-      "settingDefs": {
-        "settings": [
-          {
-            "key": "lib.file",
-            "value": {
-              "type": "string",
-              "value": "../libs/Lib.jar"
-            }
-          }
-        ]
+      "key": "lib.file",
+      "value": {
+        "type": "string",
+        "value": "../libs/Lib.jar"
       }
     },
     {
-      "settingDefs": {
-        "settings": [
-          {
-            "key": "lib.cs",
-            "value": {
-              "type": "string",
-              "value": "org.scalameta :: munit : 0.4.3"
-            }
-          }
-        ]
+      "key": "lib.cs",
+      "value": {
+        "type": "string",
+        "value": "org.scalameta :: munit : 0.4.3"
       }
     }
   ],

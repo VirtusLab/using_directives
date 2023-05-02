@@ -13,9 +13,6 @@ public class CustomGsonInstance {
 
   private static final Gson gsonInstance =
       new GsonBuilder()
-          .registerTypeAdapter(
-              SettingDefOrUsingValue.class, new CustomSettingDefOrUsingValueAdapter())
-          .registerTypeAdapter(UsingDef.class, new CustomUsingDefAdapter())
           .registerTypeAdapter(UsingValue.class, new CustomUsingValueAdapter())
           .registerTypeAdapter(UsingPrimitive.class, new CustomUsingPrimitivesAdapter())
           .registerTypeHierarchyAdapter(Value.class, new CustomValueAdapter())

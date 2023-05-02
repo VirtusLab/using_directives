@@ -1,23 +1,17 @@
 {
   "usingDefs": [
     {
-      "settingDefs": {
-        "settings": [
+      "key": "native-gc",
+      "value": {
+        "type": "list",
+        "value": [
           {
-            "key": "native-gc",
-            "value": {
-              "type": "list",
-              "value": [
-                {
-                  "type": "string",
-                  "value": "78"
-                },
-                {
-                  "type": "string",
-                  "value": "12"
-                }
-              ]
-            }
+            "type": "string",
+            "value": "78"
+          },
+          {
+            "type": "string",
+            "value": "12"
           }
         ]
       }
