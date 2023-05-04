@@ -1,14 +1,8 @@
 {
   "usingDefs": [
     {
-      "settingDefs": {
-        "settings": [
-          {
-            "key": "lib.allowSth",
-            "value":{"type":"empty"}
-          }
-        ]
-      }
+      "key": "lib.allowSth",
+      "value":{"type":"empty"}
     }
   ],
   "codeOffset": 18,

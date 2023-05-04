@@ -6,7 +6,6 @@ import com.virtuslab.using_directives.custom.utils.Source;
 import com.virtuslab.using_directives.custom.utils.ast.*;
 import com.virtuslab.using_directives.reporter.Reporter;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
 
 public class Parser {
@@ -110,47 +109,16 @@ public class Parser {
 
   UsingDef usingDirective() {
     if (isValidUsingDirectiveStart(in.td.token)) {
-      int offset = offset(in.td.offset);
       in.nextToken();
-      return new UsingDef(settings(), source.getPositionFromOffset(offset));
+      int offset = offset(in.td.offset);
+      String key = key();
+      if (key == null) {
+        return null;
+      }
+      UsingValue value = value(offset + key.length());
+      return new UsingDef(key, value, source.getPositionFromOffset(offset));
     }
     return null;
-  }
-
-  private List<SettingDef> parseSettings() {
-    if (in.td.token == Tokens.IDENTIFIER) {
-      List<SettingDef> settings = new ArrayList<>();
-      settings.add(setting());
-      settings.addAll(parseSettings());
-      return settings;
-    } else {
-      return new ArrayList<>();
-    }
-  }
-
-  // > using
-  // > oneKey ...
-  // > secondKey ...
-  // > thirdKey {
-  // > nestedKey1
-  // > nestedKey2
-  // > }
-  SettingDefs settings() {
-    ArrayList<SettingDef> settings = new ArrayList<>();
-    int offset = offset(in.td.offset);
-    if (in.td.token == Tokens.IDENTIFIER) {
-      settings.add(setting());
-    } else {
-      settings.addAll(inBracesOrIndented(this::parseSettings));
-    }
-    return new SettingDefs(settings, source.getPositionFromOffset(offset));
-  }
-
-  SettingDef setting() {
-    int offset = offset(in.td.offset);
-    String key = key();
-    SettingDefOrUsingValue value = valueOrSetting(offset + key.length());
-    return new SettingDef(key, value, source.getPositionFromOffset(offset));
   }
 
   String key() {
@@ -166,10 +134,6 @@ public class Parser {
     }
     error(String.format("Expected identifier but found %s", in.td.token.str));
     return null;
-  }
-
-  SettingDefOrUsingValue valueOrSetting(int keyEnd) {
-    return value(keyEnd);
   }
 
   UsingValue value(int keyEnd) {

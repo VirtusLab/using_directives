@@ -3,25 +3,35 @@ package com.virtuslab.using_directives.custom.utils.ast;
 import com.virtuslab.using_directives.custom.utils.Position;
 
 public class UsingDef extends UsingTree {
-  private SettingDefs settingDefs;
+  private String key;
+  private UsingValue value;
 
-  public UsingDef(SettingDefs settings, Position position) {
+  public UsingDef(String key, UsingValue value, Position position) {
     super(position);
-    this.settingDefs = settings;
+    this.key = key;
+    this.value = value;
   }
 
   public UsingDef() {}
 
-  public void setSettingDefs(SettingDefs settingDefs) {
-    this.settingDefs = settingDefs;
+  public String getKey() {
+    return key;
+  }
+
+  public UsingValue getValue() {
+    return value;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
+  }
+
+  public void setValue(UsingValue value) {
+    this.value = value;
   }
 
   @Override
   public String toString() {
-    return "UsingDef(" + settingDefs + ")";
-  }
-
-  public SettingDefs getSettingDefs() {
-    return settingDefs;
+    return "UsingDef(" + key + ", " + value + ')';
   }
 }

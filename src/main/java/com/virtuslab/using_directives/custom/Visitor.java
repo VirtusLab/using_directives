@@ -35,23 +35,15 @@ public class Visitor {
     return new UsingDirectivesImpl(null, flattenView, root, codeOffset);
   }
 
-  private Map<String, List<Value<?>>> visitSettingsFlat(UsingTree root) {
+  private Map<String, List<Value<?>>> visitUsingsFlat(UsingTree root) {
     if (root instanceof UsingDefs) {
       return ((UsingDefs) root)
           .getUsingDefs().stream()
-              .flatMap(ud -> visitSettingsFlat(ud).entrySet().stream())
+              .flatMap(ud -> visitUsingsFlat(ud).entrySet().stream())
               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, this::merge));
     } else if (root instanceof UsingDef) {
-      return visitSettingsFlat(((UsingDef) root).getSettingDefs());
-    } else if (root instanceof SettingDefs) {
-      return ((SettingDefs) root)
-          .getSettings().stream()
-              .flatMap(s -> visitSettingFlat(s).stream())
-              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, this::merge));
-
-    } else if (root instanceof SettingDef) {
       Map<String, List<Value<?>>> map = new HashMap<>();
-      List<KeyValue<String, List<Value<?>>>> keyValueList = visitSettingFlat((SettingDef) root);
+      List<KeyValue<String, List<Value<?>>>> keyValueList = visitSettingFlat((UsingDef) root);
       keyValueList.forEach(kv -> map.merge(kv.getKey(), kv.getValue(), this::merge));
       return map;
     } else {
@@ -60,73 +52,16 @@ public class Visitor {
     }
   }
 
-  private List<KeyValue<String, List<Value<?>>>> visitSettingFlat(SettingDef setting) {
-    String key = setting.getKey();
-    if (setting.getValue() instanceof SettingDefs) {
-      return ((SettingDefs) setting.getValue())
-          .getSettings().stream()
-              .flatMap(s -> visitSettingFlat(s).stream())
-              .map(kv -> kv.withNewKey(String.format("%s.%s", key, kv.getKey())))
-              .collect(Collectors.toList());
-    } else if (setting.getValue() == null) {
+  private List<KeyValue<String, List<Value<?>>>> visitSettingFlat(UsingDef using) {
+    String key = using.getKey();
+    if (using.getValue() == null) {
       return new ArrayList<>();
     } else {
       return new ArrayList<>(
           Collections.singletonList(
-              new KeyValue<>(key, parseValue((UsingValue) setting.getValue()))));
+              new KeyValue<>(key, parseValue((UsingValue) using.getValue()))));
     }
   }
-
-  //    private Map<String, ValueOrSetting<?>> visitSettings(UsingTree root) {
-  //        if(root instanceof UsingDefs) {
-  //            return ((UsingDefs) root)
-  //                    .getUsingDefs()
-  //                    .stream()
-  //                    .flatMap(ud -> visitSettings(ud).entrySet().stream())
-  //                    .collect(Collectors.toMap(
-  //                            Map.Entry::getKey,
-  //                            Map.Entry::getValue,
-  //                            mergeFunc()
-  //                    ));
-  //        }
-  //        else if(root instanceof UsingDef) {
-  //            return visitSettings(((UsingDef) root).getSettingDefs());
-  //        }
-  //        else if(root instanceof SettingDefs) {
-  //            return ((SettingDefs) root)
-  //                    .getSettings()
-  //                    .stream()
-  //                    .map(this::visitSetting)
-  //                    .collect(Collectors.toMap(
-  //                            Map.Entry::getKey,
-  //                            Map.Entry::getValue,
-  //                            mergeFunc()
-  //                    ));
-  //
-  //        }
-  //        else if(root instanceof SettingDef) {
-  //            Map<String, ValueOrSetting<?>> map = new HashMap<>();
-  //            KeyValue<String, ValueOrSetting<?>> keyValue = visitSetting((SettingDef) root);
-  //            map.put(keyValue.getKey(), keyValue.getValue());
-  //            return map;
-  //        }
-  //        else {
-  //            reporter.error(root.getPosition(), "Provided AST cannot be processed.");
-  //            return null;
-  //        }
-  //    }
-  //
-  //    private KeyValue<String, ValueOrSetting<?>> visitSetting(SettingDef setting) {
-  //        String key = setting.getKey();
-  //        ValueOrSetting<?> v;
-  //        if(setting.getValue() instanceof SettingDefs) {
-  //            v = new Setting(visitSettings(setting.getValue()));
-  //        }
-  //        else {
-  //            v = parseValue((UsingValue) setting.getValue());
-  //        }
-  //        return new KeyValue<>(key, v);
-  //    }
 
   private List<Value<?>> parseValue(UsingValue value) {
     if (value instanceof UsingPrimitive) {
@@ -160,7 +95,7 @@ public class Visitor {
   }
 
   private Map<Path, List<Value<?>>> getFlatView(UsingTree root) {
-    Map<String, List<Value<?>>> intermediate = visitSettingsFlat(root);
+    Map<String, List<Value<?>>> intermediate = visitUsingsFlat(root);
     return intermediate.entrySet().stream()
         .collect(
             Collectors.toMap(
