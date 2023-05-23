@@ -4,8 +4,14 @@ import static com.virtuslab.using_directives.DirectiveAssertions.assertDiagnosti
 import static com.virtuslab.using_directives.DirectiveAssertions.assertValueAtPath;
 import static com.virtuslab.using_directives.DirectiveAssertions.assertValueListAtPath;
 import static com.virtuslab.using_directives.TestUtils.*;
+import static org.junit.jupiter.api.Assertions.*;
 
+import com.virtuslab.using_directives.custom.model.Path;
+import com.virtuslab.using_directives.custom.model.StringValue;
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
+import com.virtuslab.using_directives.custom.model.Value;
+import com.virtuslab.using_directives.custom.utils.ast.StringLiteral;
+import com.virtuslab.using_directives.custom.utils.ast.UsingTree;
 import com.virtuslab.using_directives.reporter.PersistentReporter;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -66,6 +72,18 @@ public class ParserStringTest {
     String input = "//> using foo \"\\u0042\"";
     UsingDirectives parsedDirective = testCode(1, input);
     assertValueAtPath(parsedDirective, "foo", "B");
+  }
+
+  @Test
+  public void testDoubleQuotesString() {
+    String input = "//> using foo \"bar\"";
+    UsingDirectives parsedDirective = testCode(1, input);
+    Value<?> directiveValue = parsedDirective.getFlattenedMap().get(Path.fromString("foo")).get(0);
+    assertInstanceOf(StringValue.class, directiveValue);
+    UsingTree astNode = directiveValue.getRelatedASTNode();
+    assertInstanceOf(StringLiteral.class, astNode);
+    assertTrue(((StringLiteral) astNode).getIsWrappedDoubleQuotes());
+    assertValueAtPath(parsedDirective, "foo", "bar");
   }
 
   @Test

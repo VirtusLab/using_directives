@@ -3,7 +3,7 @@
     {
       "key": "lib.cs",
       "value": {
-        "type": "string",
+        "type": "stringDoubleQuotes",
         "value": "org.scalameta :: munit : 0.4.3"
       }
     }

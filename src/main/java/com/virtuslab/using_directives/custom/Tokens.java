@@ -14,6 +14,7 @@ public enum Tokens {
   FLOATLIT("float literal"),
   DOUBLELIT("double literal"),
   STRINGLIT("string literal"),
+  STRINGLITDOUBLEQUOTES("string literal with double quotes"),
   STRINGPART("string literal", "string literal part"),
   IDENTIFIER("identifier"),
   USING("using"),
