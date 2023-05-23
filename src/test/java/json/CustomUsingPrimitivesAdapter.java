@@ -20,7 +20,7 @@ public class CustomUsingPrimitivesAdapter
     if (type.equals("boolean")) {
       return new BooleanLiteral(jsonObj.get("value").getAsBoolean(), pos, scope);
     } else if (type.equals("string")) {
-      return new StringLiteral(jsonObj.get("value").getAsString(), pos, scope);
+      return new StringLiteral(jsonObj.get("value").getAsString(), pos, scope, false);
     } else if (type.equals("empty")) {
       return new EmptyLiteral(pos, scope);
     } else {
