@@ -170,10 +170,10 @@ public class Parser {
     int offset = offset(in.td.offset);
     UsingPrimitive res = null;
     if (in.td.token == Tokens.STRINGLIT) {
-      res = new StringLiteral(in.td.strVal, source.getPositionFromOffset(offset));
+      res = new StringLiteral(in.td.strVal, source.getPositionFromOffset(offset), true);
       in.nextToken();
     } else if (in.td.token == Tokens.IDENTIFIER) {
-      res = new StringLiteral(in.td.name, source.getPositionFromOffset(offset));
+      res = new StringLiteral(in.td.name, source.getPositionFromOffset(offset), false);
       in.nextToken();
     } else if (in.td.token == Tokens.TRUE) {
       res = new BooleanLiteral(true, source.getPositionFromOffset(offset));
