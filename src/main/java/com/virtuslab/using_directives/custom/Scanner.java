@@ -337,13 +337,11 @@ public class Scanner {
   }
 
   public void getIdentRest() {
-    if (!Character.isWhitespace(reader.ch) && reader.ch != ',' && !reader.isAtEnd()) {
+    while (!Character.isWhitespace(reader.ch) && reader.ch != ',' && !reader.isAtEnd()) {
       putChar(reader.ch);
       reader.nextChar();
-      getIdentRest();
-    } else {
-      finishNamed(Tokens.IDENTIFIER, td);
     }
+    finishNamed(Tokens.IDENTIFIER, td);
   }
 
   public void getOperatorRest() {
