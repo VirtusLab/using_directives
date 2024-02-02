@@ -157,4 +157,11 @@ public class ParserUnitTest {
     assertDiagnostic(
         reporter, 1, 8, "Expected new line after the using directive, in the line; but found");
   }
+
+  @Test
+  public void testInvalidPrimitive() {
+    String input = "using dep com.lihaoyi :: fastparse : 3.0.2";
+    PersistentReporter reporter = reporterAfterParsing(input);
+    assertDiagnostic(reporter, 0, 35, "Invalid primitive: :");
+  }
 }
