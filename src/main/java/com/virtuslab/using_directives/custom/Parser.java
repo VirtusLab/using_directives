@@ -116,6 +116,9 @@ public class Parser {
         return null;
       }
       UsingValue value = value(offset + key.length());
+      if (value == null) {
+        return null;
+      }
       return new UsingDef(key, value, source.getPositionFromOffset(offset));
     }
     return null;
@@ -141,7 +144,10 @@ public class Parser {
     boolean isAfterLineEnd = in.td.isAfterLineEnd();
     UsingPrimitive p = primitive(keyEnd);
 
-    if (isAfterLineEnd) {
+    if (p == null) {
+      error(String.format("Invalid primitive: %s", in.td.token.str));
+      return null;
+    } else if (isAfterLineEnd) {
       return new EmptyLiteral(source.getPositionFromOffset(keyEnd));
     } else if (in.td.token != Tokens.EOF && !(in.td.isAfterLineEnd())) {
       int commaIndex = in.td.offset;
@@ -150,7 +156,9 @@ public class Parser {
         in.nextToken();
       }
       UsingValue rest = value(commaIndex);
-      if (rest instanceof UsingPrimitive) {
+      if (rest == null) {
+        return null;
+      } else if (rest instanceof UsingPrimitive) {
         ArrayList<UsingPrimitive> res = new ArrayList<>();
         res.add(p);
         if (!(rest instanceof EmptyLiteral)) {
@@ -181,8 +189,10 @@ public class Parser {
     } else if (in.td.token == Tokens.FALSE) {
       res = new BooleanLiteral(false, source.getPositionFromOffset(offset));
       in.nextToken();
-    } else {
+    } else if (in.td.token == Tokens.COMMA || in.td.token == Tokens.EOF || in.td.isAfterLineEnd()) {
       res = new EmptyLiteral(source.getPositionFromOffset(keyEnd));
+    } else {
+      res = null;
     }
     return res;
   }
