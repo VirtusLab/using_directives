@@ -5,6 +5,7 @@ import com.virtuslab.using_directives.custom.utils.Position;
 public class ConsoleReporter implements Reporter {
 
   private int errorCount = 0;
+  private int warningCount = 0;
 
   private String msgWithPos(Position pos, String msg) {
     return String.format("%d:%d:\n%s", pos.getLine(), pos.getLine(), msg);
@@ -26,6 +27,7 @@ public class ConsoleReporter implements Reporter {
 
   @Override
   public void warning(String msg) {
+    warningCount++;
     System.out.println(warningMessage(msg));
   }
 
@@ -42,6 +44,11 @@ public class ConsoleReporter implements Reporter {
   @Override
   public boolean hasErrors() {
     return errorCount != 0;
+  }
+
+  @Override
+  public boolean hasWarnings() {
+    return warningCount != 0;
   }
 
   @Override

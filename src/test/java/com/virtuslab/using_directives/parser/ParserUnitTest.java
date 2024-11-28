@@ -141,6 +141,16 @@ public class ParserUnitTest {
   }
 
   @Test
+  public void deprecatedCommas() {
+    PersistentReporter reporter = reporterAfterParsing("using keyA 42, 34, 55");
+    assertDiagnostic(
+        reporter,
+        0,
+        11,
+        "Use of commas as separators is deprecated. Only whitespace is neccessary.");
+  }
+
+  @Test
   public void testFailWildcardQuotedIdentifier() {
     PersistentReporter reporter = reporterAfterParsing("using `keyA_foo` 42");
     assertDiagnostic(reporter, 0, 6, "wildcard invalid as backquoted identifier");
