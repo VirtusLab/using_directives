@@ -3,7 +3,9 @@ package com.virtuslab.using_directives.parser;
 import static com.virtuslab.using_directives.DirectiveAssertions.*;
 import static com.virtuslab.using_directives.TestUtils.*;
 
+import com.virtuslab.using_directives.custom.model.Path;
 import com.virtuslab.using_directives.custom.model.UsingDirectives;
+import com.virtuslab.using_directives.custom.model.Value;
 import com.virtuslab.using_directives.reporter.PersistentReporter;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -163,5 +165,16 @@ public class ParserUnitTest {
     String input = "using dep com.lihaoyi :: fastparse : 3.0.2";
     PersistentReporter reporter = reporterAfterParsing(input);
     assertDiagnostic(reporter, 0, 35, "Invalid primitive: :");
+  }
+
+  @Test
+  public void testListJustComma() {
+    String input = "//> using keyA 0,2,3";
+    UsingDirectives parsedDirective = testCode(1, input);
+    List<Value<?>> values = parsedDirective.getFlattenedMap().get(Path.fromString("keyA"));
+    System.out.println(parsedDirective);
+    System.out.println("values " + values.size());
+    assertValueListSize(parsedDirective, "keyA", 1);
+    assertValueListAtPath(parsedDirective, "keyA", List.of("0,2,3"));
   }
 }
