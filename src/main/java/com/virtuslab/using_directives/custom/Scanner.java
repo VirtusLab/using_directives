@@ -54,6 +54,10 @@ public class Scanner {
     error(msg, td.offset);
   }
 
+  private void warn(String msg) {
+    reporter.warning(source.getPositionFromOffset(td.offset), msg);
+  }
+
   private void errorButContinue(String msg, int offset) {
     reporter.error(source.getPositionFromOffset(offset), msg);
   }
@@ -248,7 +252,8 @@ public class Scanner {
             }
         }
       }
-    } else if (ch == ',') {
+    } else if (ch == ',' && Character.isWhitespace(reader.lookaheadChar())) {
+      warn("Use of commas as separators is deprecated. Only whitespace is neccessary.");
       reader.nextChar();
       td.token = Tokens.COMMA;
     } else if (ch == SU) {
@@ -337,11 +342,15 @@ public class Scanner {
   }
 
   public void getIdentRest() {
-    if (!Character.isWhitespace(reader.ch) && reader.ch != ',' && !reader.isAtEnd()) {
+    if (!Character.isWhitespace(reader.ch)
+        && !reader.isAtEnd()
+        && !(reader.ch == ',' && Character.isWhitespace(reader.lookaheadChar()))) {
       putChar(reader.ch);
       reader.nextChar();
       getIdentRest();
     } else {
+      if (reader.ch == ',' && Character.isWhitespace(reader.lookaheadChar()))
+        warn("Use of commas as separators is deprecated. Only whitespace is neccessary.");
       finishNamed(Tokens.IDENTIFIER, td);
     }
   }

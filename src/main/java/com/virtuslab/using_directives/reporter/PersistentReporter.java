@@ -59,6 +59,11 @@ public class PersistentReporter implements Reporter {
   }
 
   @Override
+  public boolean hasWarnings() {
+    return diagnostics.stream().filter(d -> !d.isError).count() > 0;
+  }
+
+  @Override
   public void reset() {
     this.diagnostics = new ArrayList<>();
   }

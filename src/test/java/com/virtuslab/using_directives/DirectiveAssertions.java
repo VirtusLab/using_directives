@@ -83,7 +83,7 @@ public class DirectiveAssertions {
 
   public static void assertDiagnostic(
       PersistentReporter reporter, int expectedLine, int expectedColumn, String... expectedWords) {
-    assertTrue(reporter.hasErrors());
+    assertTrue(reporter.hasErrors() || reporter.hasWarnings());
     assertDiagnostic(reporter.getDiagnostics().get(0), expectedLine, expectedColumn, expectedWords);
   }
 

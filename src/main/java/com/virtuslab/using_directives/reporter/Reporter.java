@@ -13,5 +13,7 @@ public interface Reporter {
 
   boolean hasErrors();
 
+  boolean hasWarnings();
+
   void reset();
 }
