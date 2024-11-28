@@ -248,7 +248,7 @@ public class Scanner {
             }
         }
       }
-    } else if (ch == ',') {
+    } else if (ch == ',' && Character.isWhitespace(reader.lookaheadChar())) {
       reader.nextChar();
       td.token = Tokens.COMMA;
     } else if (ch == SU) {
@@ -337,7 +337,9 @@ public class Scanner {
   }
 
   public void getIdentRest() {
-    while (!Character.isWhitespace(reader.ch) && reader.ch != ',' && !reader.isAtEnd()) {
+    while (!Character.isWhitespace(reader.ch)
+        && !(reader.ch == ',' && Character.isWhitespace(reader.lookaheadChar()))
+        && !reader.isAtEnd()) {
       putChar(reader.ch);
       reader.nextChar();
     }
