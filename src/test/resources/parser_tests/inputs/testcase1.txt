@@ -1,3 +1,4 @@
 using lib.cs "org.scalameta :: munit : 0.4.3"
 using lib.cs "com.atlassian.commonmark:commonmark:0.13.1"
 using compiler.setting "-Xfatal-warnings", "-d ~/classes"
+using dep tabby:tabby:0.2.3,url=https://github.com/bjornregnell/tabby/releases/download/v0.2.3/tabby_3-0.2.3.jar
