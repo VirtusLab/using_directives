@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        OS: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        OS: ["ubuntu-22.04", "macos-latest", "windows-latest"]
     steps:
       - name: Set Git to preserve original line endings
         run: |
@@ -38,7 +38,7 @@ jobs:
       - name:  Show version
         run: ./gradlew :printVersion
       - name: Publish snapshot
-        if: ${{ github.event_name == 'push' && matrix.OS == 'ubuntu-latest' }}
+        if: ${{ github.event_name == 'push' && matrix.OS == 'ubuntu-22.04' }}
         run: ./gradlew publishReleasePublicationToSonatypeRepository --max-workers 1 closeAndReleaseSonatypeStagingRepository
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
