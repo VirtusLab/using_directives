@@ -146,7 +146,7 @@ public class ParserUnitTest {
     assertDiagnostic(
         reporter,
         0,
-        11,
+        13,
         "Use of commas as separators is deprecated. Only whitespace is neccessary.");
   }
 
