@@ -349,8 +349,6 @@ public class Scanner {
       reader.nextChar();
       getIdentRest();
     } else {
-      if (reader.ch == ',' && Character.isWhitespace(reader.lookaheadChar()))
-        warn("Use of commas as separators is deprecated. Only whitespace is neccessary.");
       finishNamed(Tokens.IDENTIFIER, td);
     }
   }
