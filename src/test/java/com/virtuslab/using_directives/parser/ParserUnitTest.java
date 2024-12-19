@@ -187,4 +187,23 @@ public class ParserUnitTest {
     assertValueListSize(parsedDirective, "keyA", 1);
     assertValueListAtPath(parsedDirective, "keyA", List.of("0,2,3"));
   }
+
+  @Test
+  public void testAsterisksAndSlashes() {
+    String input = "//> using exclude */*/Foo.scala";
+    UsingDirectives parsedDirective = testCode(1, input);
+    assertValueListSize(parsedDirective, "exclude", 1);
+    assertValueListAtPath(parsedDirective, "exclude", List.of("*/*/Foo.scala"));
+  }
+
+  @Test
+  public void oldCommentsArentSkipped() {
+    String input = "//> using /* comment1 */ notTheKeyActually /* comment2 */ 42";
+    UsingDirectives parsedDirective = testCode(1, input);
+    assertValueListSize(parsedDirective, "/*", 7);
+    assertValueListAtPath(
+        parsedDirective,
+        "/*",
+        List.of("comment1", "*/", "notTheKeyActually", "/*", "comment2", "*/", "42"));
+  }
 }

@@ -188,7 +188,7 @@ public class Scanner {
       reader.nextChar();
       getOperatorRest();
     } else if (ch == '/') {
-      if (skipComment()) return true;
+      if (skipLine()) return true;
       else {
         putChar('/');
         getOperatorRest();
@@ -272,7 +272,7 @@ public class Scanner {
   }
 
   // Unsupported: Keeping comments
-  private boolean skipComment() {
+  private boolean skipLine() {
     Runnable skipLine =
         () -> {
           reader.nextChar();
@@ -280,37 +280,9 @@ public class Scanner {
             reader.nextChar();
           }
         };
-    Runnable skipComment =
-        () -> {
-          int nested = 0;
-          boolean flag = true;
-          while (flag) {
-            if (reader.ch == '/') {
-              reader.nextChar();
-              if (reader.ch == '*') {
-                nested += 1;
-                reader.nextChar();
-              }
-            } else if (reader.ch == '*') {
-              reader.nextChar();
-              if (reader.ch == '/') {
-                if (nested > 0) {
-                  nested -= 1;
-                } else flag = false;
-                reader.nextChar();
-              }
-            } else {
-              reader.nextChar();
-            }
-          }
-        };
     reader.nextChar();
     if (reader.ch == '/') {
       skipLine.run();
-      return true;
-    } else if (reader.ch == '*') {
-      reader.nextChar();
-      skipComment.run();
       return true;
     } else {
       return false;
@@ -378,7 +350,7 @@ public class Scanner {
         break;
       case '/':
         char nxch = reader.lookaheadChar();
-        if (nxch == '/' || nxch == '*') finishNamed(Tokens.IDENTIFIER, td);
+        if (nxch == '/') finishNamed(Tokens.IDENTIFIER, td);
         else {
           putChar(reader.ch);
           reader.nextChar();
